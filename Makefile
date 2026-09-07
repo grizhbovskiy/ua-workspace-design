@@ -1,5 +1,7 @@
 .DEFAULT_GOAL := help
 
+SHELL := /bin/bash
+
 OPENCODE_CONFIG := $(HOME)/.config/opencode/opencode.json
 SUPERPOWERS_PLUGIN := superpowers@git+https://github.com/obra/superpowers.git
 
@@ -40,14 +42,14 @@ lokalise: ## Install Lokalise MCP for OpenCode
 		echo "Error: API key cannot be empty"; \
 		exit 1; \
 	fi; \
-	node -e " \
+	LOKALISE_API_KEY_INPUT="$$api_key" node -e " \
 		const fs = require('fs'); \
 		const cfg = JSON.parse(fs.readFileSync('$(OPENCODE_CONFIG)', 'utf8')); \
 		cfg.mcp = cfg.mcp || {}; \
 		cfg.mcp.lokalise = { \
 			command: 'npx', \
 			args: ['-y', 'lokalise-mcp'], \
-			env: { LOKALISE_API_KEY: '$$api_key' }, \
+			env: { LOKALISE_API_KEY: process.env.LOKALISE_API_KEY_INPUT }, \
 			enabled: true, \
 			type: 'local' \
 		}; \
