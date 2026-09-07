@@ -1,0 +1,13 @@
+{
+  "enabledPlugins": {
+    "design-engineer@design-engineer-plugin": true
+  },
+  "extraKnownMarketplaces": {
+    "design-engineer-plugin": {
+      "source": {
+        "source": "github",
+        "repo": "volomydyr/design-engineer-plugin"
+      }
+    }
+  }
+}
