@@ -36,7 +36,7 @@
    ```
    > Після цього відредагуй `CLAUDE.md` — додай контекст свого проєкту.
    >
-   > Mobbin MCP для Claude Code підключено через `.mcp.json`. При першому запуску підтверди сервер, потім виконай `/mcp` → `mobbin` → Authenticate.
+   > Mobbin MCP для Claude Code підключено через `.mcp.json`. При першому запуску підтверди сервер, потім виконай `/mcp` (без аргументів), обери `mobbin` у списку → Authenticate. Або глобально для всіх проєктів: `claude mcp add mobbin --scope user --transport http https://api.mobbin.com/mcp`.
 
 ## Доступні команди
 
