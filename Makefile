@@ -2,8 +2,9 @@
 
 OPENCODE_CONFIG := $(HOME)/.config/opencode/opencode.json
 SUPERPOWERS_PLUGIN := superpowers@git+https://github.com/obra/superpowers.git
+MOBBIN_MCP_URL := https://api.mobbin.com/mcp
 
-.PHONY: brew superpowers lokalise claude all help
+.PHONY: brew superpowers lokalise mobbin claude all help
 
 help: ## Show available commands
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -55,6 +56,25 @@ lokalise: ## Install Lokalise MCP for OpenCode
 	" && echo "Lokalise MCP added to $(OPENCODE_CONFIG)"; \
 	echo "Restart OpenCode to activate Lokalise."
 
+mobbin: ## Install Mobbin MCP for OpenCode
+	@if [ ! -f "$(OPENCODE_CONFIG)" ]; then \
+		echo "Error: OpenCode config not found at $(OPENCODE_CONFIG)"; \
+		exit 1; \
+	fi
+	@node -e " \
+		const fs = require('fs'); \
+		const cfg = JSON.parse(fs.readFileSync('$(OPENCODE_CONFIG)', 'utf8')); \
+		cfg.mcp = cfg.mcp || {}; \
+		cfg.mcp.mobbin = { \
+			type: 'remote', \
+			url: '$(MOBBIN_MCP_URL)', \
+			enabled: true \
+		}; \
+		fs.writeFileSync('$(OPENCODE_CONFIG)', JSON.stringify(cfg, null, 2) + '\n'); \
+	" && echo "Mobbin MCP added to $(OPENCODE_CONFIG)"
+	@echo "Run 'opencode mcp auth mobbin' to sign in (requires a paid Mobbin plan)."
+	@echo "Restart OpenCode to activate Mobbin."
+
 claude: ## Setup Claude Code config for this project
 	@mkdir -p .claude
 	@if [ ! -f ".claude/settings.json" ]; then \
@@ -65,4 +85,4 @@ claude: ## Setup Claude Code config for this project
 	fi
 	@echo "Claude Code config ready. Edit CLAUDE.md to add project context."
 
-all: brew superpowers lokalise ## Full setup: brew + superpowers + lokalise
+all: brew superpowers lokalise mobbin ## Full setup: brew + superpowers + lokalise + mobbin
