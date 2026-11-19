@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Головна — картка в кишені</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap">
+<style>
+  :root {
+    --ink: #1F1F24;
+    --sheet: #F6F4EF;
+    --muted: #5E5C66;
+    --link: #0B6E92;
+    --header: #4FA07E;
+    --peek: 84px;
+    --top-closed: 236px;
+    --top-open: 112px;
+    --spring: cubic-bezier(.32, 1.28, .52, 1);
+    --ease: cubic-bezier(.2, .8, .2, 1);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: #D9D6CF;
+    font-family: 'Onest', system-ui, sans-serif;
+    color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-variant-numeric: tabular-nums;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button { font-family: inherit; color: inherit; cursor: pointer; }
+  button:focus-visible { outline: 3px solid #0B6E92; outline-offset: 2px; }
+
+  /* Phone frame on desktop, full screen on a phone */
+  .phone {
+    position: relative; width: 390px; height: 844px; overflow: hidden;
+    border-radius: 44px; background: var(--header);
+    box-shadow: 0 30px 80px rgba(0,0,0,.25), 0 0 0 10px #111;
+    transition: background .3s;
+  }
+  @media (max-width: 500px) {
+    body { display: block; background: var(--header); }
+    .phone { width: 100%; height: 100dvh; border-radius: 0; box-shadow: none; }
+  }
+
+  /* Top bar */
+  .topbar { position: absolute; left: 16px; right: 16px; top: 52px; height: 44px; display: flex; justify-content: space-between; align-items: center; color: #fff; z-index: 5; }
+  .left-slot { position: relative; height: 44px; flex: 1; }
+  .avatar, .back { position: absolute; left: 0; top: 0; transition: opacity .25s, transform .35s var(--ease); }
+  .avatar { width: 44px; height: 44px; border-radius: 22px; border: 0; background: #26252B; color: #fff; font-weight: 600; font-size: 15px; }
+  .back { display: flex; align-items: center; gap: 8px; opacity: 0; transform: translateX(-8px); pointer-events: none; }
+  .back button { width: 44px; height: 44px; border-radius: 22px; border: 0; background: rgba(255,255,255,.22); color: #fff; display: flex; align-items: center; justify-content: center; }
+  .back span { font-size: 17px; font-weight: 600; white-space: nowrap; }
+  .open .avatar { opacity: 0; transform: scale(.8); pointer-events: none; }
+  .open .back { opacity: 1; transform: none; pointer-events: auto; transition-delay: .12s; }
+  .icons { display: flex; background: rgba(255,255,255,.22); border-radius: 24px; }
+  .icons button { width: 44px; height: 44px; border: 0; background: transparent; color: #fff; display: flex; align-items: center; justify-content: center; }
+
+  /* Balance */
+  .balance { position: absolute; left: 0; right: 0; top: 122px; text-align: center; color: #fff; transition: opacity .22s, transform .4s var(--ease); }
+  .balance .label { font-size: 14px; opacity: .85; }
+  .balance .sum { margin-top: 4px; font-size: 44px; font-weight: 700; letter-spacing: -1px; line-height: 1.1; }
+  .balance .sum small { font-size: 28px; }
+  .open .balance { opacity: 0; transform: translateY(-18px) scale(.96); }
+
+  /* Cards */
+  .cards { position: absolute; left: 0; right: 0; height: 216px; top: var(--top-closed); transition: top .55s var(--spring); touch-action: pan-y; }
+  .open .cards { top: var(--top-open); }
+  .track { display: flex; gap: 10px; padding-left: 24px; transition: transform .45s var(--ease); }
+  .card { position: relative; flex: 0 0 342px; height: 216px; border-radius: 20px; overflow: hidden; border: 0; padding: 0; text-align: left; transition: opacity .25s, transform .4s var(--ease), box-shadow .4s; }
+  .open .card.current { box-shadow: 0 18px 40px -12px rgba(0,0,0,.35); }
+  .open .card.before { opacity: 0; transform: translateX(-40px); }
+  .open .card.after { opacity: 0; transform: translateX(40px); }
+  .card .face { position: absolute; inset: 0; pointer-events: none; }
+  .card .row1 { position: absolute; left: 18px; right: 18px; top: 16px; display: flex; justify-content: space-between; align-items: center; }
+  .card .name { font-size: 13px; font-weight: 600; }
+  .card .brand { font-size: 20px; font-weight: 800; font-style: italic; letter-spacing: -.5px; }
+
+  /* Short row (collapsed) */
+  .short { position: absolute; left: 18px; top: 42px; display: flex; gap: 10px; align-items: center; height: 22px; transition: opacity .18s, transform .3s var(--ease); }
+  .short .n { font-size: 17px; font-weight: 600; }
+  .short .d { font-size: 15px; }
+  .open .current .short { opacity: 0; transform: translateY(-6px); }
+
+  /* Full number (expanded) */
+  .pan { position: absolute; left: 18px; right: 18px; top: 92px; display: flex; align-items: center; gap: 12px; }
+  .pan .g { font-size: 23px; font-weight: 600; letter-spacing: 1px; opacity: 0; transform: translateY(8px); filter: blur(4px); transition: opacity .25s, transform .35s var(--ease), filter .3s; }
+  .open .current .pan .g { opacity: 1; transform: none; filter: none; }
+  .open .current .pan .g:nth-child(1) { transition-delay: .26s; }
+  .open .current .pan .g:nth-child(2) { transition-delay: .32s; }
+  .open .current .pan .g:nth-child(3) { transition-delay: .38s; }
+  .open .current .pan .g:nth-child(4) { transition-delay: .44s; }
+  .meta { position: absolute; left: 18px; right: 18px; bottom: 16px; display: flex; gap: 28px; align-items: flex-end; opacity: 0; transform: translateY(8px); transition: opacity .25s, transform .35s var(--ease); }
+  .open .current .meta { opacity: 1; transform: none; transition-delay: .5s; }
+  .meta .k { font-size: 12px; }
+  .meta .v { font-size: 17px; font-weight: 600; margin-top: 2px; }
+  .card-btns { position: absolute; right: 12px; bottom: 10px; display: flex; gap: 4px; opacity: 0; pointer-events: none; transition: opacity .25s; }
+  .open .current .card-btns { opacity: 1; pointer-events: auto; transition-delay: .5s; }
+  .card-btns .ib { width: 44px; height: 44px; border-radius: 22px; border: 0; background: rgba(0,0,0,.08); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .dark .card-btns .ib { background: rgba(255,255,255,.14); color: #fff; }
+
+  /* Card skins */
+  .yellow { background: #FFE100; color: var(--ink); }
+  .yellow .sub { color: #4A4200; }
+  .yellow .stripe { position: absolute; left: 170px; top: -60px; width: 64px; height: 360px; background: #F7CF00; transform: rotate(28deg); }
+  .dark { background: #24232A; color: #fff; }
+  .dark .sub { color: #BDBAC8; }
+  .dark .art { position: absolute; right: -10px; bottom: -30px; font-size: 120px; font-weight: 800; letter-spacing: -6px; color: #FFE100; opacity: .22; }
+  .pearl { background: #EFECE4; color: var(--ink); }
+  .pearl .sub { color: var(--muted); }
+  .pearl .stripes { position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(31,31,36,.06) 0 8px, rgba(31,31,36,0) 8px 16px); transition: opacity .4s; }
+  .activated .pearl .stripes { opacity: 0; }
+
+  .badge { pointer-events: auto; height: 44px; margin: -11px 0; padding: 0; border: 0; background: transparent; display: flex; align-items: center; }
+  .badge span.pill { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px 0 4px; border-radius: 13px; background: var(--ink); color: #fff; font-size: 13px; font-weight: 600; }
+  .badge .bolt { width: 18px; height: 18px; border-radius: 9px; background: #FFE100; display: flex; align-items: center; justify-content: center; }
+  .activated .badge { display: none; }
+  .date-new { display: none; }
+  .activated .date-new { display: inline; }
+
+  /* Sheet */
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; top: calc(var(--top-closed) + var(--peek)); background: var(--sheet); border-radius: 28px 28px 0 0; box-shadow: 0 -6px 20px rgba(0,0,0,.12); transition: top .5s var(--ease); z-index: 2; }
+  .open .sheet { top: calc(var(--top-open) + 216px + 20px); }
+  .pane { position: absolute; inset: 0; overflow-y: auto; padding-bottom: 110px; transition: opacity .25s, transform .4s var(--ease); scrollbar-width: none; }
+  .pane::-webkit-scrollbar { display: none; }
+  .pane.card-pane { opacity: 0; transform: translateY(16px); pointer-events: none; }
+  .open .pane.home-pane { opacity: 0; transform: translateY(16px); pointer-events: none; }
+  .open .pane.card-pane { opacity: 1; transform: none; pointer-events: auto; transition-delay: .2s; }
+
+  .dots { display: flex; justify-content: center; padding-top: 6px; }
+  .dots button { width: 24px; height: 24px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center; padding: 0; }
+  .dots i { display: block; height: 6px; width: 6px; border-radius: 3px; background: #B9B5AB; transition: all .3s; }
+  .dots .on i { width: 20px; background: var(--ink); }
+
+  .grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; padding: 10px 12px 0; }
+  .grid4 button { border: 0; background: transparent; display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; line-height: 1.25; }
+  .tile { width: 56px; height: 56px; border-radius: 18px; display: flex; align-items: center; justify-content: center; }
+  .tile.dk { background: #26252B; color: #fff; }
+  .tile.lt { background: #fff; color: var(--ink); }
+
+  .ops { margin: 22px 16px 0; background: #fff; border-radius: 22px; overflow: hidden; }
+  .op { display: flex; align-items: center; gap: 12px; padding: 16px; }
+  .op .ic { width: 44px; height: 44px; border-radius: 22px; background: #EDE8FB; color: #5B47B0; display: flex; align-items: center; justify-content: center; flex: none; }
+  .op .t { flex: 1; min-width: 0; }
+  .op .t b { display: block; font-size: 15px; font-weight: 600; }
+  .op .t span { font-size: 13px; color: #6A6872; }
+  .op .a { font-size: 15px; font-weight: 600; white-space: nowrap; }
+  .ops .all { width: 100%; min-height: 48px; border: 0; border-top: 1px solid #EEEBE4; background: #fff; color: var(--link); font-size: 15px; font-weight: 600; }
+  h2 { margin: 24px 16px 8px; font-size: 18px; font-weight: 700; }
+  .cta { display: none; margin: 18px 16px 0; width: calc(100% - 32px); min-height: 52px; border: 0; border-radius: 26px; background: #FFE100; font-size: 17px; font-weight: 700; }
+  .needs-activation .cta { display: block; }
+  .needs-activation .card-actions { display: none; }
+
+  /* Bottom nav */
+  nav { position: absolute; left: 12px; right: 12px; bottom: 14px; background: rgba(255,255,255,.95); border-radius: 32px; box-shadow: 0 8px 24px rgba(20,18,40,.12); padding: 6px; display: flex; z-index: 6; }
+  nav button { flex: 1; min-height: 56px; border: 0; background: transparent; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 11px; font-weight: 500; }
+  nav button.on { flex: 1.25; border-radius: 26px; background: #E3EEF3; color: var(--link); font-weight: 600; }
+
+  .toast { position: absolute; left: 16px; right: 16px; top: 52px; background: var(--ink); color: #fff; border-radius: 18px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 24px rgba(0,0,0,.25); z-index: 10; opacity: 0; transform: translateY(-12px); pointer-events: none; transition: opacity .25s, transform .35s var(--ease); }
+  .toast.show { opacity: 1; transform: none; }
+  .toast .ok { width: 26px; height: 26px; border-radius: 13px; background: #3DBE6E; display: flex; align-items: center; justify-content: center; flex: none; }
+
+  .controls { position: fixed; right: 16px; bottom: 16px; background: #fff; border-radius: 16px; padding: 12px 14px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.12); display: flex; flex-direction: column; gap: 8px; }
+  .controls label { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+  @media (max-width: 900px) { .controls { display: none; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; transition-delay: 0s !important; } }
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+
+  <div class="topbar">
+    <div class="left-slot">
+      <button class="avatar" aria-label="Профіль">МН</button>
+      <div class="back">
+        <button id="collapse" aria-label="Згорнути картку"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+        <span id="title">Віртуальна</span>
+      </div>
+    </div>
+    <div class="icons">
+      <button aria-label="QR"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v1M14 20h1M18 18v3h3"/></svg></button>
+      <button aria-label="Сповіщення"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 17V11a6 6 0 0112 0v6l1.5 2h-15zM10 21h4"/></svg></button>
+      <button aria-label="Мої картки"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="7" width="15" height="11" rx="2"/><path d="M7 4h12a2 2 0 012 2v9"/></svg></button>
+    </div>
+  </div>
+
+  <div class="balance">
+    <div class="label">Власні кошти</div>
+    <div class="sum">43 069<small>,61 ₴</small></div>
+  </div>
+
+  <div class="cards" id="cards">
+    <div class="track" id="track">
+
+      <button class="card yellow" data-i="0" aria-label="Картка Віртуальна, закінчується на 8721">
+        <div class="face">
+          <div class="stripe"></div>
+          <div class="row1"><span class="name sub">Віртуальна</span><span class="brand">VISA</span></div>
+          <div class="short"><span class="n">•• 8721</span><span class="d sub">11/26</span></div>
+          <div class="pan"><span class="g">4149</span><span class="g">2290</span><span class="g">1187</span><span class="g">8721</span></div>
+          <div class="meta">
+            <div><div class="k sub">Діє до</div><div class="v">11/26</div></div>
+            <div><div class="k sub">CVV</div><div class="v cvv">•••</div></div>
+          </div>
+        </div>
+        <div class="card-btns">
+          <span role="button" tabindex="0" class="ib js-cvv" aria-label="Показати CVV"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <span role="button" tabindex="0" class="ib js-copy" aria-label="Скопіювати номер"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2"/></svg></span>
+        </div>
+      </button>
+
+      <button class="card dark" data-i="1" aria-label="Кредитна картка 100 днів, закінчується на 3307">
+        <div class="face">
+          <div class="art">100</div>
+          <div class="row1"><span class="name sub">100 днів</span><span class="brand">VISA</span></div>
+          <div class="short"><span class="n">•• 3307</span><span class="d sub">08/28</span></div>
+          <div class="pan"><span class="g">4149</span><span class="g">5512</span><span class="g">0094</span><span class="g">3307</span></div>
+          <div class="meta">
+            <div><div class="k sub">Діє до</div><div class="v">08/28</div></div>
+            <div><div class="k sub">CVV</div><div class="v cvv">•••</div></div>
+          </div>
+        </div>
+        <div class="card-btns">
+          <span role="button" tabindex="0" class="ib js-cvv" aria-label="Показати CVV"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <span role="button" tabindex="0" class="ib js-copy" aria-label="Скопіювати номер"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2"/></svg></span>
+        </div>
+      </button>
+
+      <button class="card pearl" data-i="2" aria-label="Нова картка, закінчується на 4410, потрібна активація">
+        <div class="face">
+          <div class="stripes"></div>
+          <div class="row1"><span class="name sub">Нова картка</span><span class="brand">VISA</span></div>
+          <div class="short"><span class="n">•• 4410</span>
+            <span class="badge js-activate" role="button" tabindex="0" aria-label="Активувати картку"><span class="pill"><span class="bolt"><svg width="11" height="11" viewBox="0 0 24 24" fill="#1F1F24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span>Активувати</span></span>
+            <span class="d sub date-new">09/30</span>
+          </div>
+          <div class="pan"><span class="g">4149</span><span class="g">7031</span><span class="g">6620</span><span class="g">4410</span></div>
+          <div class="meta">
+            <div><div class="k sub">Діє до</div><div class="v">09/30</div></div>
+            <div><div class="k sub">CVV</div><div class="v cvv">•••</div></div>
+          </div>
+        </div>
+        <div class="card-btns">
+          <span role="button" tabindex="0" class="ib js-cvv" aria-label="Показати CVV"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <span role="button" tabindex="0" class="ib js-copy" aria-label="Скопіювати номер"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2"/></svg></span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <div class="sheet">
+    <div class="pane home-pane">
+      <div class="dots" id="dots">
+        <button aria-label="Картка 1"><i></i></button>
+        <button aria-label="Картка 2"><i></i></button>
+        <button aria-label="Картка 3"><i></i></button>
+      </div>
+      <div class="grid4">
+        <button><span class="tile dk"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M8 12h8M13 9l3 3-3 3"/></svg></span>Переказ<br>на картку</button>
+        <button><span class="tile dk"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21zM9 8h6M9 12h6M9 16h4"/></svg></span>Платіж<br>за IBAN</button>
+        <button><span class="tile dk"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg></span>Поповнити<br>мобільний</button>
+        <button><span class="tile dk"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M15 12.5h3M3 9h18"/></svg></span>Усі<br>платежі</button>
+      </div>
+      <div class="ops">
+        <div class="op"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21zM9 8h6M9 12h6"/></svg></span><div class="t"><b>ФОП Ягусевич А. М.</b><span>Послуги</span></div><div class="a">−12 000,00 ₴</div></div>
+        <button class="all">Всі операції</button>
+      </div>
+    </div>
+
+    <div class="pane card-pane" id="cardPane">
+      <button class="cta js-activate">Активувати картку</button>
+      <div class="grid4 card-actions" style="padding-top:20px">
+        <button><span class="tile lt"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h6M7 14h10"/></svg></span>Реквізити</button>
+        <button><span class="tile lt"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="7" width="20" height="10" rx="3"/><circle cx="7" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="17" cy="12" r="1.3"/></svg></span>PIN-код</button>
+        <button><span class="tile lt"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span>Заблокувати</button>
+        <button><span class="tile lt"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 18a8 8 0 1116 0M12 18l4-5"/></svg></span>Ліміти</button>
+      </div>
+      <h2>Операції по картці</h2>
+      <div class="ops" style="margin-top:0">
+        <div class="op"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21zM9 8h6M9 12h6"/></svg></span><div class="t"><b>ФОП Ягусевич А. М.</b><span>Послуги</span></div><div class="a">−12 000,00 ₴</div></div>
+      </div>
+    </div>
+  </div>
+
+  <nav>
+    <button class="on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l9 8h-2.5v9h-5v-6h-3v6h-5v-9H3z"/></svg>Головна</button>
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 15l3-3 2 2 3-4"/></svg>Кредити</button>
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8.5 12h7"/></svg>Накопичення</button>
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Послуги</button>
+    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="9" width="16" height="11" rx="1"/><path d="M3 6h18v3H3zM12 6v14"/></svg>Raif+</button>
+  </nav>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"><span class="ok"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" aria-hidden="true"><path d="M5 12l4.5 4.5L19 7"/></svg></span><span id="toastText"></span></div>
+</div>
+
+<div class="controls" aria-label="Налаштування прототипу">
+  <label>Шапка
+    <select id="theme"><option value="#4FA07E">Зелена</option><option value="#6F72CF">Фіолетова</option><option value="#33313D">Графіт</option></select>
+  </label>
+  <label>Видима смуга <input id="peek" type="range" min="64" max="110" step="2" value="84"></label>
+</div>
+
+<script>
+(function () {
+  const phone = document.getElementById('phone');
+  const track = document.getElementById('track');
+  const cards = Array.from(document.querySelectorAll('.card'));
+  const dots = Array.from(document.querySelectorAll('#dots button'));
+  const title = document.getElementById('title');
+  const names = ['Віртуальна', '100 днів', 'Нова картка'];
+  const state = { idx: 0, open: false, activated: false, cvv: false };
+  let toastTimer;
+
+  function render() {
+    phone.classList.toggle('open', state.open);
+    phone.classList.toggle('activated', state.activated);
+    phone.classList.toggle('needs-activation', state.idx === 2 && !state.activated);
+    track.style.transform = 'translateX(' + (-352 * state.idx) + 'px)';
+    cards.forEach((c, i) => {
+      c.classList.toggle('current', i === state.idx);
+      c.classList.toggle('before', i < state.idx);
+      c.classList.toggle('after', i > state.idx);
+      c.setAttribute('aria-expanded', String(state.open && i === state.idx));
+      c.querySelector('.cvv').textContent = state.cvv && i === state.idx ? ['381', '207', '664'][i] : '•••';
+    });
+    dots.forEach((d, i) => d.classList.toggle('on', i === state.idx));
+    title.textContent = names[state.idx];
+  }
+  function toast(text) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastText').textContent = text;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+  }
+  function go(i) {
+    state.idx = Math.max(0, Math.min(cards.length - 1, i));
+    state.cvv = false;
+    render();
+  }
+  function activate() {
+    state.activated = true;
+    render();
+    toast('Картку •• 4410 активовано');
+  }
+
+  // Swipe on the carousel (collapsed only)
+  let startX = null, moved = false;
+  const area = document.getElementById('cards');
+  area.addEventListener('pointerdown', (e) => { if (!state.open) { startX = e.clientX; moved = false; } });
+  area.addEventListener('pointermove', (e) => { if (startX !== null && Math.abs(e.clientX - startX) > 8) moved = true; });
+  area.addEventListener('pointerup', (e) => {
+    if (startX === null) return;
+    const dx = e.clientX - startX;
+    startX = null;
+    if (Math.abs(dx) > 40) go(state.idx + (dx < 0 ? 1 : -1));
+  });
+
+  cards.forEach((c, i) => c.addEventListener('click', (e) => {
+    if (moved) { moved = false; return; }
+    if (e.target.closest('.js-activate')) { e.stopPropagation(); activate(); return; }
+    if (e.target.closest('.js-cvv')) { state.cvv = !state.cvv; render(); return; }
+    if (e.target.closest('.js-copy')) {
+      const pan = Array.from(c.querySelectorAll('.pan .g')).map((g) => g.textContent).join(' ');
+      if (navigator.clipboard) navigator.clipboard.writeText(pan).catch(() => {});
+      toast('Номер картки скопійовано');
+      return;
+    }
+    if (i !== state.idx) { go(i); return; }
+    state.open = !state.open;
+    state.cvv = false;
+    render();
+  }));
+  document.querySelectorAll('[role="button"]').forEach((el) => el.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+  }));
+  document.querySelector('.cta').addEventListener('click', activate);
+  document.getElementById('collapse').addEventListener('click', () => { state.open = false; state.cvv = false; render(); });
+  dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
+  phone.addEventListener('keydown', (e) => { if (e.key === 'Escape' && state.open) { state.open = false; render(); } });
+
+  document.getElementById('theme').addEventListener('change', (e) => {
+    phone.style.background = e.target.value;
+    document.documentElement.style.setProperty('--header', e.target.value);
+  });
+  document.getElementById('peek').addEventListener('input', (e) => {
+    document.documentElement.style.setProperty('--peek', e.target.value + 'px');
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
