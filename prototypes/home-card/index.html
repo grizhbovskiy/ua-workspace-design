@@ -64,7 +64,8 @@
 
   /* Balance */
   .balance { position: absolute; left: 0; right: 0; top: 122px; text-align: center; color: #fff; transition: opacity .22s, transform .4s var(--ease); }
-  .balance .label { font-size: 14px; opacity: .85; }
+  .balance .label { font-size: 14px; opacity: .85; transition: opacity .15s, transform .25s var(--ease); }
+  .balance .label.swap { opacity: 0; transform: translateY(4px); }
   .balance .sum { margin-top: 4px; font-size: 44px; font-weight: 700; letter-spacing: -1px; line-height: 1.1; }
   .balance .sum small { font-size: 28px; }
   .open .balance { opacity: 0; transform: translateY(-18px) scale(.96); }
@@ -236,9 +237,9 @@
     </div>
   </div>
 
-  <div class="balance">
-    <div class="label">Власні кошти</div>
-    <div class="sum">43 069<small>,61 ₴</small></div>
+  <div class="balance" id="balance" aria-label="Власні кошти 8 412,50 гривень">
+    <div class="label" id="balLabel" aria-hidden="true">Власні кошти</div>
+    <div class="sum" aria-hidden="true"><span id="balInt">8 412</span><small id="balDec">,50 ₴</small></div>
   </div>
 
   <div class="cards" id="cards">
@@ -409,6 +410,11 @@
   const all = cards.concat(extra);
   const slotOf = (el) => (el === extra ? 2 : cards.indexOf(el));
   const bgs = ['#7E97B8', '#534E6B', '#4FA07E'];
+  const balances = [
+    { label: 'Власні кошти', value: 8412.50 },
+    { label: 'Доступно з 300 000 ₴', value: 43069.61 },
+    { label: 'Власні кошти', value: 0 }
+  ];
   const dots = Array.from(document.querySelectorAll('#dots button'));
   const title = document.getElementById('title');
   const titles = ['UA 23 **** 12345', 'UA 41 **** 30971', 'UA 23 **** 12345'];
@@ -440,6 +446,36 @@
     });
     dots.forEach((d, i) => d.classList.toggle('on', i === state.idx));
     title.textContent = titles[state.idx];
+    setBalance(state.idx);
+  }
+  // Balance counter: tweens from the shown value to the account's balance
+  const balInt = document.getElementById('balInt');
+  const balDec = document.getElementById('balDec');
+  const balLabel = document.getElementById('balLabel');
+  let shownBal = balances[0].value, balIdx = 0, balRaf = null;
+  function fmt(v) {
+    const parts = Math.abs(v).toFixed(2).split('.');
+    return [parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0'), ',' + parts[1] + '\u00A0₴'];
+  }
+  function paint(v) { const f = fmt(v); balInt.textContent = f[0]; balDec.textContent = f[1]; }
+  function setBalance(i) {
+    if (i === balIdx) return;
+    balIdx = i;
+    const target = balances[i];
+    balLabel.classList.add('swap');
+    setTimeout(() => { balLabel.textContent = target.label; balLabel.classList.remove('swap'); }, 150);
+    document.getElementById('balance').setAttribute('aria-label', target.label + ' ' + fmt(target.value).join('').replace(/\u00A0₴/, ' гривень'));
+    cancelAnimationFrame(balRaf);
+    const from = shownBal, to = target.value, start = performance.now();
+    const dur = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 700;
+    const step = (now) => {
+      const t = dur ? Math.min(1, (now - start) / dur) : 1;
+      const e = 1 - Math.pow(1 - t, 3);
+      shownBal = from + (to - from) * e;
+      paint(shownBal);
+      if (t < 1) balRaf = requestAnimationFrame(step); else shownBal = to;
+    };
+    balRaf = requestAnimationFrame(step);
   }
   function toast(text) {
     const t = document.getElementById('toast');
