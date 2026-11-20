@@ -829,14 +829,21 @@
     state.sub = 0;
     state.flipped = false;
     render();
-    if (v) bricksIn();
+    if (v) requestAnimationFrame(() => requestAnimationFrame(bricksIn));
   }
 
   // "Bricks": tiles and widgets rise one after another and settle into place;
   // rows inside each widget follow in sequence.
+  let bricksTimer = null;
   function bricksIn() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!state.open) return;
     const pane = document.getElementById('cardPane');
+    // Never leave a block hidden: finish any brick animation that has not played out
+    const settle = () => pane.getAnimations({ subtree: true }).forEach((a) => { try { a.finish(); } catch (e) { a.cancel(); } });
+    settle();
+    clearTimeout(bricksTimer);
+    bricksTimer = setTimeout(settle, 2000);
     const visible = (el) => el.offsetParent !== null;
     const brick = [
       { opacity: 0, transform: 'translateY(36px) scale(.94)' },
