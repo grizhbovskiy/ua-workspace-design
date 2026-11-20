@@ -1,0 +1,13 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+<g id="Cards">
+
+
+<g id="card-change-pin">
+<g id="shape">
+<path d="M19 3C20.6569 3 22 4.34315 22 6V15H20V9H4L4 16C4 16.5523 4.44772 17 5 17L9 17V19L5 19C3.34315 19 2 17.6569 2 16L2 6C2 4.34315 3.34315 3 5 3H19ZM4 7L20 7V6C20 5.44772 19.5523 5 19 5H5C4.44772 5 4 5.44772 4 6V7Z" fill-rule="evenodd" clip-rule="evenodd" fill="currentColor"/>
+<path d="M14 15C12.3431 15 11 16.3431 11 18C11 19.6569 12.3431 21 14 21C15.3062 21 16.4175 20.1652 16.8293 19H20V21H22V18C22 17.4477 21.5523 17 21 17H16.8293C16.4175 15.8348 15.3062 15 14 15ZM13 18C13 17.4477 13.4477 17 14 17C14.5523 17 15 17.4477 15 18C15 18.5523 14.5523 19 14 19C13.4477 19 13 18.5523 13 18Z" fill-rule="evenodd" clip-rule="evenodd" fill="currentColor"/>
+</g>
+</g>
+</g>
+</svg>

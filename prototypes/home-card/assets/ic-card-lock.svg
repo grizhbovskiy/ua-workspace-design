@@ -1,0 +1,13 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+<g id="Cards">
+
+
+<g id="card-lock">
+<g id="shape">
+<path d="M22 5C22 3.34315 20.6569 2 19 2L5 2C3.34315 2 2 3.34315 2 5L2 15C2 16.6569 3.34315 18 5 18L10 18V16L5 16C4.44772 16 4 15.5523 4 15L4 8L20 8V10H22V5ZM20 6L4 6V5C4 4.44772 4.44772 4 5 4L19 4C19.5523 4 20 4.44772 20 5V6Z" fill-rule="evenodd" clip-rule="evenodd" fill="currentColor"/>
+<path d="M12 16C12 15.4477 12.4477 15 13 15H14V13C14 11.3431 15.3431 10 17 10C18.6569 10 20 11.3431 20 13V15H21C21.5523 15 22 15.4477 22 16L22 21C22 21.5523 21.5523 22 21 22L13 22C12.4477 22 12 21.5523 12 21V16ZM18 15H16V13C16 12.4477 16.4477 12 17 12C17.5523 12 18 12.4477 18 13V15ZM20 17L20 20L14 20V17H20Z" fill-rule="evenodd" clip-rule="evenodd" fill="currentColor"/>
+</g>
+</g>
+</g>
+</svg>
