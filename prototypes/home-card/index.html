@@ -4,18 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Головна — картка в кишені</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap">
 <style>
+  /* Amalia (brand font). Files live in ./fonts; falls back to system UI if absent. */
+  @font-face { font-family: 'Amalia'; src: local('Amalia Regular'), local('Amalia-Regular'), url('fonts/Amalia-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+  @font-face { font-family: 'Amalia'; src: local('Amalia Medium'), local('Amalia-Medium'), url('fonts/Amalia-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+  @font-face { font-family: 'Amalia'; src: local('Amalia Bold'), local('Amalia-Bold'), url('fonts/Amalia-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+
+  /* UDS RB Mobile tokens (from Figma) */
   :root {
-    --ink: #1F1F24;
-    --sheet: #F6F4EF;
-    --muted: #5E5C66;
-    --link: #0B6E92;
-    --header: #4FA07E;
-    --peek: 84px;
-    --top-closed: 236px;
-    --top-open: 112px;
+    --surface-background: #F8F6F2;
+    --surface-baseline: #FFFFFF;
+    --surface-accent: #FEE600;
+    --surface-inverted: #2B2D34;
+    --tint-primary: #2B2D34;
+    --tint-secondary: #505258;
+    --tint-tertiary: #808185;
+    --tint-action: #0077A4;
+    --border-regular: rgba(156, 150, 127, .24);
+    --elevation-1: 0 1px 1px 0 rgba(43, 45, 52, .2);
+    --header: #7E97B8;
+    /* Geometry */
+    --card-w: 320px;
+    --card-h: 202px;
+    --top-closed: 279px;
+    --peek: 81px;
+    --top-open: 118px;
     --spring: cubic-bezier(.32, 1.28, .52, 1);
     --ease: cubic-bezier(.2, .8, .2, 1);
   }
@@ -23,16 +36,16 @@
   html, body { margin: 0; height: 100%; }
   body {
     background: #D9D6CF;
-    font-family: 'Onest', system-ui, sans-serif;
-    color: var(--ink);
+    font-family: 'Amalia', -apple-system, system-ui, sans-serif;
+    color: var(--tint-primary);
     display: flex; align-items: center; justify-content: center;
-    font-variant-numeric: tabular-nums;
     -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
   }
-  button { font-family: inherit; color: inherit; cursor: pointer; }
-  button:focus-visible, [role="button"]:focus-visible { outline: 3px solid #0B6E92; outline-offset: 2px; }
+  button { font-family: inherit; color: inherit; cursor: pointer; padding: 0; border: 0; background: none; }
+  button:focus-visible, [role="button"]:focus-visible { outline: 3px solid var(--tint-action); outline-offset: 2px; }
+  img { display: block; }
 
-  /* Phone frame on desktop, full screen on a phone */
   .phone {
     position: relative; width: 390px; height: 844px; overflow: hidden;
     border-radius: 44px; background: var(--header);
@@ -44,65 +57,80 @@
     .phone { width: 100%; height: 100dvh; border-radius: 0; box-shadow: none; }
   }
 
-  /* Top bar */
-  .topbar { position: absolute; left: 16px; right: 16px; top: 52px; height: 44px; display: flex; justify-content: space-between; align-items: center; color: #fff; z-index: 5; }
-  .left-slot { position: relative; height: 44px; flex: 1; }
-  .avatar, .back { position: absolute; left: 0; top: 0; transition: opacity .25s, transform .35s var(--ease); }
-  .avatar { width: 44px; height: 44px; border-radius: 22px; border: 0; background: #26252B; color: #fff; font-weight: 600; font-size: 15px; }
-  .back { display: flex; align-items: center; gap: 8px; opacity: 0; transform: translateX(-8px); pointer-events: none; }
-  .round { width: 44px; height: 44px; border-radius: 22px; border: 0; background: rgba(255,255,255,.22); color: #fff; display: flex; align-items: center; justify-content: center; }
-  .nav-title { position: absolute; left: 60px; right: 60px; top: 0; height: 44px; line-height: 44px; text-align: center; font-size: 17px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity .25s, transform .35s var(--ease); }
-  .open .nav-title { opacity: 1; transform: none; transition-delay: .15s; }
-  .open .avatar { opacity: 0; transform: scale(.8); pointer-events: none; }
-  .open .back { opacity: 1; transform: none; pointer-events: auto; transition-delay: .12s; }
-  .right-slot { position: relative; height: 44px; }
-  .icons { display: flex; background: rgba(255,255,255,.22); border-radius: 24px; transition: opacity .25s; }
-  .icons button { width: 44px; height: 44px; border: 0; background: transparent; color: #fff; display: flex; align-items: center; justify-content: center; }
-  .more { position: absolute; right: 0; top: 0; opacity: 0; pointer-events: none; transition: opacity .25s; }
-  .open .icons { opacity: 0; pointer-events: none; }
-  .open .more { opacity: 1; pointer-events: auto; transition-delay: .12s; }
+  /* iOS glass (approximation of the Figma "Glass Effect" button background) */
+  .glass {
+    background: rgba(255, 255, 255, .38);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    backdrop-filter: blur(12px) saturate(160%);
+    box-shadow: 1.25px 0 0 -.75px rgba(208,208,208,.9), -1.25px 0 0 -.75px rgba(208,208,208,.9),
+                0 0 0 .5px rgba(232,232,232,.7), inset 0 1px 0 rgba(255,255,255,.55), 0 8px 15px rgba(0,0,0,.02);
+    border-radius: 1000px;
+  }
 
-  /* Balance */
-  .balance { position: absolute; left: 0; right: 0; top: 122px; text-align: center; color: #fff; transition: opacity .22s, transform .4s var(--ease); }
-  .balance .label { font-size: 14px; opacity: .85; transition: opacity .15s, transform .25s var(--ease); }
+  /* Status bar */
+  .status { position: absolute; left: 0; right: 0; top: 0; height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px 0 52px; color: #fff; font-size: 17px; font-weight: 600; z-index: 6; pointer-events: none; }
+  .status .sys { display: flex; gap: 6px; align-items: center; }
+
+  /* Navigation bar (Toolbar: top 54, padding 8 16) */
+  .navbar { position: absolute; left: 0; right: 0; top: 54px; height: 60px; z-index: 5; }
+  .nav-home, .nav-detail { position: absolute; left: 16px; right: 16px; top: 8px; height: 44px; display: flex; align-items: center; justify-content: space-between; transition: opacity .25s, transform .35s var(--ease); }
+  .nav-detail { opacity: 0; transform: translateY(-6px); pointer-events: none; }
+  .open .nav-home { opacity: 0; transform: translateY(-6px); pointer-events: none; }
+  .open .nav-detail { opacity: 1; transform: none; pointer-events: auto; transition-delay: .12s; }
+  .avatar { position: relative; width: 44px; height: 44px; }
+  .avatar span.ini { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; letter-spacing: .25px; }
+  .avatar .badge-biz { position: absolute; left: 50%; top: 35px; transform: translateX(-50%); padding: 0 4px 1px; border-radius: 100px; background: var(--surface-accent); color: var(--tint-primary); font-size: 10px; line-height: 12px; font-weight: 500; box-shadow: 0 0 0 2px var(--surface-background); white-space: nowrap; }
+  .nav-right { display: flex; gap: 10px; align-items: center; }
+  .icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+  .btn-group { display: flex; gap: 8px; height: 44px; align-items: center; padding: 0 6px; }
+  .btn-group button { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
+  .nav-title { position: absolute; left: 60px; right: 60px; text-align: center; font-size: 17px; line-height: 22px; font-weight: 500; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Balance (Caption 1 + Headline 1 / Headline 3) */
+  .balance { position: absolute; left: 0; right: 0; top: 131px; text-align: center; color: #fff; transition: opacity .22s, transform .4s var(--ease); }
+  .balance .label { font-size: 14px; line-height: 24px; transition: opacity .15s, transform .25s var(--ease); }
   .balance .label.swap { opacity: 0; transform: translateY(4px); }
-  .balance .sum { margin-top: 4px; font-size: 44px; font-weight: 700; letter-spacing: -1px; line-height: 1.1; }
-  .balance .sum small { font-size: 28px; }
+  .amount { margin-top: 4px; height: 44px; display: flex; justify-content: center; align-items: baseline; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .amount .int, .amount .comma { font-size: 40px; line-height: 44px; letter-spacing: -.2px; }
+  .amount .dec { font-size: 24px; line-height: 28px; letter-spacing: -.12px; margin-left: 4px; }
+  .amount .cur { font-size: 24px; line-height: 28px; margin-left: 8px; }
   .open .balance { opacity: 0; transform: translateY(-18px) scale(.96); }
 
+  /* Activate card pill (shown for a card that needs activation) */
+  .activate-pill { position: absolute; left: 50%; top: 213px; transform: translateX(-50%); height: 36px; padding: 0 16px 0 12px; border-radius: 18px; background: var(--surface-accent); display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 500; color: var(--tint-primary); white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .25s; box-shadow: 0 2px 6px rgba(43,45,52,.15); }
+  .needs-activation:not(.open) .activate-pill { opacity: 1; pointer-events: auto; }
+  .activate-pill::after { content: ''; position: absolute; inset: -4px 0; }
+
   /* Cards */
-  .cards { position: absolute; left: 0; right: 0; height: 216px; top: var(--top-closed); transition: top .55s var(--spring); touch-action: pan-y; }
+  .cards { position: absolute; left: 0; right: 0; height: var(--card-h); top: var(--top-closed); transition: top .55s var(--spring); touch-action: pan-y; z-index: 1; }
   .open .cards { top: var(--top-open); }
-  .track { display: flex; gap: 10px; padding-left: 24px; transition: transform .45s var(--ease); }
-  .card { position: relative; flex: 0 0 342px; height: 216px; perspective: 1100px; cursor: pointer; outline-offset: 4px; border-radius: 20px; transition: opacity .25s, transform .3s var(--ease); -webkit-user-select: none; user-select: none; }
+  .track { position: relative; display: flex; gap: 12px; padding-left: 35px; transition: transform .45s var(--ease); }
+  .card { position: relative; flex: 0 0 var(--card-w); height: var(--card-h); perspective: 1100px; cursor: pointer; border-radius: 16px; outline-offset: 4px; transition: opacity .25s, transform .3s var(--ease); -webkit-user-select: none; user-select: none; }
   .open .card.before { opacity: 0; transform: translateX(-40px); }
-  /* Ghost card behind a card whose account has several cards */
-  .ghost { position: absolute; left: 14px; right: 14px; top: -10px; height: 60px; border-radius: 16px 16px 0 0; background: rgba(255,255,255,.32); transition: opacity .25s, transform .35s var(--ease); }
-  .open .ghost { opacity: 0; transform: translateY(10px); }
-  /* Extra card of the same account: appears in the carousel only in details */
-  .card.extra { position: absolute; left: 728px; top: 0; width: 342px; opacity: 0; transform: translateX(40px); pointer-events: none; }
-  .open.multi .card.extra { opacity: 1; transform: none; pointer-events: auto; transition-delay: .35s; }
-  .open.multi .card.acct.before { opacity: 1; transform: none; }
   .open .card.after { opacity: 0; transform: translateX(40px); }
   .card.current.lift { transform: scale(.95); }
+  .ghost { position: absolute; left: 10px; right: 10px; top: -8px; height: 40px; border-radius: 16px 16px 0 0; background: rgba(255,255,255,.35); transition: opacity .25s, transform .35s var(--ease); }
+  .open .ghost { opacity: 0; transform: translateY(8px); }
+  .card.extra { position: absolute; left: 699px; top: 0; width: var(--card-w); opacity: 0; transform: translateX(40px); pointer-events: none; }
+  .open.multi .card.extra { opacity: 1; transform: none; pointer-events: auto; transition-delay: .35s; }
+  .open.multi .card.acct.before { opacity: 1; transform: none; }
+
   .flipper { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.3, .7, .2, 1.05); }
   .flipped .card.current .flipper { transform: rotateY(180deg); }
-  .side { position: absolute; inset: 0; border-radius: 20px; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; transition: box-shadow .4s; }
-  .open .card.current .side { box-shadow: 0 18px 40px -12px rgba(0,0,0,.35); }
+  .side { position: absolute; inset: 0; border-radius: 16px; overflow: hidden; border: 1px solid rgba(19,20,22,.08); backface-visibility: hidden; -webkit-backface-visibility: hidden;
+          box-shadow: 0 1.35px 4.05px rgba(43,45,52,.15), 0 .68px .68px rgba(43,45,52,.15); }
   .back-side { transform: rotateY(180deg); }
-  .row1 { position: absolute; left: 18px; right: 18px; top: 16px; display: flex; justify-content: space-between; align-items: center; }
-  .name { font-size: 13px; font-weight: 600; }
-  .brand { font-size: 20px; font-weight: 800; font-style: italic; letter-spacing: -.5px; }
 
-  /* Short row (collapsed) */
-  .short { position: absolute; left: 18px; top: 42px; display: flex; gap: 10px; align-items: center; height: 22px; transition: opacity .18s, transform .3s var(--ease); }
-  .short .n { font-size: 17px; font-weight: 600; }
-  .short .d { font-size: 15px; }
-  .open .current .short { opacity: 0; transform: translateY(-6px); pointer-events: none; }
+  /* Card header: Caption 1/Default-Tight + Body 2/Bold, Visa 44.6×16.7 (Figma "card") */
+  .c-head { position: absolute; left: 11px; right: 11px; top: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .c-name { font-size: 14px; line-height: 18px; }
+  .c-mask { font-size: 16px; line-height: 24px; font-weight: 700; white-space: pre; font-variant-numeric: tabular-nums; transition: opacity .2s, transform .3s var(--ease); }
+  .open .current .c-mask { opacity: 0; transform: translateY(-4px); }
+  .visa { width: 44.6px; height: 16.7px; flex: none; }
+  .dark .visa { filter: brightness(0) invert(1); }
 
-  /* Full number (expanded): same type as the CVV on the back */
-  .big { font-size: 23px; font-weight: 600; letter-spacing: 1px; line-height: 30px; }
-  .pan { position: absolute; left: 12px; top: 88px; display: flex; gap: 12px; padding: 0 6px; border-radius: 10px; transition: background .2s; }
+  .big { font-size: 22px; line-height: 28px; font-weight: 700; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+  .pan { position: absolute; left: 6px; top: 84px; display: flex; gap: 14px; padding: 2px 6px; border-radius: 10px; transition: background .2s; }
   .pan .g { opacity: 0; transform: translateY(8px); filter: blur(4px); transition: opacity .25s, transform .35s var(--ease), filter .3s; }
   .open .current .pan .g { opacity: 1; transform: none; filter: none; }
   .open .current .pan .g:nth-child(1) { transition-delay: .26s; }
@@ -112,135 +140,182 @@
   .pan.pressing { background: rgba(0,0,0,.08); }
   .dark .pan.pressing { background: rgba(255,255,255,.12); }
 
-  .bottom { position: absolute; left: 18px; bottom: 16px; display: flex; gap: 10px; align-items: center; height: 28px; }
-  .bottom .date { font-size: 17px; font-weight: 600; }
-  .front .bottom { opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity .25s, transform .35s var(--ease); }
-  .open .current .front .bottom { opacity: 1; transform: none; pointer-events: auto; transition-delay: .5s; }
-  .pill { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 4px; height: 28px; min-width: 44px; padding: 0 12px; border-radius: 14px; background: rgba(255,255,255,.5); font-size: 13px; font-weight: 700; letter-spacing: .5px; }
+  .c-bottom { position: absolute; left: 12px; bottom: 14px; display: flex; gap: 10px; align-items: center; height: 28px; }
+  .c-bottom .date { font-size: 16px; line-height: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .front .c-bottom { opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity .25s, transform .35s var(--ease); }
+  .open .current .front .c-bottom { opacity: 1; transform: none; pointer-events: auto; transition-delay: .5s; }
+  .pill { position: relative; display: inline-flex; align-items: center; justify-content: center; height: 28px; min-width: 44px; padding: 0 12px; border-radius: 14px; background: rgba(255,255,255,.5); font-size: 13px; font-weight: 700; letter-spacing: .5px; }
   .pill::after { content: ''; position: absolute; inset: -8px -4px; }
   .dark .pill { background: rgba(255,255,255,.16); }
-  .pearl .pill { background: rgba(31,31,36,.08); }
+  .pearl .pill { background: rgba(43,45,52,.08); }
 
-  /* Back side */
-  .mag { position: absolute; left: 0; right: 0; top: 22px; height: 42px; background: #26252B; }
+  .mag { position: absolute; left: 0; right: 0; top: 20px; height: 40px; background: var(--surface-inverted); }
   .dark .mag { background: #0E0E12; }
-  .cvv-big { position: absolute; left: 0; right: 0; top: 88px; text-align: center; }
-  .warn { position: absolute; right: 18px; bottom: 16px; font-size: 11px; line-height: 1.3; text-align: right; }
+  .cvv-big { position: absolute; left: 0; right: 0; top: 86px; text-align: center; }
+  .warn { position: absolute; right: 12px; bottom: 14px; font-size: 11px; line-height: 14px; text-align: right; }
 
   /* Card skins */
-  .yellow .side { background: #FFE100; color: var(--ink); }
+  .yellow .side { background: var(--surface-accent); color: var(--tint-primary); }
+  .yellow .graphic { position: absolute; left: -6px; top: -37px; width: 196px; height: 233px; }
   .yellow .sub { color: #4A4200; }
-  .yellow .stripe { position: absolute; left: 170px; top: -60px; width: 64px; height: 360px; background: #F7CF00; transform: rotate(28deg); }
-  .dark .side { background: #24232A; color: #fff; }
-  .dark .sub { color: #BDBAC8; }
-  .dark .art { position: absolute; right: -10px; bottom: -30px; font-size: 120px; font-weight: 800; letter-spacing: -6px; color: #FFE100; opacity: .22; }
-  .pearl .side { background: #EFECE4; color: var(--ink); }
-  .pearl .sub { color: var(--muted); }
-  .pearl .stripes { position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(31,31,36,.06) 0 8px, rgba(31,31,36,0) 8px 16px); transition: opacity .4s; }
+  .dark .side { background: var(--surface-inverted); color: #fff; }
+  .dark .sub { color: #C9C7D1; }
+  .dark .art { position: absolute; right: -8px; bottom: -34px; font-size: 128px; font-weight: 700; letter-spacing: -6px; color: var(--surface-accent); opacity: .9; line-height: 1; }
+  .pearl .side { background: #EFECE4; color: var(--tint-primary); }
+  .pearl .sub { color: var(--tint-secondary); }
+  .pearl .stripes { position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(43,45,52,.06) 0 8px, rgba(43,45,52,0) 8px 16px); transition: opacity .4s; }
   .activated .pearl .stripes { opacity: 0; }
 
-  .badge { position: relative; display: flex; align-items: center; }
-  .badge::after { content: ''; position: absolute; inset: -9px -4px; }
-  .badge .pl { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px 0 4px; border-radius: 13px; background: var(--ink); color: #fff; font-size: 13px; font-weight: 600; }
-  .badge .bolt { width: 18px; height: 18px; border-radius: 9px; background: #FFE100; display: flex; align-items: center; justify-content: center; }
-  .activated .badge { display: none; }
-  .date-new { display: none; }
-  .activated .date-new { display: inline; }
-
   /* Sheet */
-  .sheet { position: absolute; left: 0; right: 0; bottom: 0; top: calc(var(--top-closed) + var(--peek)); background: var(--sheet); border-radius: 28px 28px 0 0; box-shadow: 0 -6px 20px rgba(0,0,0,.12); transition: top .5s var(--ease); z-index: 2; }
-  .open .sheet { top: calc(var(--top-open) + 216px + 20px); }
-  .pane { position: absolute; inset: 0; overflow-y: auto; padding-bottom: 110px; transition: opacity .25s, transform .4s var(--ease); scrollbar-width: none; }
+  .sheet { position: absolute; left: 0; right: 0; bottom: 0; top: calc(var(--top-closed) + var(--peek)); background: var(--surface-background); border-radius: 24px 24px 0 0; transition: top .5s var(--ease); z-index: 2; }
+  .open .sheet { top: calc(var(--top-open) + var(--card-h) + 16px); }
+  .pane { position: absolute; inset: 0; overflow-y: auto; padding-bottom: 120px; transition: opacity .25s, transform .4s var(--ease); scrollbar-width: none; }
   .pane::-webkit-scrollbar { display: none; }
-  .pane.card-pane { opacity: 0; transform: translateY(16px); pointer-events: none; padding-top: 16px; }
+  .pane.card-pane { opacity: 0; transform: translateY(16px); pointer-events: none; padding-top: 8px; padding-bottom: 40px; }
   .open .pane.home-pane { opacity: 0; transform: translateY(16px); pointer-events: none; }
   .open .pane.card-pane { opacity: 1; transform: none; pointer-events: auto; transition-delay: .2s; }
 
-  .dots { display: flex; justify-content: center; padding-top: 6px; }
-  .dots button { width: 24px; height: 24px; border: 0; background: transparent; display: flex; align-items: center; justify-content: center; padding: 0; }
-  .dots i { display: block; height: 6px; width: 6px; border-radius: 3px; background: #B9B5AB; transition: all .3s; }
-  .dots .on i { width: 20px; background: var(--ink); }
+  /* Page Indicator */
+  .dots { height: 30px; display: flex; justify-content: center; align-items: center; padding-top: 4px; }
+  .dots .wrap { display: flex; gap: 2px; align-items: center; }
+  .dots button { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+  .dots i { display: block; height: 6px; width: 6px; border-radius: 999px; background: var(--tint-tertiary); transition: width .3s, background .3s; }
+  .dots .on i { width: 16px; background: var(--tint-primary); }
 
-  .grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; padding: 10px 12px 0; }
-  .grid4 button { border: 0; background: transparent; display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; line-height: 1.25; }
-  .tile { width: 56px; height: 56px; border-radius: 18px; display: flex; align-items: center; justify-content: center; }
-  .tile.dk { background: #26252B; color: #fff; }
+  /* Quick actions (Button / Icon + Text) */
+  .quick { display: flex; padding-bottom: 8px; }
+  .quick button { flex: 1 0 0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 8px; min-height: 100px; }
+  .quick .lbl { font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: .12px; color: #232529; text-align: center; }
+  .qa-dark { position: relative; width: 48px; height: 48px; border-radius: 12px; background: var(--surface-inverted); border: 1px solid rgba(19,20,22,.08); }
+  .qa-dark img { position: absolute; left: 11px; top: 11px; }
 
-  .ops { margin: 22px 16px 0; background: #fff; border-radius: 22px; overflow: hidden; }
-  .op { display: flex; align-items: center; gap: 12px; padding: 16px; }
-  .op .ic { width: 44px; height: 44px; border-radius: 22px; background: #EDE8FB; color: #5B47B0; display: flex; align-items: center; justify-content: center; flex: none; }
-  .op .t { flex: 1; min-width: 0; }
-  .op .t b { display: block; font-size: 15px; font-weight: 600; }
-  .op .t span { font-size: 13px; color: #6A6872; }
-  .op .a { font-size: 15px; font-weight: 600; white-space: nowrap; }
-  .ops .all { width: 100%; min-height: 48px; border: 0; border-top: 1px solid #EEEBE4; background: #fff; color: var(--link); font-size: 15px; font-weight: 600; }
+  /* Widget */
+  .widget { padding: 8px 16px; }
+  .w-wrap { background: var(--surface-baseline); border-radius: 16px; box-shadow: var(--elevation-1); overflow: hidden; }
+  .w-head { display: flex; align-items: center; gap: 16px; padding: 16px; font-size: 16px; line-height: 20px; font-weight: 500; letter-spacing: .16px; }
+  .sec-head { display: flex; align-items: center; gap: 16px; padding: 16px; }
+  .sec-head h2 { flex: 1; margin: 0; font-size: 20px; line-height: 26px; font-weight: 700; letter-spacing: -.1px; }
+  .sec-head a { font-size: 16px; line-height: 24px; color: var(--tint-action); text-decoration: none; }
+
+  /* List Cell */
+  .cell { display: flex; align-items: center; min-height: 64px; width: 100%; text-align: left; color: inherit; text-decoration: none; }
+  .cell.l { min-height: 72px; }
+  .cell .lead { position: relative; width: 44px; height: 44px; margin: 0 16px; flex: none; }
+  .cell .lead img.ic { position: absolute; left: 12px; top: 12px; }
+  .cell .main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 16px; padding: 8px 16px 8px 0; }
+  .cell .txt { flex: 1; min-width: 0; }
+  .cell .t { display: block; font-size: 16px; line-height: 24px; }
+  .cell .t.m { font-weight: 500; letter-spacing: .16px; }
+  .cell .c { display: block; font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
+  .cell .c.m { letter-spacing: .12px; }
+  .cell .val { font-size: 16px; line-height: 24px; font-weight: 500; letter-spacing: .64px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .w-btn { width: 100%; height: 48px; display: flex; align-items: center; justify-content: center; font-size: 16px; line-height: 16px; font-weight: 500; letter-spacing: .16px; color: var(--tint-action); }
+
+  /* Offer banner */
+  .offer { position: relative; margin: 8px 16px; min-height: 102px; padding: 16px; border: 1px solid #C3AAFF; border-radius: 16px; display: flex; align-items: center; gap: 16px;
+           background: linear-gradient(-66.9deg, #F2EDFF 5.69%, #FCF5FF 95.16%); }
+  .offer .ot { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .offer .title { font-size: 16px; line-height: 20px; font-weight: 500; }
+  .offer .lnk { display: inline-flex; align-items: center; gap: 1px; font-size: 12px; line-height: 20px; font-weight: 700; color: var(--tint-action); text-decoration: none; }
+  .offer .close { position: absolute; right: 2px; top: -3px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
+
+  /* Table cell (rates) */
+  .trow { display: flex; align-items: center; min-height: 56px; }
+  .trow .flag { width: 32px; height: 20px; margin: 0 16px; flex: none; object-fit: cover; }
+  .trow .tm { flex: 1; display: flex; align-items: center; align-self: stretch; position: relative; }
+  .trow + .trow .tm::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--border-regular); }
+  .trow .cur { flex: 1; font-size: 16px; line-height: 24px; letter-spacing: .16px; }
+  .trow .rate { flex: 1; text-align: right; padding-right: 16px; font-size: 16px; line-height: 20px; font-weight: 500; letter-spacing: .16px; font-variant-numeric: tabular-nums; }
+
+  /* Support (Button / Icon + Text, 40px icon) */
+  .support { display: flex; padding: 8px 0; }
+  .support button { flex: 1 0 0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 8px; }
+  .support .lbl { font-size: 12px; line-height: 14px; font-weight: 500; letter-spacing: .12px; text-align: center; }
 
   /* Card details */
-  .cta { display: none; margin: 0 16px 12px; width: calc(100% - 32px); min-height: 52px; border: 0; border-radius: 26px; background: #FFE100; font-size: 17px; font-weight: 700; }
-  .needs-activation .cta { display: block; }
-  .tiles3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 0 16px; }
-  .tiles3 button { border: 0; background: #fff; border-radius: 18px; min-height: 84px; padding: 12px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 500; line-height: 1.25; text-align: center; color: var(--ink); }
-  .tiles3 svg { color: var(--link); }
-  .group { margin: 12px 16px 0; background: #fff; border-radius: 20px; overflow: hidden; }
-  .row { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 56px; padding: 10px 14px 10px 16px; border: 0; background: transparent; text-align: left; color: var(--ink); position: relative; }
-  .row + .row::before { content: ''; position: absolute; left: 52px; right: 0; top: 0; height: 1px; background: #EEEBE4; }
-  .row .ri { width: 22px; flex: none; display: flex; justify-content: center; color: #3F3D47; }
-  .row .rt { flex: 1; min-width: 0; }
-  .row .rt b { display: block; font-size: 15px; font-weight: 500; }
-  .row .rt span { display: block; font-size: 12px; color: #6A6872; margin-top: 2px; }
-  .row .chev { color: var(--link); flex: none; }
-  .row.iban .ri { width: 36px; height: 36px; border-radius: 18px; background: #26252B; color: #fff; align-items: center; }
-  .row.iban .rt span { font-size: 12.5px; white-space: nowrap; font-variant-numeric: proportional-nums; letter-spacing: -.1px; }
-  .row.limits .ri { width: 40px; height: 40px; border-radius: 20px; background: #DDEFF7; color: var(--link); align-items: center; }
-  .row.limits .rt b { font-weight: 700; }
-  .copy-btn { width: 44px; height: 44px; margin: -10px -10px -10px 0; border: 0; background: transparent; color: var(--link); display: flex; align-items: center; justify-content: center; flex: none; }
+  .cta { display: none; margin: 8px 16px; width: calc(100% - 32px); min-height: 52px; border-radius: 26px; background: var(--surface-accent); font-size: 17px; font-weight: 700; align-items: center; justify-content: center; gap: 8px; }
+  .needs-activation .cta { display: flex; }
+  .tiles3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 8px 16px; }
+  .tiles3 button { background: var(--surface-baseline); border-radius: 16px; box-shadow: var(--elevation-1); min-height: 84px; padding: 12px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: .12px; text-align: center; }
+  .tiles3 svg { color: var(--tint-action); }
+  .rows .row { display: flex; align-items: center; gap: 16px; width: 100%; min-height: 56px; padding: 8px 16px; text-align: left; position: relative; }
+  .rows .row + .row::before { content: ''; position: absolute; left: 56px; right: 0; top: 0; height: 1px; background: var(--border-regular); }
+  .rows .ri { width: 24px; flex: none; display: flex; justify-content: center; color: var(--tint-primary); }
+  .rows .rt { flex: 1; min-width: 0; }
+  .rows .rt b { display: block; font-size: 16px; line-height: 24px; font-weight: 400; }
+  .rows .rt span { display: block; font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
+  .rows .chev { color: var(--tint-action); flex: none; }
+  .iban-row .rt span { font-size: 13px; letter-spacing: .1px; white-space: nowrap; }
+  .iban-lead { position: relative; width: 40px; height: 40px; border-radius: 20px; background: var(--surface-inverted); flex: none; display: flex; align-items: center; justify-content: center; color: #fff; }
+  .copy-btn { width: 44px; height: 44px; margin: -10px -10px -10px 0; display: flex; align-items: center; justify-content: center; color: var(--tint-action); flex: none; }
   .only-credit { display: none !important; }
   .is-credit .only-credit { display: flex !important; }
 
-  /* Bottom nav */
-  nav { position: absolute; left: 12px; right: 12px; bottom: 14px; background: rgba(255,255,255,.95); border-radius: 32px; box-shadow: 0 8px 24px rgba(20,18,40,.12); padding: 6px; display: flex; z-index: 6; }
-  nav button { flex: 1; min-height: 56px; border: 0; background: transparent; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 11px; font-weight: 500; }
-  nav { transition: transform .45s var(--ease), opacity .3s; }
-  .open nav { transform: translateY(110px); opacity: 0; pointer-events: none; }
-  .open .pane.card-pane { padding-bottom: 32px; }
-  nav button.on { flex: 1.25; border-radius: 26px; background: #E3EEF3; color: var(--link); font-weight: 600; }
+  /* iOS Tab Bar (floating glass) */
+  .tabbar { position: absolute; left: 16px; right: 16px; bottom: 26px; height: 62px; padding: 4px; display: flex; border-radius: 31px; z-index: 6;
+            background: rgba(255,255,255,.68); -webkit-backdrop-filter: blur(18px) saturate(180%); backdrop-filter: blur(18px) saturate(180%);
+            box-shadow: 0 0 0 .5px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,.75), 0 8px 24px rgba(43,45,52,.12);
+            transition: transform .45s var(--ease), opacity .3s; }
+  .tabbar button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 27px; color: var(--tint-secondary); }
+  .tabbar button .tl { font-size: 10px; line-height: 12px; font-weight: 500; }
+  .tabbar button.on { flex: 1.15; background: rgba(43,45,52,.07); color: var(--tint-action); }
+  .home-ind { position: absolute; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 20px; background: #111; z-index: 7; pointer-events: none; }
+  .open .tabbar { transform: translateY(120px); opacity: 0; pointer-events: none; }
 
-  .toast { position: absolute; left: 16px; right: 16px; top: 52px; background: var(--ink); color: #fff; border-radius: 18px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 24px rgba(0,0,0,.25); z-index: 10; opacity: 0; transform: translateY(-12px); pointer-events: none; transition: opacity .25s, transform .35s var(--ease); }
+  .toast { position: absolute; left: 16px; right: 16px; top: 62px; background: var(--tint-primary); color: #fff; border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 24px rgba(0,0,0,.25); z-index: 10; opacity: 0; transform: translateY(-12px); pointer-events: none; transition: opacity .25s, transform .35s var(--ease); font-size: 15px; }
   .toast.show { opacity: 1; transform: none; }
   .toast .ok { width: 26px; height: 26px; border-radius: 13px; background: #3DBE6E; display: flex; align-items: center; justify-content: center; flex: none; }
 
-  .controls { position: fixed; right: 16px; bottom: 16px; background: #fff; border-radius: 16px; padding: 12px 14px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.12); display: flex; flex-direction: column; gap: 8px; max-width: 240px; }
+  .controls { position: fixed; right: 16px; bottom: 16px; background: #fff; border-radius: 16px; padding: 12px 14px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.12); display: flex; flex-direction: column; gap: 8px; max-width: 250px; }
   .controls label { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
-  .controls p { margin: 0; color: var(--muted); line-height: 1.4; }
+  .controls p { margin: 0; color: var(--tint-secondary); line-height: 1.4; }
   @media (max-width: 900px) { .controls { display: none; } }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; transition-delay: 0s !important; } }
 </style>
 </head>
 <body>
-<div class="phone" id="phone" tabindex="-1">
+<div class="phone" id="phone">
 
-  <div class="topbar">
-    <div class="left-slot">
-      <button class="avatar" aria-label="Профіль">МН</button>
-      <div class="back">
-        <button class="round" id="collapse" aria-label="Закрити деталі картки"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div class="status" aria-hidden="true">
+    <span>4:20</span>
+    <span class="sys">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="#fff"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="#fff"><path d="M8 2.6c2.2 0 4.2.9 5.7 2.3l1.1-1.1A9.7 9.7 0 008 1 9.7 9.7 0 001.2 3.8l1.1 1.1A8.1 8.1 0 018 2.6zm0 3.2c1.3 0 2.5.5 3.4 1.3l1.1-1.1A6.5 6.5 0 008 4.2 6.5 6.5 0 003.5 6l1.1 1.1A4.9 4.9 0 018 5.8zm0 3.2c.5 0 .9.2 1.2.5L8 10.8 6.8 9.5c.3-.3.7-.5 1.2-.5z"/></svg>
+      <svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x=".5" y=".5" width="22" height="11" rx="3.5" stroke="#fff" opacity=".5"/><rect x="2" y="2" width="19" height="8" rx="2" fill="#fff"/><rect x="24" y="4" width="1.5" height="4" rx=".75" fill="#fff" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="navbar">
+    <div class="nav-home">
+      <button class="avatar" aria-label="Профіль, бізнес">
+        <img src="assets/nav-avatar.svg" width="44" height="44" alt="">
+        <span class="ini">MH</span>
+        <span class="badge-biz">Бізнес</span>
+      </button>
+      <div class="nav-right">
+        <button class="glass icon-btn" aria-label="Асистент"><img src="assets/nav-star.svg" width="24" height="24" alt=""></button>
+        <div class="glass btn-group">
+          <button aria-label="QR-код"><img src="assets/nav-qr.svg" width="24" height="24" alt=""></button>
+          <button aria-label="Сповіщення"><img src="assets/nav-bell.svg" width="24" height="24" alt=""></button>
+          <button aria-label="Мої картки"><img src="assets/nav-cards.svg" width="24" height="24" alt=""></button>
+        </div>
       </div>
     </div>
-    <span class="nav-title" id="title"></span>
-  <div class="right-slot">
-      <div class="icons">
-        <button aria-label="QR"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v1M14 20h1M18 18v3h3"/></svg></button>
-        <button aria-label="Сповіщення"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 17V11a6 6 0 0112 0v6l1.5 2h-15zM10 21h4"/></svg></button>
-        <button aria-label="Мої картки"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="7" width="15" height="11" rx="2"/><path d="M7 4h12a2 2 0 012 2v9"/></svg></button>
-      </div>
-      <button class="round more" aria-label="Більше дій"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="6" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18" cy="12" r="1.8"/></svg></button>
+    <div class="nav-detail">
+      <button class="glass icon-btn" id="collapse" aria-label="Закрити деталі картки"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2B2D34" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <span class="nav-title" id="title"></span>
+      <button class="glass icon-btn" aria-label="Більше дій"><svg width="22" height="22" viewBox="0 0 24 24" fill="#2B2D34" aria-hidden="true"><circle cx="6" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18" cy="12" r="1.8"/></svg></button>
     </div>
   </div>
 
   <div class="balance" id="balance" aria-label="Власні кошти 8 412,50 гривень">
     <div class="label" id="balLabel" aria-hidden="true">Власні кошти</div>
-    <div class="sum" aria-hidden="true"><span id="balInt">8 412</span><small id="balDec">,50 ₴</small></div>
+    <div class="amount" aria-hidden="true"><span class="int" id="balInt">8 412</span><span class="comma">,</span><span class="dec" id="balDec">50</span><span class="cur">₴</span></div>
   </div>
+
+  <button class="activate-pill js-activate" aria-label="Активувати картку, закінчується на 4410">
+    <img src="assets/nav-cards.svg" width="20" height="20" alt="">Активувати картку
+  </button>
 
   <div class="cards" id="cards">
     <div class="track" id="track">
@@ -248,17 +323,16 @@
       <div class="card yellow" data-i="0" role="button" tabindex="0" aria-label="Картка Віртуальна, закінчується на 8721">
         <div class="flipper">
           <div class="side front">
-            <div class="stripe"></div>
-            <div class="row1"><span class="name sub">Віртуальна</span><span class="brand">VISA</span></div>
-            <div class="short"><span class="n">•• 8721</span><span class="d sub">11/26</span></div>
+            <img class="graphic" src="assets/card-graphic.svg" width="196" height="233" alt="">
+            <div class="c-head"><div><div class="c-name">Віртуальна</div><div class="c-mask">4149    •••• ••••    8721</div></div><img class="visa" src="assets/visa-logo.svg" width="45" height="17" alt="Visa"></div>
             <div class="pan big" title="Утримуйте, щоб скопіювати"><span class="g">4149</span><span class="g">2290</span><span class="g">1187</span><span class="g">8721</span></div>
-            <div class="bottom"><span class="date">11/26</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Показати CVV-код">CVV</span></div>
+            <div class="c-bottom"><span class="date">11/26</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Показати CVV-код">CVV</span></div>
           </div>
           <div class="side back-side">
-            <div class="stripe"></div>
+            <img class="graphic" src="assets/card-graphic.svg" width="196" height="233" alt="">
             <div class="mag"></div>
             <div class="cvv-big big">381</div>
-            <div class="bottom"><span class="date">11/26</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Повернутися до номера картки"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg></span></div>
+            <div class="c-bottom"><span class="date">11/26</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Повернутися до номера картки"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg></span></div>
             <div class="warn sub">Не розголошуйте CVV-код<br>іншим особам</div>
           </div>
         </div>
@@ -268,55 +342,50 @@
         <div class="ghost" aria-hidden="true"></div>
         <div class="flipper">
           <div class="side front">
-            <div class="art">100</div>
-            <div class="row1"><span class="name sub">100 днів</span><span class="brand">VISA</span></div>
-            <div class="short"><span class="n">•• 3307</span><span class="d sub">08/28</span></div>
+            <div class="art" aria-hidden="true">100</div>
+            <div class="c-head"><div><div class="c-name sub">100 днів</div><div class="c-mask">4149    •••• ••••    3307</div></div><img class="visa" src="assets/visa-logo.svg" width="45" height="17" alt="Visa"></div>
             <div class="pan big" title="Утримуйте, щоб скопіювати"><span class="g">4149</span><span class="g">5512</span><span class="g">0094</span><span class="g">3307</span></div>
-            <div class="bottom"><span class="date">08/28</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Показати CVV-код">CVV</span></div>
+            <div class="c-bottom"><span class="date">08/28</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Показати CVV-код">CVV</span></div>
           </div>
           <div class="side back-side">
             <div class="mag"></div>
             <div class="cvv-big big">207</div>
-            <div class="bottom"><span class="date">08/28</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Повернутися до номера картки"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg></span></div>
+            <div class="c-bottom"><span class="date">08/28</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Повернутися до номера картки"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg></span></div>
             <div class="warn sub">Не розголошуйте CVV-код<br>іншим особам</div>
           </div>
         </div>
       </div>
 
-      <div class="card pearl" data-i="2" role="button" tabindex="0" aria-label="Нова картка, закінчується на 4410, потрібна активація">
+      <div class="card pearl" data-i="2" role="button" tabindex="0" aria-label="Нова картка, закінчується на 4410">
         <div class="flipper">
           <div class="side front">
             <div class="stripes"></div>
-            <div class="row1"><span class="name sub">Нова картка</span><span class="brand">VISA</span></div>
-            <div class="short"><span class="n">•• 4410</span>
-              <span class="badge js-activate" role="button" tabindex="0" aria-label="Активувати картку"><span class="pl"><span class="bolt"><svg width="11" height="11" viewBox="0 0 24 24" fill="#1F1F24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></span>Активувати</span></span>
-              <span class="d sub date-new">09/30</span>
-            </div>
+            <div class="c-head"><div><div class="c-name sub">Нова картка</div><div class="c-mask">4149    •••• ••••    4410</div></div><img class="visa" src="assets/visa-logo.svg" width="45" height="17" alt="Visa"></div>
             <div class="pan big" title="Утримуйте, щоб скопіювати"><span class="g">4149</span><span class="g">7031</span><span class="g">6620</span><span class="g">4410</span></div>
-            <div class="bottom"><span class="date">09/30</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Показати CVV-код">CVV</span></div>
+            <div class="c-bottom"><span class="date">09/30</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Показати CVV-код">CVV</span></div>
           </div>
           <div class="side back-side">
             <div class="mag"></div>
             <div class="cvv-big big">664</div>
-            <div class="bottom"><span class="date">09/30</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Повернутися до номера картки"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg></span></div>
+            <div class="c-bottom"><span class="date">09/30</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Повернутися до номера картки"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg></span></div>
             <div class="warn sub">Не розголошуйте CVV-код<br>іншим особам</div>
           </div>
         </div>
       </div>
+
       <div class="card yellow extra" data-i="x" role="button" tabindex="0" aria-label="Додаткова картка до рахунку, закінчується на 5502">
         <div class="flipper">
           <div class="side front">
-            <div class="stripe"></div>
-            <div class="row1"><span class="name sub">Додаткова</span><span class="brand">VISA</span></div>
-            <div class="short"><span class="n">•• 5502</span><span class="d sub">03/29</span></div>
+            <img class="graphic" src="assets/card-graphic.svg" width="196" height="233" alt="">
+            <div class="c-head"><div><div class="c-name">Додаткова</div><div class="c-mask">4149    •••• ••••    5502</div></div><img class="visa" src="assets/visa-logo.svg" width="45" height="17" alt="Visa"></div>
             <div class="pan big" title="Утримуйте, щоб скопіювати"><span class="g">4149</span><span class="g">1856</span><span class="g">2047</span><span class="g">5502</span></div>
-            <div class="bottom"><span class="date">03/29</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Показати CVV-код">CVV</span></div>
+            <div class="c-bottom"><span class="date">03/29</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Показати CVV-код">CVV</span></div>
           </div>
           <div class="side back-side">
-            <div class="stripe"></div>
+            <img class="graphic" src="assets/card-graphic.svg" width="196" height="233" alt="">
             <div class="mag"></div>
             <div class="cvv-big big">529</div>
-            <div class="bottom"><span class="date">03/29</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Повернутися до номера картки"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg></span></div>
+            <div class="c-bottom"><span class="date">03/29</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Повернутися до номера картки"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg></span></div>
             <div class="warn sub">Не розголошуйте CVV-код<br>іншим особам</div>
           </div>
         </div>
@@ -326,25 +395,64 @@
 
   <div class="sheet">
     <div class="pane home-pane">
-      <div class="dots" id="dots">
+      <div class="dots"><div class="wrap" id="dots">
         <button aria-label="Картка 1"><i></i></button>
         <button aria-label="Картка 2"><i></i></button>
         <button aria-label="Картка 3"><i></i></button>
+      </div></div>
+
+      <div class="quick">
+        <button><img src="assets/qa-transfer.svg" width="48" height="48" alt=""><span class="lbl">Переказ<br>на картку</span></button>
+        <button><img src="assets/qa-iban.svg" width="48" height="48" alt=""><span class="lbl">Платіж<br>за IBAN</span></button>
+        <button><img src="assets/qa-mobile.svg" width="48" height="48" alt=""><span class="lbl">Поповнити мобільний</span></button>
+        <button><span class="qa-dark"><img src="assets/qa-wallet-icon.svg" width="24" height="24" alt=""></span><span class="lbl">Усі<br>Платежі</span></button>
       </div>
-      <div class="grid4">
-        <button><span class="tile dk"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M8 12h8M13 9l3 3-3 3"/></svg></span>Переказ<br>на картку</button>
-        <button><span class="tile dk"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21zM9 8h6M9 12h6M9 16h4"/></svg></span>Платіж<br>за IBAN</button>
-        <button><span class="tile dk"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg></span>Поповнити<br>мобільний</button>
-        <button><span class="tile dk"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M15 12.5h3M3 9h18"/></svg></span>Усі<br>платежі</button>
+
+      <div class="widget"><div class="w-wrap">
+        <div style="height:8px"></div>
+        <a class="cell" href="#" onclick="return false">
+          <span class="lead"><img src="assets/op-squircle.svg" width="44" height="44" alt=""><img class="ic" src="assets/op-invoice.svg" width="20" height="20" alt=""></span>
+          <span class="main"><span class="txt"><span class="t">ФОП Ягусевич А. М.</span><span class="c">Послуги</span></span><span class="val">-12 000,00 ₴</span></span>
+        </a>
+        <button class="w-btn">Всі операції</button>
+      </div></div>
+
+      <div class="sec-head"><h2>Пропозиції для вас</h2><a href="#" onclick="return false">Показати всі</a></div>
+      <div class="offer">
+        <div class="ot">
+          <div class="title">До 100 днів без %<br>з новою кредиткою</div>
+          <a class="lnk" href="#" onclick="return false">Оформити картку <img src="assets/go-right.svg" width="12" height="12" alt=""></a>
+        </div>
+        <img src="assets/offer-illustration.png" width="70" height="70" alt="">
+        <button class="close" aria-label="Закрити пропозицію"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button>
       </div>
-      <div class="ops">
-        <div class="op"><span class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 3h12v18l-2-1.5L14 21l-2-1.5L10 21l-2-1.5L6 21zM9 8h6M9 12h6"/></svg></span><div class="t"><b>ФОП Ягусевич А. М.</b><span>Послуги</span></div><div class="a">−12 000,00 ₴</div></div>
-        <button class="all">Всі операції</button>
-      </div>
+
+      <div class="widget"><div class="w-wrap">
+        <div class="w-head">Курс обміну валют</div>
+        <div class="trow"><img class="flag" src="assets/flag-usd.png" alt="США"><div class="tm"><span class="cur">USD</span><span class="rate">41,0223</span><span class="rate">41,1865</span></div></div>
+        <div class="trow"><img class="flag" src="assets/flag-eur.png" alt="ЄС"><div class="tm"><span class="cur">EUR</span><span class="rate">48,5138</span><span class="rate">48,8591</span></div></div>
+      </div></div>
+
+      <div class="widget"><div class="w-wrap">
+        <div class="w-head">Підтримка</div>
+        <div class="support">
+          <button><img src="assets/sup-chat.svg" width="40" height="40" alt=""><span class="lbl">Написати в чат</span></button>
+          <button><img src="assets/sup-headphones.svg" width="40" height="40" alt=""><span class="lbl">Служба<br>підтримки</span></button>
+          <button><img src="assets/sup-faq.svg" width="40" height="40" alt=""><span class="lbl">Поширені<br>запитання</span></button>
+          <button><img src="assets/sup-atm.svg" width="40" height="40" alt=""><span class="lbl">Мапа банкоматів</span></button>
+        </div>
+      </div></div>
+
+      <div class="widget"><div class="w-wrap">
+        <a class="cell l" href="#" onclick="return false">
+          <span class="lead"><img src="assets/limits-squircle.svg" width="44" height="44" alt=""><img class="ic" src="assets/limits-branch.svg" width="20" height="20" alt=""></span>
+          <span class="main"><span class="txt"><span class="t m">Ліміти по рахунках</span><span class="c m">Встановлені законодавством України</span></span></span>
+        </a>
+      </div></div>
     </div>
 
     <div class="pane card-pane" id="cardPane">
-      <button class="cta js-activate-cta">Активувати картку</button>
+      <button class="cta js-activate-cta"><img src="assets/nav-cards.svg" width="20" height="20" alt="">Активувати картку</button>
 
       <div class="tiles3">
         <button><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M14 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V9z"/><path d="M14 3v6h6M8 14h2.5a1.5 1.5 0 000-3H8v6"/></svg>Надіслати<br>реквізити</button>
@@ -352,53 +460,61 @@
         <button><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="6" y="3" width="14" height="16" rx="2"/><path d="M4 7v12a2 2 0 002 2h10M10 8h6M10 12h6M10 16h3"/></svg>Виписка<br>за рахунком</button>
       </div>
 
-      <div class="group">
-        <div class="row iban">
-          <span class="ri"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 10l9-6 9 6M5 10v8M19 10v8M9 10v8M15 10v8M3 20h18"/></svg></span>
+      <div class="widget"><div class="w-wrap rows">
+        <div class="row iban-row">
+          <span class="iban-lead"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 10l9-6 9 6M5 10v8M19 10v8M9 10v8M15 10v8M3 20h18"/></svg></span>
           <span class="rt"><b>Рахунок</b><span id="iban">UA24 3456 7892 3823 4298 3223 949</span></span>
           <button class="copy-btn js-copy-iban" aria-label="Скопіювати IBAN"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2"/></svg></button>
         </div>
-      </div>
+      </div></div>
 
-      <div class="group">
-        <button class="row"><span class="ri"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 3h12l3 6-9 12L3 9z M3 9h18 M9 3l3 18 3-18"/></svg></span><span class="rt"><b>Обслуговування пакету</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row"><span class="ri"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg></span><span class="rt"><b>Налаштувати Apple Pay</b><span>Картку не підключено</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row"><span class="ri"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span><span class="rt"><b>Заблокувати картку</b><span>Ви завжди зможете її розблокувати</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row"><span class="ri"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M14 10l-2 2 2 2M10 10l2 2-2 2"/></svg></span><span class="rt"><b>Перевипустити картку</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row only-credit"><span class="ri"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="7" width="15" height="12" rx="2"/><path d="M3 11h15M19 3v6M16 6h6"/></svg></span><span class="rt"><b>Змінити кредитний ліміт</b><span>Поточний ліміт 300 000 ₴</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-      </div>
+      <div class="widget"><div class="w-wrap rows">
+        <button class="row"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 3h12l3 6-9 12L3 9z M3 9h18 M9 3l3 18 3-18"/></svg></span><span class="rt"><b>Обслуговування пакету</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="row"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg></span><span class="rt"><b>Налаштувати Apple Pay</b><span>Картку не підключено</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="row"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span><span class="rt"><b>Заблокувати картку</b><span>Ви завжди зможете її розблокувати</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="row"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M14 10l-2 2 2 2M10 10l2 2-2 2"/></svg></span><span class="rt"><b>Перевипустити картку</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="row only-credit"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="7" width="15" height="12" rx="2"/><path d="M3 11h15M19 3v6M16 6h6"/></svg></span><span class="rt"><b>Змінити кредитний ліміт</b><span>Поточний ліміт 300 000 ₴</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div></div>
 
-      <div class="group">
-        <button class="row"><span class="ri"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="7" width="16" height="12" rx="2"/><path d="M6 4h14a2 2 0 012 2v9"/></svg></span><span class="rt"><b>Додаткова картка до рахунку</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row"><span class="ri"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="7" width="20" height="10" rx="3"/><circle cx="7" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="17" cy="12" r="1.2"/></svg></span><span class="rt"><b>Налаштувати PIN</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row"><span class="ri"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg></span><span class="rt"><b>Номер підтвердження оплат</b><span>+380 63 721 73 91</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-      </div>
+      <div class="widget"><div class="w-wrap rows">
+        <button class="row"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="7" width="16" height="12" rx="2"/><path d="M6 4h14a2 2 0 012 2v9"/></svg></span><span class="rt"><b>Додаткова картка до рахунку</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="row"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="7" width="20" height="10" rx="3"/><circle cx="7" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="17" cy="12" r="1.2"/></svg></span><span class="rt"><b>Налаштувати PIN</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="row"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg></span><span class="rt"><b>Номер підтвердження оплат</b><span>+380 63 721 73 91</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div></div>
 
-      <div class="group">
-        <button class="row"><span class="ri"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M10 8h4M12 6v4"/></svg></span><span class="rt"><b>Перекази за номером телефону</b><span>Картку не підключено</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row"><span class="ri"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z"/></svg></span><span class="rt"><b>SMS-інформування</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-      </div>
+      <div class="widget"><div class="w-wrap rows">
+        <button class="row"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M10 8h4M12 6v4"/></svg></span><span class="rt"><b>Перекази за номером телефону</b><span>Картку не підключено</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="row"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z"/></svg></span><span class="rt"><b>SMS-інформування</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      </div></div>
 
-      <div class="group">
-        <button class="row limits"><span class="ri"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 10l9-6 9 6M5 10v8M19 10v8M9 10v8M15 10v8M3 20h18"/></svg></span><span class="rt"><b>Ліміти по рахунку</b><span>Встановлені законодавством України</span></span></button>
-      </div>
+      <div class="widget"><div class="w-wrap">
+        <a class="cell l" href="#" onclick="return false">
+          <span class="lead"><img src="assets/limits-squircle.svg" width="44" height="44" alt=""><img class="ic" src="assets/limits-branch.svg" width="20" height="20" alt=""></span>
+          <span class="main"><span class="txt"><span class="t m">Ліміти по рахунку</span><span class="c m">Встановлені законодавством України</span></span></span>
+        </a>
+      </div></div>
     </div>
   </div>
 
-  <nav>
-    <button class="on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l9 8h-2.5v9h-5v-6h-3v6h-5v-9H3z"/></svg>Головна</button>
-    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 15l3-3 2 2 3-4"/></svg>Кредити</button>
-    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8.5 12h7"/></svg>Накопичення</button>
-    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>Послуги</button>
-    <button><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="9" width="16" height="11" rx="1"/><path d="M3 6h18v3H3zM12 6v14"/></svg>Raif+</button>
+  <nav class="tabbar" aria-label="Основна навігація">
+    <button class="on" aria-current="page">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 16V20C11 20.5523 10.5523 21 10 21H4C3.44772 21 3 20.5523 3 20V12C3 11.7348 3.10536 11.4804 3.29289 11.2929L11.2929 3.29289C11.6834 2.90237 12.3166 2.90237 12.7071 3.29289L20.7071 11.2929C20.8946 11.4804 21 11.7348 21 12V20C21 20.5523 20.5523 21 20 21H14C13.4477 21 13 20.5523 13 20V16H11Z" fill="currentColor"/></svg>
+      <span class="tl">Головна</span>
+    </button>
+    <!-- Placeholder icons until the design-system tab icons are provided -->
+    <button><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 15l3-3 2 2 3-4"/></svg><span class="tl">Кредити</span></button>
+    <button><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8.5 12h7"/></svg><span class="tl">Накопичення</span></button>
+    <button><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="tl">Послуги</span></button>
+    <button><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="9" width="16" height="11" rx="1"/><path d="M3 6h18v3H3zM12 6v14"/></svg><span class="tl">Raif+</span></button>
   </nav>
+  <div class="home-ind" aria-hidden="true"></div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"><span class="ok"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" aria-hidden="true"><path d="M5 12l4.5 4.5L19 7"/></svg></span><span id="toastText"></span></div>
 </div>
 
 <div class="controls" aria-label="Налаштування прототипу">
-  <label>Видима смуга <input id="peek" type="range" min="64" max="110" step="2" value="84"></label>
-  <p>Свайп або точки — гортати картки, фон змінюється. Тап по картці — відкрити; у «100 днів» за нею ще одна картка рахунку. «CVV» — перевернути. Утримуйте номер — скопіювати. Esc — назад.</p>
+  <label>Видима смуга <input id="peek" type="range" min="64" max="110" step="1" value="81"></label>
+  <p>Свайп або точки — гортати картки. Тап по картці — відкрити; у «100 днів» за нею ще одна картка рахунку. «CVV» — перевернути. Утримуйте номер — скопіювати. Esc — назад.</p>
 </div>
 
 <script>
@@ -409,6 +525,7 @@
   const extra = document.querySelector('.card.extra');
   const all = cards.concat(extra);
   const slotOf = (el) => (el === extra ? 2 : cards.indexOf(el));
+  const STEP = 332;
   const bgs = ['#7E97B8', '#534E6B', '#4FA07E'];
   const balances = [
     { label: 'Власні кошти', value: 8412.50 },
@@ -423,16 +540,47 @@
   const currentEl = () => (state.sub ? extra : cards[state.idx]);
   let toastTimer;
 
+  // Balance counter: tweens from the shown value to the account's balance
+  const balInt = document.getElementById('balInt');
+  const balDec = document.getElementById('balDec');
+  const balLabel = document.getElementById('balLabel');
+  let shownBal = balances[0].value, balIdx = 0, balRaf = null;
+  function fmt(v) {
+    const parts = Math.abs(v).toFixed(2).split('.');
+    return [parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' '), parts[1]];
+  }
+  function paint(v) { const f = fmt(v); balInt.textContent = f[0]; balDec.textContent = f[1]; }
+  function setBalance(i) {
+    if (i === balIdx) return;
+    balIdx = i;
+    const target = balances[i];
+    balLabel.classList.add('swap');
+    setTimeout(() => { balLabel.textContent = target.label; balLabel.classList.remove('swap'); }, 150);
+    const f = fmt(target.value);
+    document.getElementById('balance').setAttribute('aria-label', target.label + ' ' + f[0] + ',' + f[1] + ' гривень');
+    cancelAnimationFrame(balRaf);
+    const from = shownBal, to = target.value, start = performance.now();
+    const dur = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 700;
+    const step = (now) => {
+      const t = dur ? Math.min(1, (now - start) / dur) : 1;
+      const e = 1 - Math.pow(1 - t, 3);
+      shownBal = from + (to - from) * e;
+      paint(shownBal);
+      if (t < 1) balRaf = requestAnimationFrame(step); else shownBal = to;
+    };
+    balRaf = requestAnimationFrame(step);
+  }
+
   function render() {
+    if (!multi()) state.sub = 0;
     phone.classList.toggle('open', state.open);
     phone.classList.toggle('flipped', state.flipped);
     phone.classList.toggle('activated', state.activated);
+    phone.classList.toggle('multi', multi());
     phone.classList.toggle('needs-activation', state.idx === 2 && !state.activated);
     phone.classList.toggle('is-credit', state.idx === 1);
-    if (!multi()) state.sub = 0;
-    phone.classList.toggle('multi', multi());
     const slot = state.sub ? 2 : state.idx;
-    track.style.transform = 'translateX(' + (-352 * slot) + 'px)';
+    track.style.transform = 'translateX(' + (-STEP * slot) + 'px)';
     phone.style.background = bgs[state.idx];
     document.documentElement.style.setProperty('--header', bgs[state.idx]);
     all.forEach((c) => {
@@ -447,35 +595,6 @@
     dots.forEach((d, i) => d.classList.toggle('on', i === state.idx));
     title.textContent = titles[state.idx];
     setBalance(state.idx);
-  }
-  // Balance counter: tweens from the shown value to the account's balance
-  const balInt = document.getElementById('balInt');
-  const balDec = document.getElementById('balDec');
-  const balLabel = document.getElementById('balLabel');
-  let shownBal = balances[0].value, balIdx = 0, balRaf = null;
-  function fmt(v) {
-    const parts = Math.abs(v).toFixed(2).split('.');
-    return [parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0'), ',' + parts[1] + '\u00A0₴'];
-  }
-  function paint(v) { const f = fmt(v); balInt.textContent = f[0]; balDec.textContent = f[1]; }
-  function setBalance(i) {
-    if (i === balIdx) return;
-    balIdx = i;
-    const target = balances[i];
-    balLabel.classList.add('swap');
-    setTimeout(() => { balLabel.textContent = target.label; balLabel.classList.remove('swap'); }, 150);
-    document.getElementById('balance').setAttribute('aria-label', target.label + ' ' + fmt(target.value).join('').replace(/\u00A0₴/, ' гривень'));
-    cancelAnimationFrame(balRaf);
-    const from = shownBal, to = target.value, start = performance.now();
-    const dur = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 700;
-    const step = (now) => {
-      const t = dur ? Math.min(1, (now - start) / dur) : 1;
-      const e = 1 - Math.pow(1 - t, 3);
-      shownBal = from + (to - from) * e;
-      paint(shownBal);
-      if (t < 1) balRaf = requestAnimationFrame(step); else shownBal = to;
-    };
-    balRaf = requestAnimationFrame(step);
   }
   function toast(text) {
     const t = document.getElementById('toast');
@@ -513,7 +632,7 @@
     toast('Картку •• 4410 активовано');
   }
 
-  // Swipe between cards (collapsed only)
+  // Swipe between cards (collapsed, or between cards of one account in details)
   let startX = null, swiped = false;
   const area = document.getElementById('cards');
   area.addEventListener('pointerdown', (e) => { if (!state.open || multi()) { startX = e.clientX; swiped = false; } });
@@ -550,7 +669,6 @@
     const i = cards.indexOf(c);
     if (swiped) { swiped = false; return; }
     if (longPressed) { longPressed = false; return; }
-    if (e.target.closest('.js-activate')) { activate(); return; }
     if (e.target.closest('.js-flip')) { if (state.open) flip(); return; }
     if (c !== currentEl()) {
       if (state.open && multi()) { state.sub = c === extra ? 1 : 0; state.flipped = false; render(); }
@@ -563,6 +681,7 @@
   document.querySelectorAll('[role="button"]').forEach((el) => el.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); el.click(); }
   }));
+  document.querySelector('.js-activate').addEventListener('click', activate);
   document.querySelector('.js-activate-cta').addEventListener('click', activate);
   document.querySelector('.js-copy-iban').addEventListener('click', () => copy(document.getElementById('iban').textContent.replace(/\s/g, ''), 'IBAN скопійовано'));
   document.getElementById('collapse').addEventListener('click', () => setOpen(false));
@@ -571,7 +690,6 @@
     if (e.key !== 'Escape' || !state.open) return;
     if (state.flipped) flip(); else setOpen(false);
   });
-
   document.getElementById('peek').addEventListener('input', (e) => {
     document.documentElement.style.setProperty('--peek', e.target.value + 'px');
   });

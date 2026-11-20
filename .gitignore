@@ -1,1 +1,3 @@
 .claude/settings.local.json
+# Licensed font files: kept local until approved for this public repo
+prototypes/home-card/fonts/

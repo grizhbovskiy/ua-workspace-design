@@ -1,0 +1,20 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Container">
+<rect x="0.5" y="0.5" width="47" height="47" rx="11.5" fill="#2B2D34"/>
+<rect x="0.5" y="0.5" width="47" height="47" rx="11.5" stroke="url(#paint0_linear_0_10)"/>
+<g id="mobile">
+<g id="Vector">
+<path d="M24 30C24.5523 30 25 29.5523 25 29C25 28.4477 24.5523 28 24 28C23.4477 28 23 28.4477 23 29C23 29.5523 23.4477 30 24 30Z" fill="white"/>
+<path d="M19 14C17.8954 14 17 14.8954 17 16V32C17 33.1046 17.8954 34 19 34H29C30.1046 34 31 33.1046 31 32V16C31 14.8954 30.1046 14 29 14H19ZM19 16L29 16V32H19V16Z" fill-rule="evenodd" clip-rule="evenodd" fill="white"/>
+<path d="M24 30C24.5523 30 25 29.5523 25 29C25 28.4477 24.5523 28 24 28C23.4477 28 23 28.4477 23 29C23 29.5523 23.4477 30 24 30Z" fill="#FEE600"/>
+</g>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear_0_10" x1="24" y1="0" x2="24" y2="48" gradientUnits="userSpaceOnUse">
+<stop stop-color="#131416" stop-opacity="0.08"/>
+<stop offset="0.9" stop-color="#131416" stop-opacity="0.1"/>
+<stop offset="1" stop-color="#131416" stop-opacity="0.2"/>
+</linearGradient>
+</defs>
+</svg>
