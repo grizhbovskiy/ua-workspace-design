@@ -282,9 +282,9 @@
   .cell .lead { position: relative; width: 44px; height: 44px; margin: 0 16px; flex: none; }
   .cell .lead img.ic { position: absolute; left: 12px; top: 12px; }
   /* List Cell / Left Slot / Squircle (Rounded, Medium 44) with a merchant logo */
-  .cell .lead.merchant { border-radius: 14px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 1px rgba(156,150,127,.24); transition: background .3s; }
+  .cell .lead.merchant { border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 1px rgba(156,150,127,.24); transition: background .3s; }
   .cell .lead.merchant img { max-width: 36px; max-height: 30px; object-fit: contain; }
-  .cell .lead.merchant .mono { display: none; font-size: 18px; font-weight: 700; color: var(--tint-primary); }
+  .cell .lead.merchant .mono { display: none; font-weight: 700; line-height: 1; white-space: nowrap; letter-spacing: -.2px; }
   .cell .lead.merchant.no-logo img { display: none; }
   .cell .lead.merchant.no-logo .mono { display: block; }
   /* Squircle Small / Rounded */
@@ -485,7 +485,7 @@
 
       <div class="widget"><div class="w-wrap">
         <a class="cell l" href="#" onclick="return false">
-          <span class="lead sm"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img class="ic" src="assets/dt-branch-09.svg" width="16" height="16" alt=""></span>
+          <span class="lead"><img src="assets/limits-squircle.svg" width="44" height="44" alt=""><img class="ic" src="assets/limits-branch.svg" width="20" height="20" alt=""></span>
           <span class="main"><span class="txt"><span class="t m">Ліміти по рахунках</span><span class="c m">Встановлені законодавством України</span></span></span>
         </a>
       </div></div>
@@ -634,16 +634,16 @@
     personal: [
       { key: 'raif', skin: 'yellow', name: 'Райфкарта', pan: ['4149', '6093', '2718', '0451'], date: '07/29', cvv: '482',
         bg: '#7E97B8', label: 'Власні кошти', value: 8412.50,
-        tx: { name: 'Glovo', cat: 'Доставка їжі', amount: '-385,00 ₴', logo: 'm-glovo.png', bg: '#FFC244' },
+        tx: { name: 'Glovo', cat: 'Доставка їжі', amount: '-385,00 ₴', bg: '#FFC244', mark: 'glovo', fg: '#00A082', fs: 13 },
         title: 'UA67 **** 04519', iban: 'UA67 3808 0500 0000 0026 2049 0451 9',
         extra: { key: 'fishka', skin: 'red light', img: 'card-fishka.png', name: 'Фішка', pan: ['4149', '6093', '5520', '1736'], date: '02/30', cvv: '315' } },
       { key: 'd100', skin: 'by light', img: 'card-100.png', name: '100 днів', pan: ['4149', '4997', '1062', '8835'], date: '10/28', cvv: '907',
         bg: '#534E6B', label: 'Використано 12 750,00 з 50 000,00 ₴', value: 37250.00, credit: '50 000 ₴',
-        tx: { name: 'Comfy', cat: 'Електроніка', amount: '-8 499,00 ₴', logo: 'm-comfy.png', bg: '#FFFFFF' },
+        tx: { name: 'Decathlon', cat: 'Спорттовари', amount: '-3 299,00 ₴', bg: '#0082C3', mark: 'DECATHLON', fg: '#FFFFFF', fs: 6.5 },
         title: 'UA21 **** 88350', iban: 'UA21 3808 0500 0000 0026 2511 8835 0' },
       { key: 'atb', skin: 'atb light', img: 'card-atb.png', shade: true, name: 'Картка АТБ', pan: ['4149', '3105', '7744', '6012'], date: '12/30', cvv: '238',
         bg: '#4FA07E', label: 'Власні кошти', value: 0, activate: true,
-        tx: { name: 'Bolt', cat: 'Таксі', amount: '-214,00 ₴', logo: 'm-bolt.png', bg: '#34D186' },
+        tx: { name: 'Bolt', cat: 'Таксі', amount: '-214,00 ₴', bg: '#34D186', mark: 'Bolt', fg: '#FFFFFF', fs: 14 },
         title: 'UA94 **** 60127', iban: 'UA94 3808 0500 0000 0026 2733 6012 7' }
     ],
     business: [
@@ -654,7 +654,7 @@
         title: 'UA12 **** 33556', iban: 'UA12 3808 0500 0000 0026 0071 3355 6' },
       { key: 'biz', skin: 'biz light', img: 'card-business.png', name: 'Бізнес картка', pan: ['4149', '8820', '6417', '9530'], date: '05/29', cvv: '661',
         bg: '#7B7466', label: 'Власні кошти ФОП', value: 126540.80,
-        tx: { name: 'Foxtrot', cat: 'Техніка для офісу', amount: '-12 349,00 ₴', logo: 'm-foxtrot.png', bg: '#FFFFFF' },
+        tx: { name: 'Uber', cat: 'Таксі', amount: '-486,00 ₴', bg: '#000000', mark: 'Uber', fg: '#FFFFFF', fs: 13 },
         title: 'UA12 **** 33556', iban: 'UA12 3808 0500 0000 0026 0071 3355 6' }
     ]
   };
@@ -787,9 +787,13 @@
       const logo = document.getElementById('txLogo');
       const wrap = document.getElementById('txLogoWrap');
       wrap.classList.remove('no-logo');
-      document.getElementById('txMono').textContent = c.tx.name.charAt(0);
+      const mono = document.getElementById('txMono');
+      mono.textContent = c.tx.mark || c.tx.name;
+      mono.style.color = c.tx.fg || 'var(--tint-primary)';
+      mono.style.fontSize = (c.tx.fs || 12) + 'px';
       logo.onerror = () => wrap.classList.add('no-logo');
-      logo.src = 'assets/' + c.tx.logo;
+      if (c.tx.logo) logo.src = 'assets/' + c.tx.logo;
+      else { logo.removeAttribute('src'); wrap.classList.add('no-logo'); }
       document.getElementById('txLogo').alt = c.tx.name;
       document.getElementById('txLogoWrap').style.background = c.tx.bg;
       document.getElementById('txName').textContent = c.tx.name;
