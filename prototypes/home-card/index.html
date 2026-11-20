@@ -68,18 +68,21 @@
   }
 
   /* Status bar */
-  .status { position: absolute; left: 0; right: 0; top: 0; height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px 0 52px; color: #fff; font-size: 17px; font-weight: 600; z-index: 6; pointer-events: none; }
+  .status { position: absolute; left: 0; right: 0; top: 0; height: 54px; z-index: 6; display: flex; align-items: center; justify-content: space-between; padding: 0 30px 0 52px; color: #fff; font-size: 17px; font-weight: 600; z-index: 6; pointer-events: none; }
   .status .sys { display: flex; gap: 6px; align-items: center; }
 
   /* Navigation bar (Toolbar: top 54, padding 8 16) */
   .navbar { position: absolute; left: 0; right: 0; top: 54px; height: 60px; z-index: 5; }
+  .scroller { z-index: 1; }
   .nav-home, .nav-detail { position: absolute; left: 16px; right: 16px; top: 8px; height: 44px; display: flex; align-items: center; justify-content: space-between; transition: opacity .25s, transform .35s var(--ease); }
   .nav-detail { opacity: 0; transform: translateY(-6px); pointer-events: none; }
   .open .nav-home { opacity: 0; transform: translateY(-6px); pointer-events: none; }
   .open .nav-detail { opacity: 1; transform: none; pointer-events: auto; transition-delay: .12s; }
   .avatar { position: relative; width: 44px; height: 44px; }
-  .avatar span.ini { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 20px; letter-spacing: .25px; }
-  .avatar .badge-biz { position: absolute; left: 50%; top: 35px; transform: translateX(-50%); padding: 0 4px 1px; border-radius: 100px; background: var(--surface-accent); color: var(--tint-primary); font-size: 10px; line-height: 12px; font-weight: 500; box-shadow: 0 0 0 2px var(--surface-background); white-space: nowrap; }
+  .avatar .ph { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+  /* Avatar / Badge / Small / Top — top-right corner (Figma 1538:115526) */
+  .avatar .badge-biz { position: absolute; left: calc(50% + 25.7px); top: calc(50% - 18px); transform: translate(-50%, -50%) scale(.6); opacity: 0; padding: 0 4px 1px; border-radius: 100px; background: var(--surface-accent); color: var(--tint-primary); font-size: 10px; line-height: 12px; font-weight: 500; box-shadow: 0 0 0 2px var(--surface-background); white-space: nowrap; transition: opacity .2s, transform .3s var(--spring); }
+  .business .avatar .badge-biz { opacity: 1; transform: translate(-50%, -50%); }
   .nav-right { display: flex; gap: 10px; align-items: center; }
   .icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
   .btn-group { display: flex; gap: 8px; height: 44px; align-items: center; padding: 0 6px; }
@@ -167,20 +170,66 @@
   .activated .pearl .stripes { opacity: 0; }
 
   /* Sheet */
-  .sheet { position: absolute; left: 0; right: 0; bottom: 0; top: calc(var(--top-closed) + var(--peek)); background: var(--surface-background); border-radius: 24px 24px 0 0; transition: top .5s var(--ease); z-index: 2; }
-  .open .sheet { top: calc(var(--top-open) + var(--card-h) + 16px); }
-  .pane { position: absolute; inset: 0; overflow-y: auto; padding-bottom: 120px; transition: opacity .25s, transform .4s var(--ease); scrollbar-width: none; }
-  .pane::-webkit-scrollbar { display: none; }
-  .pane.card-pane { opacity: 0; transform: translateY(16px); pointer-events: none; padding-top: 8px; padding-bottom: 40px; }
-  .open .pane.home-pane { opacity: 0; transform: translateY(16px); pointer-events: none; }
-  .open .pane.card-pane { opacity: 1; transform: none; pointer-events: auto; transition-delay: .2s; }
+  /* Full-screen scroll: header, cards and content scroll together */
+  .scroller { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; overscroll-behavior: contain; }
+  .scroller::-webkit-scrollbar { display: none; }
+  .page { position: relative; min-height: 100%; display: flow-root; }
+  .navbg { position: absolute; left: 0; right: 0; top: 0; height: 114px; background: var(--header); opacity: 0; transition: opacity .2s, background .45s ease; z-index: 4; pointer-events: none; box-shadow: 0 1px 0 rgba(0,0,0,.06); }
+  .scrolled .navbg { opacity: 1; }
 
-  /* Page Indicator */
-  .dots { height: 30px; display: flex; justify-content: center; align-items: center; padding-top: 4px; }
-  .dots .wrap { display: flex; gap: 2px; align-items: center; }
-  .dots button { width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
-  .dots i { display: block; height: 6px; width: 6px; border-radius: 999px; background: var(--tint-tertiary); transition: width .3s, background .3s; }
-  .dots .on i { width: 16px; background: var(--tint-primary); }
+  .sheet { position: relative; margin-top: calc(var(--top-closed) + var(--peek)); min-height: 620px; padding-bottom: 120px; background: var(--surface-background); border-radius: 24px 24px 0 0; transition: margin-top .5s var(--ease); z-index: 2; }
+  .open .sheet { margin-top: calc(var(--top-open) + var(--card-h) + 16px); padding-bottom: 40px; }
+  .pane { transition: opacity .25s, transform .4s var(--ease); }
+  .pane.card-pane { position: absolute; left: 0; right: 0; top: 0; height: 0; overflow: hidden; visibility: hidden; opacity: 0; transform: translateY(16px); pointer-events: none; padding-top: 8px; }
+  .open .pane.home-pane { position: absolute; left: 0; right: 0; top: 0; height: 0; overflow: hidden; visibility: hidden; opacity: 0; transform: translateY(16px); pointer-events: none; }
+  .open .pane.card-pane { position: static; height: auto; overflow: visible; visibility: visible; opacity: 1; transform: none; pointer-events: auto; transition-delay: .2s; }
+
+  /* Profile (modal, slides up). Figma concept 764:99142 */
+  .profile { position: absolute; inset: 0; z-index: 20; background: var(--surface-background); transform: translateY(100%); transition: transform .45s var(--ease); visibility: hidden; }
+  .profile.show { transform: none; visibility: visible; }
+  .profile:not(.show) { transition: transform .45s var(--ease), visibility 0s .45s; }
+  .pr-status { position: absolute; left: 0; right: 0; top: 0; height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px 0 52px; font-size: 17px; font-weight: 600; color: var(--tint-primary); z-index: 3; background: rgba(248,246,242,.8); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+  .pr-scroll { position: absolute; inset: 54px 0 0; overflow-y: auto; scrollbar-width: none; padding-bottom: 40px; }
+  .pr-scroll::-webkit-scrollbar { display: none; }
+  .pr-nav { position: sticky; top: 0; height: 56px; display: flex; justify-content: space-between; align-items: center; z-index: 2; background: rgba(248,246,242,.8); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+  .pr-nav button { width: 56px; height: 44px; display: flex; align-items: center; justify-content: center; }
+  .pr-avatar { position: relative; width: 84px; height: 84px; margin: 0 auto; }
+  .pr-avatar .ph { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; }
+  .pr-avatar .cam { position: absolute; left: calc(50% + 32.7px); top: calc(50% + 32px); transform: translate(-50%, -50%); width: 28px; height: 24px; border-radius: 100px; background: #118DB8; box-shadow: 0 0 0 2px var(--surface-baseline); display: flex; align-items: center; justify-content: center; }
+  .pr-head { padding: 16px; text-align: center; }
+  .pr-head h1 { margin: 0; padding: 4px 16px; font-size: 24px; line-height: 28px; font-weight: 700; letter-spacing: -.12px; }
+  .pr-head p { margin: 0; font-size: 16px; line-height: 24px; color: var(--tint-secondary); }
+  .tile { width: 100%; background: var(--surface-baseline); border-radius: 16px; box-shadow: var(--elevation-1); padding: 16px 16px 8px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; }
+  .tile .tt { display: flex; flex-direction: column; padding: 8px 16px 8px 0; min-height: 56px; justify-content: center; }
+  .tile .tt b { font-size: 16px; line-height: 24px; font-weight: 500; }
+  .tile .tt span { font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
+  .sq { position: relative; flex: none; display: flex; align-items: center; justify-content: center; }
+  .sq > img:first-child { position: absolute; inset: 0; }
+  .sq img + img { position: relative; }
+  .pr-pad { padding: 8px 16px; }
+  .pr-two { display: flex; padding: 0 8px; }
+  .pr-two > div { flex: 1 0 0; min-width: 0; padding: 8px; display: flex; }
+  .pr-two .tile { height: 100%; }
+  .pr-two .tile .tt span { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .switch-business, .business .switch-personal { display: none; }
+  .business .switch-business { display: flex; }
+  .pr-sec { padding: 11px 16px; margin: 0; font-size: 20px; line-height: 26px; font-weight: 700; letter-spacing: -.1px; }
+  .plist .pr-row { display: flex; align-items: center; width: 100%; min-height: 56px; text-align: left; position: relative; }
+  .plist .pr-row .sq { margin: 0 16px; }
+  .plist .pr-row .rt { flex: 1; min-width: 0; padding: 8px 0; }
+  .plist .pr-row .rt b { display: block; font-size: 16px; line-height: 24px; font-weight: 500; }
+  .plist .pr-row .rt b.sub-only { line-height: 20px; }
+  .plist .pr-row .rt span { display: block; font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
+  .plist .pr-row .chev { margin: 0 16px; flex: none; }
+  .plist .pr-row + .pr-row::before { content: ''; position: absolute; left: 64px; right: 0; top: 0; height: 1px; background: var(--border-regular); }
+  .plist .pr-row.tall { min-height: 64px; }
+
+  /* Page Indicator (UDS: Pages=3 — container p8 gap6, active dot 16×6, inactive 6×6) */
+  .dots { height: 30px; display: flex; justify-content: center; align-items: flex-start; padding-top: 4px; }
+  .dots .wrap { display: flex; gap: 6px; align-items: center; padding: 8px; border-radius: 100px; }
+  .dots button { position: relative; display: block; height: 6px; width: 6px; border-radius: 999px; background: var(--tint-tertiary); transition: width .3s var(--ease), background .3s; }
+  .dots button::after { content: ''; position: absolute; inset: -16px -3px; }
+  .dots button.on { width: 16px; background: var(--tint-primary); }
 
   /* Quick actions (Button / Icon + Text) */
   .quick { display: flex; padding-bottom: 8px; }
@@ -262,7 +311,7 @@
   .home-ind { position: absolute; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 20px; background: #111; z-index: 7; pointer-events: none; }
   .open .tabbar { transform: translateY(120px); opacity: 0; pointer-events: none; }
 
-  .toast { position: absolute; left: 16px; right: 16px; top: 62px; background: var(--tint-primary); color: #fff; border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 24px rgba(0,0,0,.25); z-index: 10; opacity: 0; transform: translateY(-12px); pointer-events: none; transition: opacity .25s, transform .35s var(--ease); font-size: 15px; }
+  .toast { position: absolute; left: 16px; right: 16px; top: 62px; z-index: 30; background: var(--tint-primary); color: #fff; border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 24px rgba(0,0,0,.25); z-index: 10; opacity: 0; transform: translateY(-12px); pointer-events: none; transition: opacity .25s, transform .35s var(--ease); font-size: 15px; }
   .toast.show { opacity: 1; transform: none; }
   .toast .ok { width: 26px; height: 26px; border-radius: 13px; background: #3DBE6E; display: flex; align-items: center; justify-content: center; flex: none; }
 
@@ -287,9 +336,8 @@
 
   <div class="navbar">
     <div class="nav-home">
-      <button class="avatar" aria-label="Профіль, бізнес">
-        <img src="assets/nav-avatar.svg" width="44" height="44" alt="">
-        <span class="ini">MH</span>
+      <button class="avatar" id="openProfile" aria-label="Профіль">
+        <img class="ph" src="assets/pr-photo.png" width="44" height="44" alt="">
         <span class="badge-biz">Бізнес</span>
       </button>
       <div class="nav-right">
@@ -308,6 +356,8 @@
     </div>
   </div>
 
+  <div class="navbg" aria-hidden="true"></div>
+  <div class="scroller" id="scroller"><div class="page">
   <div class="balance" id="balance" aria-label="Власні кошти 8 412,50 гривень">
     <div class="label" id="balLabel" aria-hidden="true">Власні кошти</div>
     <div class="amount" aria-hidden="true"><span class="int" id="balInt">8 412</span><span class="comma">,</span><span class="dec" id="balDec">50</span><span class="cur">₴</span></div>
@@ -396,9 +446,9 @@
   <div class="sheet">
     <div class="pane home-pane">
       <div class="dots"><div class="wrap" id="dots">
-        <button aria-label="Картка 1"><i></i></button>
-        <button aria-label="Картка 2"><i></i></button>
-        <button aria-label="Картка 3"><i></i></button>
+        <button aria-label="Картка 1"></button>
+        <button aria-label="Картка 2"></button>
+        <button aria-label="Картка 3"></button>
       </div></div>
 
       <div class="quick">
@@ -495,6 +545,7 @@
       </div></div>
     </div>
   </div>
+  </div></div>
 
   <nav class="tabbar" aria-label="Основна навігація">
     <button class="on" aria-current="page">
@@ -508,6 +559,62 @@
     <button><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="9" width="16" height="11" rx="1"/><path d="M3 6h18v3H3zM12 6v14"/></svg><span class="tl">Raif+</span></button>
   </nav>
   <div class="home-ind" aria-hidden="true"></div>
+
+
+  <div class="profile" id="profile" role="dialog" aria-modal="true" aria-label="Профіль" aria-hidden="true">
+    <div class="pr-status" aria-hidden="true"><span>4:20</span><span class="sys">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="#2B2D34"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x=".5" y=".5" width="22" height="11" rx="3.5" stroke="#2B2D34" opacity=".5"/><rect x="2" y="2" width="19" height="8" rx="2" fill="#2B2D34"/></svg>
+    </span></div>
+    <div class="pr-scroll">
+      <div class="pr-nav">
+        <button id="closeProfile" aria-label="Закрити профіль"><img src="assets/pr-close.svg" width="24" height="24" alt=""></button>
+        <button aria-label="Підтримка"><img src="assets/pr-headphones.svg" width="24" height="24" alt=""></button>
+      </div>
+      <div class="pr-avatar">
+        <img class="ph" src="assets/pr-photo.png" width="84" height="84" alt="Фото профілю">
+        <button class="cam" aria-label="Змінити фото"><img src="assets/pr-camera.svg" width="24" height="18" alt=""></button>
+      </div>
+      <div class="pr-head"><h1 id="prName">Шевченко Тарас</h1><p id="prCaption">+380 (63) 213 18 21</p></div>
+
+      <div class="pr-pad">
+        <button class="tile switch-personal js-switch" data-to="business">
+          <span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-case.svg" width="32" height="32" alt=""><img src="assets/pr-case.svg" width="16" height="16" alt=""></span>
+          <span class="tt"><b>ФОП Шевченко Тарас Григорович</b><span>Управляйте своїм бізнес рахунком</span></span>
+        </button>
+        <button class="tile switch-business js-switch" data-to="personal">
+          <span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-man.svg" width="32" height="32" alt=""><img src="assets/pr-man.svg" width="16" height="16" alt=""></span>
+          <span class="tt"><b>Шевченко Тарас Григорович</b><span>Фізична особа · особисті рахунки</span></span>
+        </button>
+      </div>
+
+      <div class="pr-two">
+        <div><button class="tile"><span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-man.svg" width="32" height="32" alt=""><img src="assets/pr-man.svg" width="16" height="16" alt=""></span><span class="tt"><b>Особисті дані</b><span>Переглядайте і редагуйте</span></span></button></div>
+        <div><button class="tile"><span class="sq" style="width:44px;height:44px"><img src="assets/pr-sq-premium.svg" width="44" height="44" alt=""><img src="assets/pr-premium.svg" width="20" height="20" alt=""></span><span class="tt"><b>Ваш преміум</b><span>Привілеї пакету, персональний менеджер</span></span></button></div>
+      </div>
+
+      <div class="widget"><div class="w-wrap plist">
+        <button class="pr-row"><span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-people.svg" width="32" height="32" alt=""><img src="assets/pr-people.svg" width="16" height="16" alt=""></span><span class="rt"><b>Запросіть друзів</b><span>Отримайте до 400 ₴ кешбеку</span></span><img class="chev" src="assets/pr-go-right.svg" width="20" height="20" alt=""></button>
+      </div></div>
+
+      <h2 class="pr-sec">Сервіси</h2>
+      <div class="widget"><div class="w-wrap plist">
+        <button class="pr-row"><span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-docs.svg" width="32" height="32" alt=""><img src="assets/pr-docs.svg" width="16" height="16" alt=""></span><span class="rt"><b>Довідки та виписки</b><span>За рахунком, кредитом чи депозитом</span></span><img class="chev" src="assets/pr-go-right.svg" width="20" height="20" alt=""></button>
+        <button class="pr-row"><span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-scheme.svg" width="32" height="32" alt=""><img src="assets/pr-scheme.svg" width="16" height="16" alt=""></span><span class="rt"><b>Відкритий банкінг</b><span>Доступ до рахунків і платежів</span></span><img class="chev" src="assets/pr-go-right.svg" width="20" height="20" alt=""></button>
+        <button class="pr-row"><span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-invoice.svg" width="32" height="32" alt=""><img src="assets/pr-invoice-info.svg" width="16" height="16" alt=""></span><span class="rt"><b class="sub-only">Тарифи та умови</b></span><img class="chev" src="assets/pr-go-right.svg" width="20" height="20" alt=""></button>
+      </div></div>
+
+      <h2 class="pr-sec">Налаштування</h2>
+      <div class="widget"><div class="w-wrap plist">
+        <button class="pr-row"><span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-locked.svg" width="32" height="32" alt=""><img src="assets/pr-locked.svg" width="16" height="16" alt=""></span><span class="rt"><b>Приватність і безпека</b><span>Змінити пароль, вхід за біометрією, налаштування доступів</span></span><img class="chev" src="assets/pr-go-right.svg" width="20" height="20" alt=""></button>
+        <button class="pr-row"><span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-people.svg" width="32" height="32" alt=""><img src="assets/pr-settings.svg" width="16" height="16" alt=""></span><span class="rt"><b>Налаштування застосунку</b><span>Змінити мову, вибрати тему</span></span><img class="chev" src="assets/pr-go-right.svg" width="20" height="20" alt=""></button>
+      </div></div>
+
+      <div class="widget"><div class="w-wrap plist">
+        <button class="pr-row tall"><span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-exit.svg" width="32" height="32" alt=""><img src="assets/pr-exit.svg" width="16" height="16" alt=""></span><span class="rt"><b class="sub-only">Вийти із застосунку</b></span><img class="chev" src="assets/pr-go-right.svg" width="20" height="20" alt=""></button>
+      </div></div>
+    </div>
+  </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"><span class="ok"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" aria-hidden="true"><path d="M5 12l4.5 4.5L19 7"/></svg></span><span id="toastText"></span></div>
 </div>
@@ -535,7 +642,8 @@
   const dots = Array.from(document.querySelectorAll('#dots button'));
   const title = document.getElementById('title');
   const titles = ['UA 23 **** 12345', 'UA 41 **** 30971', 'UA 23 **** 12345'];
-  const state = { idx: 0, sub: 0, open: false, flipped: false, activated: false };
+  const state = { idx: 0, sub: 0, open: false, flipped: false, activated: false, business: false };
+  const scroller = document.getElementById('scroller');
   const multi = () => state.open && state.idx === 1;
   const currentEl = () => (state.sub ? extra : cards[state.idx]);
   let toastTimer;
@@ -579,6 +687,7 @@
     phone.classList.toggle('multi', multi());
     phone.classList.toggle('needs-activation', state.idx === 2 && !state.activated);
     phone.classList.toggle('is-credit', state.idx === 1);
+    phone.classList.toggle('business', state.business);
     const slot = state.sub ? 2 : state.idx;
     track.style.transform = 'translateX(' + (-STEP * slot) + 'px)';
     phone.style.background = bgs[state.idx];
@@ -614,6 +723,8 @@
     render();
   }
   function setOpen(v) {
+    scroller.scrollTop = 0;
+    phone.classList.remove('scrolled');
     state.open = v;
     state.sub = 0;
     state.flipped = false;
@@ -690,6 +801,35 @@
     if (e.key !== 'Escape' || !state.open) return;
     if (state.flipped) flip(); else setOpen(false);
   });
+  // Navbar gets its sticky surface once content scrolls under it
+  scroller.addEventListener('scroll', () => phone.classList.toggle('scrolled', scroller.scrollTop > 4), { passive: true });
+
+  // Profile modal + switching between personal and business (ФОП) profiles
+  const profile = document.getElementById('profile');
+  const prName = document.getElementById('prName');
+  const prCaption = document.getElementById('prCaption');
+  function showProfile(v) {
+    profile.classList.toggle('show', v);
+    profile.setAttribute('aria-hidden', String(!v));
+    if (v) setTimeout(() => document.getElementById('closeProfile').focus(), 300);
+  }
+  function renderProfile() {
+    prName.textContent = state.business ? 'ФОП Шевченко Тарас' : 'Шевченко Тарас';
+    prCaption.textContent = state.business ? 'Бізнес-профіль · +380 (63) 213 18 21' : '+380 (63) 213 18 21';
+  }
+  document.getElementById('openProfile').addEventListener('click', () => showProfile(true));
+  document.getElementById('closeProfile').addEventListener('click', () => showProfile(false));
+  document.querySelectorAll('.js-switch').forEach((b) => b.addEventListener('click', () => {
+    state.business = b.dataset.to === 'business';
+    renderProfile();
+    render();
+    setTimeout(() => {
+      showProfile(false);
+      toast(state.business ? 'Ви в профілі ФОП Шевченко Т. Г.' : 'Ви в особистому профілі');
+    }, 200);
+  }));
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && profile.classList.contains('show')) showProfile(false); });
+
   document.getElementById('peek').addEventListener('input', (e) => {
     document.documentElement.style.setProperty('--peek', e.target.value + 'px');
   });
