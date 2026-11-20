@@ -281,6 +281,12 @@
   .cell.l { min-height: 72px; }
   .cell .lead { position: relative; width: 44px; height: 44px; margin: 0 16px; flex: none; }
   .cell .lead img.ic { position: absolute; left: 12px; top: 12px; }
+  /* List Cell / Left Slot / Squircle (Rounded, Medium 44) with a merchant logo */
+  .cell .lead.merchant { border-radius: 14px; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 1px rgba(156,150,127,.24); transition: background .3s; }
+  .cell .lead.merchant img { max-width: 36px; max-height: 30px; object-fit: contain; }
+  .cell .lead.merchant .mono { display: none; font-size: 18px; font-weight: 700; color: var(--tint-primary); }
+  .cell .lead.merchant.no-logo img { display: none; }
+  .cell .lead.merchant.no-logo .mono { display: block; }
   /* Squircle Small / Rounded */
   .cell .lead.sm { width: 32px; height: 32px; }
   .cell .lead.sm img.ic { left: 8px; top: 8px; }
@@ -445,8 +451,8 @@
       <div class="widget"><div class="w-wrap">
         <div style="height:8px"></div>
         <a class="cell" href="#" onclick="return false">
-          <span class="lead"><img src="assets/op-squircle.svg" width="44" height="44" alt=""><img class="ic" src="assets/op-invoice.svg" width="20" height="20" alt=""></span>
-          <span class="main"><span class="txt"><span class="t">ФОП Ягусевич А. М.</span><span class="c">Послуги</span></span><span class="val">-12 000,00 ₴</span></span>
+          <span class="lead merchant" id="txLogoWrap"><img id="txLogo" src="" alt=""><span class="mono" id="txMono" aria-hidden="true"></span></span>
+          <span class="main"><span class="txt"><span class="t" id="txName"></span><span class="c" id="txCat"></span></span><span class="val" id="txAmount"></span></span>
         </a>
         <button class="w-btn">Всі операції</button>
       </div></div>
@@ -628,22 +634,27 @@
     personal: [
       { key: 'raif', skin: 'yellow', name: 'Райфкарта', pan: ['4149', '6093', '2718', '0451'], date: '07/29', cvv: '482',
         bg: '#7E97B8', label: 'Власні кошти', value: 8412.50,
+        tx: { name: 'Glovo', cat: 'Доставка їжі', amount: '-385,00 ₴', logo: 'm-glovo.png', bg: '#FFC244' },
         title: 'UA67 **** 04519', iban: 'UA67 3808 0500 0000 0026 2049 0451 9',
         extra: { key: 'fishka', skin: 'red light', img: 'card-fishka.png', name: 'Фішка', pan: ['4149', '6093', '5520', '1736'], date: '02/30', cvv: '315' } },
       { key: 'd100', skin: 'by light', img: 'card-100.png', name: '100 днів', pan: ['4149', '4997', '1062', '8835'], date: '10/28', cvv: '907',
         bg: '#534E6B', label: 'Використано 12 750,00 з 50 000,00 ₴', value: 37250.00, credit: '50 000 ₴',
+        tx: { name: 'Comfy', cat: 'Електроніка', amount: '-8 499,00 ₴', logo: 'm-comfy.png', bg: '#FFFFFF' },
         title: 'UA21 **** 88350', iban: 'UA21 3808 0500 0000 0026 2511 8835 0' },
       { key: 'atb', skin: 'atb light', img: 'card-atb.png', shade: true, name: 'Картка АТБ', pan: ['4149', '3105', '7744', '6012'], date: '12/30', cvv: '238',
         bg: '#4FA07E', label: 'Власні кошти', value: 0, activate: true,
+        tx: { name: 'Bolt', cat: 'Таксі', amount: '-214,00 ₴', logo: 'm-bolt.png', bg: '#34D186' },
         title: 'UA94 **** 60127', iban: 'UA94 3808 0500 0000 0026 2733 6012 7' }
     ],
     business: [
       { key: 'fop', kind: 'account', skin: 'acct light', img: 'card-fop-account.png', name: 'ФОП рахунок', mask: 'UA12 •••• •••• 33556',
         pan: ['UA12', '3808', '0500', '0000', '0026', '0071', '3355', '6'],
         bg: '#5D6B82', label: 'Залишок на рахунку', value: 126540.80,
+        tx: { name: 'Нова пошта', cat: 'Доставка відправлень', amount: '-1 120,00 ₴', logo: 'm-novaposhta.png', bg: '#FFFFFF' },
         title: 'UA12 **** 33556', iban: 'UA12 3808 0500 0000 0026 0071 3355 6' },
       { key: 'biz', skin: 'biz light', img: 'card-business.png', name: 'Бізнес картка', pan: ['4149', '8820', '6417', '9530'], date: '05/29', cvv: '661',
         bg: '#7B7466', label: 'Власні кошти ФОП', value: 126540.80,
+        tx: { name: 'Foxtrot', cat: 'Техніка для офісу', amount: '-12 349,00 ₴', logo: 'm-foxtrot.png', bg: '#FFFFFF' },
         title: 'UA12 **** 33556', iban: 'UA12 3808 0500 0000 0026 0071 3355 6' }
     ]
   };
@@ -772,6 +783,19 @@
     Array.from(dotsWrap.children).forEach((d, i) => d.classList.toggle('on', i === state.idx));
     title.textContent = c.title;
     document.getElementById('iban').textContent = c.iban;
+    if (c.tx) {
+      const logo = document.getElementById('txLogo');
+      const wrap = document.getElementById('txLogoWrap');
+      wrap.classList.remove('no-logo');
+      document.getElementById('txMono').textContent = c.tx.name.charAt(0);
+      logo.onerror = () => wrap.classList.add('no-logo');
+      logo.src = 'assets/' + c.tx.logo;
+      document.getElementById('txLogo').alt = c.tx.name;
+      document.getElementById('txLogoWrap').style.background = c.tx.bg;
+      document.getElementById('txName').textContent = c.tx.name;
+      document.getElementById('txCat').textContent = c.tx.cat;
+      document.getElementById('txAmount').textContent = c.tx.amount;
+    }
     if (c.credit) document.getElementById('credLimit').textContent = 'Поточний ліміт ' + c.credit;
     document.getElementById('activateText').textContent = 'Активувати картку';
     setBalance();
