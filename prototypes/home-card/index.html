@@ -30,6 +30,7 @@
     --peek: 81px;
     --top-open: 118px;
     --spring: cubic-bezier(.32, 1.28, .52, 1);
+    --lift: cubic-bezier(.22, 1, .36, 1);
     --ease: cubic-bezier(.2, .8, .2, 1);
   }
   * { box-sizing: border-box; }
@@ -108,7 +109,7 @@
   .activate-pill::after { content: ''; position: absolute; inset: -4px 0; }
 
   /* Cards */
-  .cards { position: absolute; left: 0; right: 0; height: var(--card-h); top: var(--top-closed); transition: top .55s var(--spring); touch-action: pan-y; z-index: 1; }
+  .cards { position: absolute; left: 0; right: 0; height: var(--card-h); top: var(--top-closed); transition: top .7s var(--lift); touch-action: pan-y; z-index: 1; }
   .open .cards { top: var(--top-open); }
   .track { position: relative; display: flex; gap: 12px; padding-left: 35px; transition: transform .45s var(--ease); }
   .card { position: relative; flex: 0 0 var(--card-w); height: var(--card-h); perspective: 1100px; cursor: pointer; border-radius: 16px; outline-offset: 4px; transition: opacity .25s, transform .3s var(--ease); -webkit-user-select: none; user-select: none; }
@@ -207,12 +208,12 @@
            transition: background .45s ease, box-shadow .2s; }
   .scrolled .navbg { box-shadow: 0 .5px 0 rgba(255,255,255,.25), 0 1px 0 rgba(0,0,0,.08); }
 
-  .sheet { position: relative; margin-top: calc(var(--top-closed) + var(--peek)); min-height: 620px; padding-bottom: 120px; background: var(--surface-background); border-radius: 24px 24px 0 0; transition: margin-top .5s var(--ease); z-index: 2; }
+  .sheet { position: relative; margin-top: calc(var(--top-closed) + var(--peek)); min-height: 620px; padding-bottom: 120px; background: var(--surface-background); border-radius: 24px 24px 0 0; transition: margin-top .7s var(--lift); z-index: 2; }
   .open .sheet { margin-top: calc(var(--top-open) + var(--card-h) + 16px); padding-bottom: 40px; }
   .pane { transition: opacity .25s, transform .4s var(--ease); }
-  .pane.card-pane { position: absolute; left: 0; right: 0; top: 0; height: 0; overflow: hidden; visibility: hidden; opacity: 0; transform: translateY(16px); pointer-events: none; padding-top: 8px; }
+  .pane.card-pane { position: absolute; left: 0; right: 0; top: 0; height: 0; overflow: hidden; visibility: hidden; opacity: 0; pointer-events: none; padding-top: 8px; }
   .open .pane.home-pane { position: absolute; left: 0; right: 0; top: 0; height: 0; overflow: hidden; visibility: hidden; opacity: 0; transform: translateY(16px); pointer-events: none; }
-  .open .pane.card-pane { position: static; height: auto; overflow: visible; visibility: visible; opacity: 1; transform: none; pointer-events: auto; transition-delay: .2s; }
+  .open .pane.card-pane { position: static; height: auto; overflow: visible; visibility: visible; opacity: 1; transform: none; pointer-events: auto; transition: none; }
 
   /* Profile (modal, slides up). Figma concept 764:99142 */
   .profile { position: absolute; inset: 0; z-index: 20; background: var(--surface-background); transform: translateY(100%); transition: transform .45s var(--ease); visibility: hidden; }
@@ -828,6 +829,35 @@
     state.sub = 0;
     state.flipped = false;
     render();
+    if (v) bricksIn();
+  }
+
+  // "Bricks": tiles and widgets rise one after another and settle into place;
+  // rows inside each widget follow in sequence.
+  function bricksIn() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const pane = document.getElementById('cardPane');
+    const visible = (el) => el.offsetParent !== null;
+    const brick = [
+      { opacity: 0, transform: 'translateY(36px) scale(.94)' },
+      { opacity: 1, transform: 'translateY(-4px) scale(1.01)', offset: .65 },
+      { opacity: 1, transform: 'translateY(0) scale(1)' }
+    ];
+    const row = [
+      { opacity: 0, transform: 'translateY(12px)' },
+      { opacity: 1, transform: 'translateY(0)' }
+    ];
+    let delay = 260;
+    const blocks = [pane.querySelector('.cta')]
+      .concat(Array.from(pane.querySelectorAll('.nav-tiles > button')))
+      .concat(Array.from(pane.querySelectorAll(':scope > .widget')))
+      .filter((el) => el && visible(el));
+    blocks.forEach((el) => {
+      el.animate(brick, { duration: 560, delay, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
+      const rows = Array.from(el.querySelectorAll('.dl-row')).filter(visible);
+      rows.forEach((r, k) => r.animate(row, { duration: 380, delay: delay + 120 + k * 55, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' }));
+      delay += rows.length > 1 ? 70 + rows.length * 30 : 60;
+    });
   }
   function flip() {
     const el = currentEl();
