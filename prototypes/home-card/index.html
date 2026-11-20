@@ -176,7 +176,8 @@
   .red .deco2 { position: absolute; width: 120px; height: 120px; left: -40px; top: 90px; border-radius: 50%; background: rgba(255,255,255,.08); }
   .by .side { background: var(--surface-inverted); }
   .by .band { position: absolute; left: 0; right: 0; bottom: 0; height: 62px; background: var(--surface-accent); }
-  .by .front .c-bottom .date { color: var(--tint-primary); }
+  .by .front .c-bottom .date, .by .pan, .by .cvv-big { color: var(--tint-primary); }
+  .by .pan.pressing { background: rgba(43,45,52,.08); }
   .by .front .pill { background: rgba(43,45,52,.12); color: var(--tint-primary); }
   .by .art2 { position: absolute; right: 14px; bottom: 6px; z-index: 1; font-size: 50px; line-height: 1; font-weight: 700; letter-spacing: -2px; color: transparent; -webkit-text-stroke: 1.5px rgba(43,45,52,.35); }
   .by .back-side .c-bottom .date, .by .back-side .warn { color: var(--tint-primary); }
@@ -199,8 +200,12 @@
   .scroller { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; overscroll-behavior: contain; }
   .scroller::-webkit-scrollbar { display: none; }
   .page { position: relative; min-height: 100%; display: flow-root; }
-  .navbg { position: absolute; left: 0; right: 0; top: 0; height: 114px; background: var(--header); opacity: 0; transition: opacity .2s, background .45s ease; z-index: 4; pointer-events: none; box-shadow: 0 1px 0 rgba(0,0,0,.06); }
-  .scrolled .navbg { opacity: 1; }
+  /* Glass navigation surface: keeps the card colour, blurs content scrolling under it */
+  .navbg { position: absolute; left: 0; right: 0; top: 0; height: 114px; z-index: 4; pointer-events: none;
+           background: color-mix(in srgb, var(--header) 78%, transparent);
+           -webkit-backdrop-filter: blur(20px) saturate(170%); backdrop-filter: blur(20px) saturate(170%);
+           transition: background .45s ease, box-shadow .2s; }
+  .scrolled .navbg { box-shadow: 0 .5px 0 rgba(255,255,255,.25), 0 1px 0 rgba(0,0,0,.08); }
 
   .sheet { position: relative; margin-top: calc(var(--top-closed) + var(--peek)); min-height: 620px; padding-bottom: 120px; background: var(--surface-background); border-radius: 24px 24px 0 0; transition: margin-top .5s var(--ease); z-index: 2; }
   .open .sheet { margin-top: calc(var(--top-open) + var(--card-h) + 16px); padding-bottom: 40px; }
@@ -213,10 +218,10 @@
   .profile { position: absolute; inset: 0; z-index: 20; background: var(--surface-background); transform: translateY(100%); transition: transform .45s var(--ease); visibility: hidden; }
   .profile.show { transform: none; visibility: visible; }
   .profile:not(.show) { transition: transform .45s var(--ease), visibility 0s .45s; }
-  .pr-status { position: absolute; left: 0; right: 0; top: 0; height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px 0 52px; font-size: 17px; font-weight: 600; color: var(--tint-primary); z-index: 3; background: rgba(248,246,242,.8); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
-  .pr-scroll { position: absolute; inset: 54px 0 0; overflow-y: auto; scrollbar-width: none; padding-bottom: 40px; }
+  .pr-status { position: absolute; left: 0; right: 0; top: 0; height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px 0 52px; font-size: 17px; font-weight: 600; color: var(--tint-primary); z-index: 3; pointer-events: none; }
+  .pr-scroll { position: absolute; inset: 0; overflow-y: auto; scrollbar-width: none; padding-bottom: 40px; }
   .pr-scroll::-webkit-scrollbar { display: none; }
-  .pr-nav { position: sticky; top: 0; height: 56px; display: flex; justify-content: space-between; align-items: center; z-index: 2; background: rgba(248,246,242,.8); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+  .pr-nav { position: sticky; top: 0; height: 110px; padding-top: 54px; display: flex; justify-content: space-between; align-items: center; z-index: 2; background: rgba(248,246,242,.72); -webkit-backdrop-filter: blur(20px) saturate(170%); backdrop-filter: blur(20px) saturate(170%); }
   .pr-nav button { width: 56px; height: 44px; display: flex; align-items: center; justify-content: center; }
   .pr-avatar { position: relative; width: 84px; height: 84px; margin: 0 auto; }
   .pr-avatar .ph { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; }
@@ -322,6 +327,23 @@
   .iban-row .rt span { font-size: 13px; letter-spacing: .1px; white-space: nowrap; }
   .iban-lead { position: relative; width: 40px; height: 40px; border-radius: 20px; background: var(--surface-inverted); flex: none; display: flex; align-items: center; justify-content: center; color: #fff; }
   .copy-btn { width: 44px; height: 44px; margin: -10px -10px -10px 0; display: flex; align-items: center; justify-content: center; color: var(--tint-action); flex: none; }
+  /* Card / account details */
+  .nav-tiles { display: flex; padding: 16px 8px 0; }
+  .nav-tiles button { flex: 1 0 0; min-width: 0; padding: 10px 8px; }
+  .nav-tiles .nt { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 16px; min-width: 80px; background: var(--surface-baseline); border-radius: 16px; filter: drop-shadow(0 1px .5px rgba(43,45,52,.2)); }
+  .nav-tiles .nt span { font-size: 12px; line-height: 16px; font-weight: 500; color: #232529; text-align: center; white-space: nowrap; }
+  .dl { display: flex; flex-direction: column; }
+  .dl-row { display: flex; align-items: center; width: 100%; min-height: 56px; text-align: left; color: var(--tint-primary); }
+  .dl-row.tall { min-height: 72px; }
+  .dl-row .sq32 { position: relative; width: 32px; height: 32px; margin: 0 16px; flex: none; display: flex; align-items: center; justify-content: center; }
+  .dl-row .sq32 img:first-child { position: absolute; inset: 0; }
+  .dl-row .sq32 img + img { position: relative; }
+  .dl-row .dm { flex: 1; min-width: 0; align-self: stretch; display: flex; align-items: center; gap: 16px; padding: 8px 16px 8px 0; position: relative; }
+  .dl-row + .dl-row .dm::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--border-regular); }
+  .dl-row .dt { flex: 1; min-width: 0; }
+  .dl-row .dt b { display: block; font-size: 16px; line-height: 24px; font-weight: 400; }
+  .dl-row .dt span { display: block; font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
+  .dl-row .copy { width: 40px; height: 40px; margin: -8px -10px -8px 0; display: flex; align-items: center; justify-content: center; }
   .only-credit { display: none !important; }
   .is-account .card-only { display: none !important; }
   .is-credit .only-credit { display: flex !important; }
@@ -470,214 +492,38 @@
 </g>
 </svg>Активувати картку</button>
 
-      <div class="tiles3">
-        <button><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<g id="Documents, Accounts, Operations">
-
-
-<g id="doc-send">
-<g id="shape">
-<path d="M18 3C18 2.44772 17.5523 2 17 2H3C2.44771 2 2 2.44772 2 3V21C2 21.5523 2.44771 22 3 22H10V20H4V4H16V10H18V3Z" fill="currentColor"/>
-<path d="M21.7071 16.2929L17.2071 11.7929L15.7929 13.2071L18.5858 16H10V18H18.5858L15.7929 20.7929L17.2071 22.2071L21.7071 17.7071C22.0976 17.3166 22.0976 16.6834 21.7071 16.2929Z" fill="currentColor"/>
-</g>
-</g>
-</g>
-</svg>Надіслати<br>реквізити</button>
-        <button><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<g id="Finance">
-
-
-<g id="case">
-<rect x="-15.5" y="-15.5" width="95" height="55" rx="4.5" stroke="#7B61FF" stroke-opacity="0.2" stroke-dasharray="10 5"/>
-<g id="Style=outlined">
-<g id="shape">
-<path d="M6 11V13H18V11H6Z" fill="currentColor"/>
-<path d="M9 3C7.89543 3 7 3.89543 7 5V7H3C2.44772 7 2 7.44772 2 8V20C2 20.5523 2.44772 21 3 21H21C21.5523 21 22 20.5523 22 20V8C22 7.44772 21.5523 7 21 7H17V5C17 3.89543 16.1046 3 15 3H9ZM15 7V5H9V7H15ZM4 19V9H20V19H4Z" fill-rule="evenodd" clip-rule="evenodd" fill="currentColor"/>
-</g>
-</g>
-</g>
-</g>
-</svg>Деталі<br>рахунку</button>
-        <button><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<g id="Documents, Accounts, Operations">
-
-
-<g id="docs">
-<g id="shape">
-<path d="M3 1C2.44772 1 2 1.44772 2 2V18H4V3H17V1H3Z" fill="currentColor"/>
-<path d="M10 9H18V11H10V9Z" fill="currentColor"/>
-<path d="M7 5C6.44772 5 6 5.44772 6 6V22C6 22.5523 6.44772 23 7 23H21C21.5523 23 22 22.5523 22 22V6C22 5.44772 21.5523 5 21 5H7ZM8 21V7H20V21H8Z" fill-rule="evenodd" clip-rule="evenodd" fill="currentColor"/>
-</g>
-</g>
-</g>
-</svg>Виписка<br>за рахунком</button>
+      <div class="nav-tiles">
+        <button><span class="nt"><img src="assets/dt-pdf.svg" width="24" height="24" alt=""><span>Надіслати<br>реквізити</span></span></button>
+        <button><span class="nt"><img src="assets/dt-case.svg" width="24" height="24" alt=""><span>Деталі<br>рахунку</span></span></button>
+        <button><span class="nt"><img src="assets/dt-docs.svg" width="24" height="24" alt=""><span>Виписка<br>за рахунком</span></span></button>
       </div>
 
-      <div class="widget"><div class="w-wrap rows">
-        <div class="row iban-row">
-          <span class="iban-lead"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<g id="Fines, taxes, accruals">
-
-
-<g id="bank-building-1">
-<g id="shape">
-<path d="M15 2H11V6H8C7.44772 6 7 6.44772 7 7V10H3C2.44772 10 2 10.4477 2 11V22H4V12H8C8.55228 12 9 11.5523 9 11V8H15V11C15 11.5523 15.4477 12 16 12H20V22H22V11C22 10.4477 21.5523 10 21 10H17V7C17 6.44772 16.5523 6 16 6H13V4H15V2Z" fill="currentColor"/>
-<path d="M11 10H13V12H11V10Z" fill="currentColor"/>
-<path d="M17 20V18H15V20H17Z" fill="currentColor"/>
-<path d="M11 18H13V22H11V18Z" fill="currentColor"/>
-<path d="M9 18H7V20H9V18Z" fill="currentColor"/>
-<path d="M17 14V16H15V14H17Z" fill="currentColor"/>
-<path d="M13 14H11V16H13V14Z" fill="currentColor"/>
-<path d="M7 14H9V16H7V14Z" fill="currentColor"/>
-</g>
-</g>
-</g>
-</svg></span>
-          <span class="rt"><b>Рахунок</b><span id="iban"></span></span>
-          <button class="copy-btn js-copy-iban" aria-label="Скопіювати IBAN"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2"/></svg></button>
-        </div>
+      <div class="widget"><div class="w-wrap dl">
+        <div class="dl-row"><span class="sq32"><img src="assets/dt-sq-dark.svg" width="32" height="32" alt=""><img src="assets/dt-invoice.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Рахунок</b><span id="iban"></span></span><button class="copy js-copy-iban" aria-label="Скопіювати IBAN"><img src="assets/dt-copy.svg" width="20" height="20" alt=""></button></span></div>
       </div></div>
 
-      <div class="widget"><div class="w-wrap rows">
-        <button class="row"><span class="ri"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<g id="People, social, loyalty">
-
-
-<g id="premium">
-<path d="M69.9443 -16V-15.5H75C77.4853 -15.5 79.5 -13.4853 79.5 -11V-5.33301H80V0.333008H79.5V11.667H80V17.333H79.5V28.667H80V34.333H79.5V39.5H74.9443V40H69.8887V39.5H59.7773V40H54.7227V39.5H44.6113V40H39.5557V39.5H29.4443V40H24.3887V39.5H14.2773V40H9.22266V39.5H-0.888672V40H-5.94434V39.5H-11C-13.4853 39.5 -15.5 37.4853 -15.5 35V29.333H-16V23.667H-15.5V12.333H-16V6.66699H-15.5V-4.66699H-16V-10.333H-15.5V-15.5H-10.9443V-16H-5.88867V-15.5H4.22266V-16H9.27734V-15.5H19.3887V-16H24.4443V-15.5H34.5557V-16H39.6113V-15.5H49.7227V-16H54.7773V-15.5H64.8887V-16H69.9443Z" stroke="#7B61FF" stroke-opacity="0.2" stroke-dasharray="10 5"/>
-<g id="style=outline">
-<path id="shape" d="M7 2C6.67705 2 6.37398 2.15597 6.18627 2.41876L1.18627 9.41876C0.921902 9.78888 0.940603 10.2908 1.23178 10.6402L11.2318 22.6402C11.4218 22.8682 11.7032 23 12 23C12.2968 23 12.5782 22.8682 12.7682 22.6402L22.7682 10.6402C23.0594 10.2908 23.0781 9.78888 22.8137 9.41876L17.8137 2.41876C17.626 2.15597 17.323 2 17 2H7ZM3.94319 9L7.51462 4H8.67427L7.2457 9H3.94319ZM9.32573 9L10.7543 4H13.2457L14.6743 9H9.32573ZM14.5723 11H9.4277L12 18.0738L14.5723 11ZM14.2505 17.7374L16.7004 11H19.865L14.2505 17.7374ZM16.7543 9L15.3257 4H16.4854L20.0568 9H16.7543ZM4.13504 11H7.29957L9.74953 17.7374L4.13504 11Z" fill-rule="evenodd" clip-rule="evenodd" fill="currentColor"/>
-</g>
-</g>
-</g>
-</svg></span><span class="rt"><b>Обслуговування пакету</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row card-only"><span class="ri"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<g id="Cards">
-
-
-<g id="apple-pay">
-<path id="ApplePay" d="M20.4453 9.71094L21.8008 14.2754H21.8242L23.1797 9.71094H24.3496L22.3281 15.6191C21.8668 16.972 21.3391 17.4179 20.2168 17.418C20.1313 17.418 19.8465 17.4084 19.7793 17.3887V16.4619C19.8507 16.4718 20.0258 16.4814 20.1162 16.4814C20.6251 16.4814 20.9109 16.2584 21.0869 15.6787L21.1914 15.3369L19.2412 9.71094H20.4453ZM4.86328 9.02734C5.12041 9.04721 5.86245 9.12623 6.33789 9.85938C6.29984 9.88911 5.45728 10.3954 5.4668 11.4561C5.47645 12.719 6.52331 13.1418 6.54199 13.1553C6.53248 13.185 6.37536 13.7551 5.99023 14.3398C5.6526 14.8552 5.30545 15.361 4.75391 15.3711C4.22129 15.381 4.04494 15.0392 3.43164 15.0391C2.82283 15.0391 2.62234 15.361 2.11816 15.3809C1.58564 15.4004 1.18137 14.8356 0.84375 14.3203C0.154122 13.2795 -0.37358 11.3861 0.339844 10.1074C0.687083 9.46818 1.31991 9.06655 2 9.05664C2.52306 9.04691 3.00366 9.41895 3.32227 9.41895C3.63626 9.41862 4.2024 8.98771 4.86328 9.02734ZM16.6211 9.63672C17.9384 9.63682 18.7949 10.3556 18.7949 11.4707V15.3164H17.7295V14.3896H17.7051C17.4007 14.9943 16.7298 15.376 16.0068 15.376C14.9369 15.3758 14.1905 14.7119 14.1904 13.7109C14.1904 12.7197 14.9135 12.1497 16.25 12.0654L17.6865 11.9766V11.5498C17.6865 10.9205 17.2916 10.5782 16.5879 10.5781C16.0077 10.5781 15.5838 10.8905 15.498 11.3662H14.4609C14.4944 10.3652 15.3988 9.63672 16.6211 9.63672ZM11.4648 7.58984C12.9011 7.58984 13.9051 8.62049 13.9053 10.127C13.9053 11.6337 12.8822 12.6748 11.4268 12.6748H9.83301V15.3164H8.68262V7.58984H11.4648ZM16.4062 12.8682C15.6885 12.9128 15.3127 13.1953 15.3125 13.6807C15.3125 14.1515 15.7028 14.459 16.3164 14.459C17.0964 14.4589 17.6865 13.9433 17.6865 13.2197V12.7842L16.4062 12.8682ZM9.83301 11.6689H11.1553C12.1587 11.6689 12.7293 11.1089 12.7295 10.1328C12.7295 9.15642 12.159 8.60059 11.1602 8.60059H9.83301V11.6689ZM4.86816 7C4.9157 7.4955 4.72973 7.981 4.44922 8.34277C4.16391 8.69458 3.70747 8.9721 3.25098 8.93262C3.19404 8.45697 3.41722 7.95184 3.67871 7.63965C3.96409 7.27784 4.46387 7.01983 4.86816 7Z" fill="currentColor"/>
-</g>
-</g>
-</svg></span><span class="rt"><b>Налаштувати Apple Pay</b><span>Картку не підключено</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row card-only"><span class="ri"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<g id="Cards">
-
-
-<g id="card-lock">
-<g id="shape">
-<path d="M22 5C22 3.34315 20.6569 2 19 2L5 2C3.34315 2 2 3.34315 2 5L2 15C2 16.6569 3.34315 18 5 18L10 18V16L5 16C4.44772 16 4 15.5523 4 15L4 8L20 8V10H22V5ZM20 6L4 6V5C4 4.44772 4.44772 4 5 4L19 4C19.5523 4 20 4.44772 20 5V6Z" fill-rule="evenodd" clip-rule="evenodd" fill="currentColor"/>
-<path d="M12 16C12 15.4477 12.4477 15 13 15H14V13C14 11.3431 15.3431 10 17 10C18.6569 10 20 11.3431 20 13V15H21C21.5523 15 22 15.4477 22 16L22 21C22 21.5523 21.5523 22 21 22L13 22C12.4477 22 12 21.5523 12 21V16ZM18 15H16V13C16 12.4477 16.4477 12 17 12C17.5523 12 18 12.4477 18 13V15ZM20 17L20 20L14 20V17H20Z" fill-rule="evenodd" clip-rule="evenodd" fill="currentColor"/>
-</g>
-</g>
-</g>
-</svg></span><span class="rt"><b>Заблокувати картку</b><span>Ви завжди зможете її розблокувати</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row card-only"><span class="ri"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<g id="Actions">
-
-
-<g id="refresh_repeat">
-<path id="shape" d="M21.0429 2.89645H19.0429V6.39446C17.3699 4.29366 14.8033 3.00001 12 3.00001C7.02944 3.00001 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C16.9706 21 21 16.9706 21 12H19C19 15.866 15.866 19 12 19C8.13401 19 5 15.866 5 12C5 8.13401 8.13401 5.00001 12 5.00001C14.2924 5.00001 16.3811 6.11188 17.6728 7.89645L14.0429 7.89645V9.89645L20.0429 9.89645C20.5952 9.89645 21.0429 9.44874 21.0429 8.89645V2.89645Z" fill="currentColor"/>
-</g>
-</g>
-</svg></span><span class="rt"><b>Перевипустити картку</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row only-credit"><span class="ri"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<g id="Cards">
-
-
-<g id="card-settings">
-<g id="shape">
-<path d="M20 4H18V6.27686L15.9961 5.13177L15.0038 6.86826L16.9844 8.00001L15.0039 9.13175L15.9962 10.8682L18 9.72317V12H20V9.72322L22.0038 10.8683L22.9961 9.13177L21.0155 8.00001L22.9961 6.86822L22.0038 5.13174L20 6.2768V4Z" fill="currentColor"/>
-<path d="M4 8C4 7.44771 4.44772 7 5 7H13V5L5 5C3.34315 5 2 6.34315 2 8V18C2 19.6569 3.34315 21 5 21H19C20.6569 21 22 19.6569 22 18V14H20V18C20 18.5523 19.5523 19 19 19L5 19C4.44771 19 4 18.5523 4 18V11H13V9L4 9L4 8Z" fill="currentColor"/>
-</g>
-</g>
-</g>
-</svg></span><span class="rt"><b>Змінити кредитний ліміт</b><span id="credLimit">Поточний ліміт 50 000 ₴</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      <div class="widget"><div class="w-wrap dl">
+        <button class="dl-row"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-premium.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Обслуговування пакету</b></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+        <button class="dl-row card-only"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-apple.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Налаштувати Apple Pay</b><span>Картку не підключено</span></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+        <button class="dl-row card-only"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-locked.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Заблокувати картку</b><span>Ви завжди зможете її розблокувати</span></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+        <button class="dl-row card-only"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-card-settings.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Перевипустити картку</b></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+        <button class="dl-row card-only"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-card-pin.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Налаштувати PIN</b></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+        <button class="dl-row only-credit"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-card-credit.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Змінити кредитний ліміт</b><span id="credLimit">Поточний ліміт 50 000 ₴</span></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
       </div></div>
 
-      <div class="widget"><div class="w-wrap rows">
-        <button class="row"><span class="ri"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<g id="Cards">
-
-
-<g id="card-add-new">
-<g id="shape">
-<path d="M5 3C3.34315 3 2 4.34315 2 6V12H4V9L20 9L20 16C20 16.5523 19.5523 17 19 17H12V19H19C20.6569 19 22 17.6569 22 16L22 6C22 4.34315 20.6569 3 19 3H5ZM20 7L4 7L4 6C4 5.44772 4.44772 5 5 5L19 5C19.5523 5 20 5.44772 20 6V7Z" fill-rule="evenodd" clip-rule="evenodd" fill="currentColor"/>
-<path d="M5 13V16H2V18H5V21H7V18H10V16H7V13H5Z" fill="currentColor"/>
-</g>
-</g>
-</g>
-</svg></span><span class="rt"><b>Додаткова картка до рахунку</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row card-only"><span class="ri"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<g id="Cards">
-
-
-<g id="card-change-pin">
-<g id="shape">
-<path d="M19 3C20.6569 3 22 4.34315 22 6V15H20V9H4L4 16C4 16.5523 4.44772 17 5 17L9 17V19L5 19C3.34315 19 2 17.6569 2 16L2 6C2 4.34315 3.34315 3 5 3H19ZM4 7L20 7V6C20 5.44772 19.5523 5 19 5H5C4.44772 5 4 5.44772 4 6V7Z" fill-rule="evenodd" clip-rule="evenodd" fill="currentColor"/>
-<path d="M14 15C12.3431 15 11 16.3431 11 18C11 19.6569 12.3431 21 14 21C15.3062 21 16.4175 20.1652 16.8293 19H20V21H22V18C22 17.4477 21.5523 17 21 17H16.8293C16.4175 15.8348 15.3062 15 14 15ZM13 18C13 17.4477 13.4477 17 14 17C14.5523 17 15 17.4477 15 18C15 18.5523 14.5523 19 14 19C13.4477 19 13 18.5523 13 18Z" fill-rule="evenodd" clip-rule="evenodd" fill="currentColor"/>
-</g>
-</g>
-</g>
-</svg></span><span class="rt"><b>Налаштувати PIN</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row"><span class="ri"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<g id="Media and communication">
-
-
-<g id="mobile">
-<g id="shape">
-<path d="M12 18C12.5523 18 13 17.5523 13 17C13 16.4477 12.5523 16 12 16C11.4477 16 11 16.4477 11 17C11 17.5523 11.4477 18 12 18Z" fill="currentColor"/>
-<path d="M7 2C5.89543 2 5 2.89543 5 4V20C5 21.1046 5.89543 22 7 22H17C18.1046 22 19 21.1046 19 20V4C19 2.89543 18.1046 2 17 2H7ZM7 4L17 4V20H7V4Z" fill-rule="evenodd" clip-rule="evenodd" fill="currentColor"/>
-</g>
-</g>
-</g>
-</svg></span><span class="rt"><b>Номер підтвердження оплат</b><span>+380 63 721 73 91</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      <div class="widget"><div class="w-wrap dl">
+        <button class="dl-row"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-card-add.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Додаткова картка до рахунку</b></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+        <button class="dl-row"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-suitcase.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Заява на зарплату</b><span>Отримувати зарплату на цей рахунок</span></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
       </div></div>
 
-      <div class="widget"><div class="w-wrap rows">
-        <button class="row"><span class="ri"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<g id="Media and communication">
-
-
-<g id="mobile-send-money">
-<g id="shape">
-<path d="M7 4H13V2H7C5.89543 2 5 2.89543 5 4V20C5 21.1046 5.89543 22 7 22H17C18.1046 22 19 21.1046 19 20V14H17V20H7V4Z" fill="currentColor"/>
-<path d="M13 17C13 17.5523 12.5523 18 12 18C11.4477 18 11 17.5523 11 17C11 16.4477 11.4477 16 12 16C12.5523 16 13 16.4477 13 17Z" fill="currentColor"/>
-<path d="M21.7071 7.70711C21.8946 7.51957 22 7.26522 22 7C22 6.73478 21.8946 6.48043 21.7071 6.29289L17.7071 2.29289L16.2929 3.70711L18.5858 6L13 6L13 8L18.5858 8L16.2929 10.2929L17.7071 11.7071L21.7071 7.70711Z" fill="currentColor"/>
-</g>
-</g>
-</g>
-</svg></span><span class="rt"><b>Перекази за номером телефону</b><span>Картку не підключено</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row"><span class="ri"><svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-
-<g id="Media and communication">
-
-
-<g id="chat-1">
-<path id="shape" d="M20 3C20.5523 3 21 3.44772 21 4V18C21 18.5523 20.5523 19 20 19H12.3333L8.6 21.8C7.94076 22.2944 7 21.824 7 21V19H4C3.44772 19 3 18.5523 3 18V4C3 3.44772 3.44772 3 4 3H20ZM19 5H5V17H8C8.55228 17 9 17.4477 9 18V19L11.4 17.2C11.5731 17.0702 11.7836 17 12 17H19V5Z" fill="currentColor"/>
-</g>
-</g>
-</svg></span><span class="rt"><b>SMS-інформування</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      <div class="widget"><div class="w-wrap dl">
+        <button class="dl-row card-only"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-office.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Перекази за номером телефону</b><span>Картку не підключено</span></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+        <button class="dl-row"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-bell.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>SMS-інформування</b></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+        <button class="dl-row"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-mobile.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Номер підтвердження оплат</b><span>+380 63 721 73 91</span></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
       </div></div>
 
-      <div class="widget"><div class="w-wrap">
-        <a class="cell l" href="#" onclick="return false">
-          <span class="lead"><img src="assets/limits-squircle.svg" width="44" height="44" alt=""><img class="ic" src="assets/limits-branch.svg" width="20" height="20" alt=""></span>
-          <span class="main"><span class="txt"><span class="t m">Ліміти по рахунку</span><span class="c m">Встановлені законодавством України</span></span></span>
-        </a>
+      <div class="widget"><div class="w-wrap dl">
+        <div class="dl-row tall"><span class="sq32"><img src="assets/dt-sq-blue.svg" width="32" height="32" alt=""><img src="assets/dt-branch.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Ліміти по рахунку</b><span>Встановлені законодавством України</span></span></span></div>
       </div></div>
     </div>
   </div>
@@ -780,8 +626,8 @@
       { key: 'raif', skin: 'yellow', name: 'Райфкарта', pan: ['4149', '6093', '2718', '0451'], date: '07/29', cvv: '482',
         bg: '#7E97B8', label: 'Власні кошти', value: 8412.50,
         title: 'UA67 **** 04519', iban: 'UA67 3808 0500 0000 0026 2049 0451 9',
-        extra: { key: 'fishka', skin: 'red light', name: 'Фішка', pan: ['4149', '6093', '5520', '1736'], date: '02/30', cvv: '315' } },
-      { key: 'd100', skin: 'by light', name: '100 днів', pan: ['4149', '4997', '1062', '8835'], date: '10/28', cvv: '907',
+        extra: { key: 'fishka', skin: 'red light', img: 'card-fishka.png', name: 'Фішка', pan: ['4149', '6093', '5520', '1736'], date: '02/30', cvv: '315' } },
+      { key: 'd100', skin: 'by light', img: 'card-100.png', name: '100 днів', pan: ['4149', '4997', '1062', '8835'], date: '10/28', cvv: '907',
         bg: '#534E6B', label: 'Доступно з 50 000 ₴', value: 37250.00, credit: '50 000 ₴',
         title: 'UA21 **** 88350', iban: 'UA21 3808 0500 0000 0026 2511 8835 0' },
       { key: 'atb', skin: 'atb light', img: 'card-atb.png', shade: true, name: 'Картка АТБ', pan: ['4149', '3105', '7744', '6012'], date: '12/30', cvv: '238',
@@ -816,8 +662,6 @@
     if (c.img) h += '<img class="bgimg" src="assets/' + c.img + '" alt="">';
     if (c.shade) h += '<div class="shade"></div>';
     if (sk === 'yellow') h += '<img class="graphic" src="assets/card-graphic.svg" width="196" height="233" alt="">';
-    if (sk === 'red') h += '<div class="deco"></div><div class="deco2"></div>';
-    if (sk === 'by') h += '<div class="band"></div><div class="art2" aria-hidden="true">100</div>';
     return h;
   }
   function cardHTML(c) {
@@ -832,7 +676,7 @@
         ? '<div class="c-bottom"><span class="lbl sub">Поточний рахунок · UAH</span></div>'
         : '<div class="c-bottom"><span class="date">' + c.date + '</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Показати CVV-код">CVV</span></div>') +
       '</div>';
-    const back = isAcct ? '' : '<div class="side back-side">' + decor(c) + (c.img ? '<div class="shade"></div>' : '') +
+    const back = isAcct ? '' : '<div class="side back-side">' + decor(c) + (c.shade ? '<div class="shade"></div>' : '') +
       '<div class="mag"></div><div class="cvv-big big">' + c.cvv + '</div>' +
       '<div class="c-bottom"><span class="date">' + c.date + '</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Повернутися до номера картки">' + BACK_ICON + '</span></div>' +
       '<div class="warn sub">Не розголошуйте CVV-код<br>іншим особам</div></div>';
