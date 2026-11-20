@@ -209,7 +209,7 @@
   .scrolled .navbg { box-shadow: 0 .5px 0 rgba(255,255,255,.25), 0 1px 0 rgba(0,0,0,.08); }
 
   .sheet { position: relative; margin-top: calc(var(--top-closed) + var(--peek)); min-height: 620px; padding-bottom: 120px; background: var(--surface-background); border-radius: 24px 24px 0 0; transition: margin-top .7s var(--lift); z-index: 2; }
-  .open .sheet { margin-top: calc(var(--top-open) + var(--card-h) + 16px); padding-bottom: 40px; }
+  .open .sheet { padding-bottom: 40px; }
   .pane { transition: opacity .25s, transform .4s var(--ease); }
   .pane.card-pane { position: absolute; left: 0; right: 0; top: 0; height: 0; overflow: hidden; visibility: hidden; opacity: 0; pointer-events: none; padding-top: 8px; }
   .open .pane.home-pane { position: absolute; left: 0; right: 0; top: 0; height: 0; overflow: hidden; visibility: hidden; opacity: 0; transform: translateY(16px); pointer-events: none; }
@@ -847,15 +847,17 @@
       { opacity: 0, transform: 'translateY(12px)' },
       { opacity: 1, transform: 'translateY(0)' }
     ];
-    let delay = 260;
+    let delay = 220;
+    const fold = phone.getBoundingClientRect().bottom;
     const blocks = [pane.querySelector('.cta')]
       .concat(Array.from(pane.querySelectorAll('.nav-tiles > button')))
       .concat(Array.from(pane.querySelectorAll(':scope > .widget')))
-      .filter((el) => el && visible(el));
+      .filter((el) => el && visible(el) && el.getBoundingClientRect().top < fold)
+      .reverse();
     blocks.forEach((el) => {
       el.animate(brick, { duration: 560, delay, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
-      const rows = Array.from(el.querySelectorAll('.dl-row')).filter(visible);
-      rows.forEach((r, k) => r.animate(row, { duration: 380, delay: delay + 120 + k * 55, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' }));
+      const rows = Array.from(el.querySelectorAll('.dl-row')).filter(visible).reverse();
+      rows.forEach((r, k) => r.animate(row, { duration: 380, delay: delay + 100 + k * 55, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' }));
       delay += rows.length > 1 ? 70 + rows.length * 30 : 60;
     });
   }
