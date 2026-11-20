@@ -116,7 +116,7 @@
   .open .ghost { opacity: 0; transform: translateY(8px); }
   .card.extra { position: absolute; left: 699px; top: 0; width: var(--card-w); opacity: 0; transform: translateX(40px); pointer-events: none; }
   .open.multi .card.extra { opacity: 1; transform: none; pointer-events: auto; transition-delay: .35s; }
-  .open.multi .card.acct.before { opacity: 1; transform: none; }
+  .open.multi .card.acct-multi.before { opacity: 1; transform: none; }
 
   .flipper { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.3, .7, .2, 1.05); }
   .flipped .card.current .flipper { transform: rotateY(180deg); }
@@ -133,7 +133,9 @@
   .dark .visa { filter: brightness(0) invert(1); }
 
   .big { font-size: 22px; line-height: 28px; font-weight: 700; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
-  .pan { position: absolute; left: 6px; top: 84px; display: flex; gap: 14px; padding: 2px 6px; border-radius: 10px; transition: background .2s; }
+  /* Full number spans the card width so it sits centered and even */
+  .pan { position: absolute; left: 14px; right: 14px; top: 84px; display: flex; justify-content: space-between; padding: 2px 6px; border-radius: 10px; transition: background .2s; }
+  .acct .pan { flex-wrap: wrap; justify-content: center; column-gap: 10px; row-gap: 0; top: 74px; font-size: 20px; }
   .pan .g { opacity: 0; transform: translateY(8px); filter: blur(4px); transition: opacity .25s, transform .35s var(--ease), filter .3s; }
   .open .current .pan .g { opacity: 1; transform: none; filter: none; }
   .open .current .pan .g:nth-child(1) { transition-delay: .26s; }
@@ -158,6 +160,26 @@
   .warn { position: absolute; right: 12px; bottom: 14px; font-size: 11px; line-height: 14px; text-align: right; }
 
   /* Card skins */
+  .bgimg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .shade { position: absolute; inset: 0; background: rgba(0,0,0,.45); }
+  .back-side .shade { background: rgba(0,0,0,.6); }
+  .light .side { color: #fff; }
+  .light .sub { color: rgba(255,255,255,.78); }
+  .light .visa { filter: brightness(0) invert(1); }
+  .light .pill { background: rgba(255,255,255,.2); }
+  .light .pan.pressing { background: rgba(255,255,255,.14); }
+  .red .side { background: radial-gradient(120% 140% at 85% 0%, #FF5A5F 0%, #E3262E 38%, #B3121D 100%); }
+  .red .deco { position: absolute; width: 240px; height: 240px; right: -90px; bottom: -120px; border-radius: 50%; border: 28px solid rgba(255,255,255,.12); }
+  .red .deco2 { position: absolute; width: 120px; height: 120px; left: -40px; top: 90px; border-radius: 50%; background: rgba(255,255,255,.08); }
+  .by .side { background: var(--surface-inverted); }
+  .by .band { position: absolute; left: 0; right: 0; bottom: 0; height: 62px; background: var(--surface-accent); }
+  .by .front .c-bottom .date { color: var(--tint-primary); }
+  .by .front .pill { background: rgba(43,45,52,.12); color: var(--tint-primary); }
+  .by .art2 { position: absolute; right: 14px; bottom: 6px; z-index: 1; font-size: 50px; line-height: 1; font-weight: 700; letter-spacing: -2px; color: transparent; -webkit-text-stroke: 1.5px rgba(43,45,52,.35); }
+  .by .back-side .c-bottom .date, .by .back-side .warn { color: var(--tint-primary); }
+  .by .back-side .pill { background: rgba(43,45,52,.12); color: var(--tint-primary); }
+  .acct .side, .biz .side { background: #141518; }
+  .acct .c-bottom .lbl { font-size: 14px; line-height: 20px; }
   .yellow .side { background: var(--surface-accent); color: var(--tint-primary); }
   .yellow .graphic { position: absolute; left: -6px; top: -37px; width: 196px; height: 233px; }
   .yellow .sub { color: #4A4200; }
@@ -298,6 +320,7 @@
   .iban-lead { position: relative; width: 40px; height: 40px; border-radius: 20px; background: var(--surface-inverted); flex: none; display: flex; align-items: center; justify-content: center; color: #fff; }
   .copy-btn { width: 44px; height: 44px; margin: -10px -10px -10px 0; display: flex; align-items: center; justify-content: center; color: var(--tint-action); flex: none; }
   .only-credit { display: none !important; }
+  .is-account .card-only { display: none !important; }
   .is-credit .only-credit { display: flex !important; }
 
   /* iOS Tab Bar (floating glass) */
@@ -364,91 +387,17 @@
   </div>
 
   <button class="activate-pill js-activate" aria-label="Активувати картку, закінчується на 4410">
-    <img src="assets/nav-cards.svg" width="20" height="20" alt="">Активувати картку
+    <img src="assets/nav-cards.svg" width="20" height="20" alt=""><span id="activateText">Активувати картку</span>
   </button>
 
   <div class="cards" id="cards">
-    <div class="track" id="track">
-
-      <div class="card yellow" data-i="0" role="button" tabindex="0" aria-label="Картка Віртуальна, закінчується на 8721">
-        <div class="flipper">
-          <div class="side front">
-            <img class="graphic" src="assets/card-graphic.svg" width="196" height="233" alt="">
-            <div class="c-head"><div><div class="c-name">Віртуальна</div><div class="c-mask">4149    •••• ••••    8721</div></div><img class="visa" src="assets/visa-logo.svg" width="45" height="17" alt="Visa"></div>
-            <div class="pan big" title="Утримуйте, щоб скопіювати"><span class="g">4149</span><span class="g">2290</span><span class="g">1187</span><span class="g">8721</span></div>
-            <div class="c-bottom"><span class="date">11/26</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Показати CVV-код">CVV</span></div>
-          </div>
-          <div class="side back-side">
-            <img class="graphic" src="assets/card-graphic.svg" width="196" height="233" alt="">
-            <div class="mag"></div>
-            <div class="cvv-big big">381</div>
-            <div class="c-bottom"><span class="date">11/26</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Повернутися до номера картки"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg></span></div>
-            <div class="warn sub">Не розголошуйте CVV-код<br>іншим особам</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card dark acct" data-i="1" role="button" tabindex="0" aria-label="Кредитна картка 100 днів, закінчується на 3307. До рахунку відкрито ще одну картку">
-        <div class="ghost" aria-hidden="true"></div>
-        <div class="flipper">
-          <div class="side front">
-            <div class="art" aria-hidden="true">100</div>
-            <div class="c-head"><div><div class="c-name sub">100 днів</div><div class="c-mask">4149    •••• ••••    3307</div></div><img class="visa" src="assets/visa-logo.svg" width="45" height="17" alt="Visa"></div>
-            <div class="pan big" title="Утримуйте, щоб скопіювати"><span class="g">4149</span><span class="g">5512</span><span class="g">0094</span><span class="g">3307</span></div>
-            <div class="c-bottom"><span class="date">08/28</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Показати CVV-код">CVV</span></div>
-          </div>
-          <div class="side back-side">
-            <div class="mag"></div>
-            <div class="cvv-big big">207</div>
-            <div class="c-bottom"><span class="date">08/28</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Повернутися до номера картки"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg></span></div>
-            <div class="warn sub">Не розголошуйте CVV-код<br>іншим особам</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card pearl" data-i="2" role="button" tabindex="0" aria-label="Нова картка, закінчується на 4410">
-        <div class="flipper">
-          <div class="side front">
-            <div class="stripes"></div>
-            <div class="c-head"><div><div class="c-name sub">Нова картка</div><div class="c-mask">4149    •••• ••••    4410</div></div><img class="visa" src="assets/visa-logo.svg" width="45" height="17" alt="Visa"></div>
-            <div class="pan big" title="Утримуйте, щоб скопіювати"><span class="g">4149</span><span class="g">7031</span><span class="g">6620</span><span class="g">4410</span></div>
-            <div class="c-bottom"><span class="date">09/30</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Показати CVV-код">CVV</span></div>
-          </div>
-          <div class="side back-side">
-            <div class="mag"></div>
-            <div class="cvv-big big">664</div>
-            <div class="c-bottom"><span class="date">09/30</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Повернутися до номера картки"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg></span></div>
-            <div class="warn sub">Не розголошуйте CVV-код<br>іншим особам</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card yellow extra" data-i="x" role="button" tabindex="0" aria-label="Додаткова картка до рахунку, закінчується на 5502">
-        <div class="flipper">
-          <div class="side front">
-            <img class="graphic" src="assets/card-graphic.svg" width="196" height="233" alt="">
-            <div class="c-head"><div><div class="c-name">Додаткова</div><div class="c-mask">4149    •••• ••••    5502</div></div><img class="visa" src="assets/visa-logo.svg" width="45" height="17" alt="Visa"></div>
-            <div class="pan big" title="Утримуйте, щоб скопіювати"><span class="g">4149</span><span class="g">1856</span><span class="g">2047</span><span class="g">5502</span></div>
-            <div class="c-bottom"><span class="date">03/29</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Показати CVV-код">CVV</span></div>
-          </div>
-          <div class="side back-side">
-            <img class="graphic" src="assets/card-graphic.svg" width="196" height="233" alt="">
-            <div class="mag"></div>
-            <div class="cvv-big big">529</div>
-            <div class="c-bottom"><span class="date">03/29</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Повернутися до номера картки"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg></span></div>
-            <div class="warn sub">Не розголошуйте CVV-код<br>іншим особам</div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div class="track" id="track"></div>
   </div>
 
   <div class="sheet">
     <div class="pane home-pane">
       <div class="dots"><div class="wrap" id="dots">
-        <button aria-label="Картка 1"></button>
-        <button aria-label="Картка 2"></button>
-        <button aria-label="Картка 3"></button>
+
       </div></div>
 
       <div class="quick">
@@ -513,22 +462,22 @@
       <div class="widget"><div class="w-wrap rows">
         <div class="row iban-row">
           <span class="iban-lead"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 10l9-6 9 6M5 10v8M19 10v8M9 10v8M15 10v8M3 20h18"/></svg></span>
-          <span class="rt"><b>Рахунок</b><span id="iban">UA24 3456 7892 3823 4298 3223 949</span></span>
+          <span class="rt"><b>Рахунок</b><span id="iban"></span></span>
           <button class="copy-btn js-copy-iban" aria-label="Скопіювати IBAN"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2"/></svg></button>
         </div>
       </div></div>
 
       <div class="widget"><div class="w-wrap rows">
         <button class="row"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 3h12l3 6-9 12L3 9z M3 9h18 M9 3l3 18 3-18"/></svg></span><span class="rt"><b>Обслуговування пакету</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg></span><span class="rt"><b>Налаштувати Apple Pay</b><span>Картку не підключено</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span><span class="rt"><b>Заблокувати картку</b><span>Ви завжди зможете її розблокувати</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M14 10l-2 2 2 2M10 10l2 2-2 2"/></svg></span><span class="rt"><b>Перевипустити картку</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row only-credit"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="7" width="15" height="12" rx="2"/><path d="M3 11h15M19 3v6M16 6h6"/></svg></span><span class="rt"><b>Змінити кредитний ліміт</b><span>Поточний ліміт 300 000 ₴</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="row card-only"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg></span><span class="rt"><b>Налаштувати Apple Pay</b><span>Картку не підключено</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="row card-only"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg></span><span class="rt"><b>Заблокувати картку</b><span>Ви завжди зможете її розблокувати</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="row card-only"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M14 10l-2 2 2 2M10 10l2 2-2 2"/></svg></span><span class="rt"><b>Перевипустити картку</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="row only-credit"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="7" width="15" height="12" rx="2"/><path d="M3 11h15M19 3v6M16 6h6"/></svg></span><span class="rt"><b>Змінити кредитний ліміт</b><span id="credLimit">Поточний ліміт 50 000 ₴</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
       </div></div>
 
       <div class="widget"><div class="w-wrap rows">
         <button class="row"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="7" width="16" height="12" rx="2"/><path d="M6 4h14a2 2 0 012 2v9"/></svg></span><span class="rt"><b>Додаткова картка до рахунку</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
-        <button class="row"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="7" width="20" height="10" rx="3"/><circle cx="7" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="17" cy="12" r="1.2"/></svg></span><span class="rt"><b>Налаштувати PIN</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button class="row card-only"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="7" width="20" height="10" rx="3"/><circle cx="7" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="17" cy="12" r="1.2"/></svg></span><span class="rt"><b>Налаштувати PIN</b></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
         <button class="row"><span class="ri"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></svg></span><span class="rt"><b>Номер підтвердження оплат</b><span>+380 63 721 73 91</span></span><svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
       </div></div>
 
@@ -552,11 +501,16 @@
       <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 16V20C11 20.5523 10.5523 21 10 21H4C3.44772 21 3 20.5523 3 20V12C3 11.7348 3.10536 11.4804 3.29289 11.2929L11.2929 3.29289C11.6834 2.90237 12.3166 2.90237 12.7071 3.29289L20.7071 11.2929C20.8946 11.4804 21 11.7348 21 12V20C21 20.5523 20.5523 21 20 21H14C13.4477 21 13 20.5523 13 20V16H11Z" fill="currentColor"/></svg>
       <span class="tl">Головна</span>
     </button>
-    <!-- Placeholder icons until the design-system tab icons are provided -->
-    <button><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 15l3-3 2 2 3-4"/></svg><span class="tl">Кредити</span></button>
-    <button><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8.5 12h7"/></svg><span class="tl">Накопичення</span></button>
-    <button><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="tl">Послуги</span></button>
-    <button><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="9" width="16" height="11" rx="1"/><path d="M3 6h18v3H3zM12 6v14"/></svg><span class="tl">Raif+</span></button>
+    <button>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 3C3.34315 3 2 4.34315 2 6V9H20L20 16C20 16.5523 19.5523 17 19 17L16 17V19L19 19C20.6569 19 22 17.6569 22 16L22 6C22 4.34315 20.6569 3 19 3H5ZM20 6V7L4 7V6C4 5.44772 4.44772 5 5 5H19C19.5523 5 20 5.44772 20 6Z" fill-rule="evenodd" clip-rule="evenodd"/><path d="M12 17C10.8954 17 10 17.8954 10 19C10 20.1046 10.8954 21 12 21C13.1046 21 14 20.1046 14 19C14 17.8954 13.1046 17 12 17Z"/><path d="M2 13C2 11.8954 2.89543 11 4 11C5.10457 11 6 11.8954 6 13C6 14.1046 5.10457 15 4 15C2.89543 15 2 14.1046 2 13Z"/><path d="M4.20706 21.2071L13.2071 12.2071L11.7928 10.7929L2.79285 19.7929L4.20706 21.2071Z"/></svg>
+      <span class="tl">Кредити</span>
+    </button>
+    <button><img src="assets/tab-safe.png" width="24" height="24" alt=""><span class="tl">Накопичення</span></button>
+    <button>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 5H12.9296C13.264 5 13.5762 5.1671 13.7617 5.4453L16.1315 9H12.9812C12.4902 8.99999 11.7004 8.99997 11.0255 9.06746C10.6931 9.10071 10.3175 9.15639 10.001 9.26595C9.84627 9.31952 9.63345 9.40979 9.44254 9.57108C9.23547 9.74602 9 10.0578 9 10.5C9 10.8133 9.13646 11.0502 9.18463 11.1315C9.25326 11.2473 9.33473 11.3523 9.40696 11.4381C9.55373 11.6124 9.74302 11.8017 9.94106 11.9873C10.3422 12.3634 10.864 12.803 11.3694 13.2136C11.8783 13.6271 12.3855 14.0233 12.7645 14.3154C12.9543 14.4617 13.1125 14.5824 13.2236 14.6667L13.3132 14.7345C13.3175 14.7402 13.3221 14.7464 13.3269 14.7531C13.3664 14.8085 13.4044 14.8754 13.4263 14.9412C13.4469 15.0029 13.4467 15.0422 13.4413 15.0695C13.4373 15.0894 13.4192 15.1666 13.2929 15.2929C13.1683 15.4175 12.8749 15.5052 12.3211 15.3944C12.0801 15.3462 11.8551 15.2719 11.6871 15.2073C11.6046 15.1755 11.5393 15.1475 11.4969 15.1285C11.4758 15.119 11.4606 15.1119 11.4521 15.1079L11.4446 15.1043C10.951 14.8576 10.3881 14.6031 9.82284 14.3475C9.51429 14.208 9.20503 14.0682 8.90595 13.9291C8.02751 13.5207 7.17344 13.0917 6.42225 12.6005C4.90894 11.6111 4 10.4996 4 9V8H2V9C2 11.5004 3.59106 13.1389 5.32775 14.2745C6.20156 14.8458 7.15999 15.323 8.0628 15.7427C8.40862 15.9035 8.73891 16.0527 9.05518 16.1956C9.59244 16.4382 10.0949 16.6655 10.5585 16.8973L10.5672 16.9015L10.5933 16.9141C10.6146 16.9242 10.6433 16.9376 10.6788 16.9535C10.7497 16.9853 10.8486 17.0276 10.9691 17.074C11.2074 17.1656 11.5449 17.2788 11.9289 17.3556C12.6251 17.4948 13.8317 17.5825 14.7071 16.7071C15.0808 16.3334 15.3127 15.9106 15.4025 15.4617C15.4908 15.0203 15.4281 14.6221 15.3237 14.3088C15.2206 13.9996 15.0711 13.754 14.9544 13.5906C14.8946 13.507 14.8396 13.4394 14.7967 13.39C14.7752 13.3651 14.7564 13.3445 14.7413 13.3283L14.7213 13.3073L14.7134 13.2993L14.7101 13.2959L14.7085 13.2943L14.6569 13.2426L14.5896 13.1922L14.5572 13.1678L14.4327 13.0735C14.325 12.9918 14.1707 12.8742 13.9855 12.7314C13.6145 12.4454 13.1217 12.0604 12.6306 11.6614C12.3615 11.4427 12.0972 11.2234 11.856 11.0161C12.2582 11.0004 12.6687 11 13 11L20 11V13H17L17 15H20V19H7L7 17H5L5 19C5 20.1046 5.89543 21 7 21H20C21.1046 21 22 20.1046 22 19V11C22 9.89543 21.1046 9 20 9H18.5352L15.4258 4.3359C14.8694 3.5013 13.9327 3 12.9296 3H2V5Z"/></svg>
+      <span class="tl">Послуги</span>
+    </button>
+    <button><img src="assets/tab-gift.png" width="24" height="24" alt=""><span class="tl">Raif+</span></button>
   </nav>
   <div class="home-ind" aria-hidden="true"></div>
 
@@ -621,58 +575,134 @@
 
 <div class="controls" aria-label="Налаштування прототипу">
   <label>Видима смуга <input id="peek" type="range" min="64" max="110" step="1" value="81"></label>
-  <p>Свайп або точки — гортати картки. Тап по картці — відкрити; у «100 днів» за нею ще одна картка рахунку. «CVV» — перевернути. Утримуйте номер — скопіювати. Esc — назад.</p>
+  <p>Свайп або точки — гортати картки. Тап по картці — відкрити; у «Райфкарти» до рахунку є ще «Фішка». Аватар — профіль і перемикання на ФОП. «CVV» — перевернути. Утримуйте номер — скопіювати. Esc — назад.</p>
 </div>
 
 <script>
 (function () {
   const phone = document.getElementById('phone');
   const track = document.getElementById('track');
-  const cards = Array.from(document.querySelectorAll('.card:not(.extra)'));
-  const extra = document.querySelector('.card.extra');
-  const all = cards.concat(extra);
-  const slotOf = (el) => (el === extra ? 2 : cards.indexOf(el));
-  const STEP = 332;
-  const bgs = ['#7E97B8', '#534E6B', '#4FA07E'];
-  const balances = [
-    { label: 'Власні кошти', value: 8412.50 },
-    { label: 'Доступно з 300 000 ₴', value: 43069.61 },
-    { label: 'Власні кошти', value: 0 }
-  ];
-  const dots = Array.from(document.querySelectorAll('#dots button'));
+  const dotsWrap = document.getElementById('dots');
   const title = document.getElementById('title');
-  const titles = ['UA 23 **** 12345', 'UA 41 **** 30971', 'UA 23 **** 12345'];
-  const state = { idx: 0, sub: 0, open: false, flipped: false, activated: false, business: false };
   const scroller = document.getElementById('scroller');
-  const multi = () => state.open && state.idx === 1;
-  const currentEl = () => (state.sub ? extra : cards[state.idx]);
-  let toastTimer;
+  const STEP = 332;
 
-  // Balance counter: tweens from the shown value to the account's balance
+  // Cards and accounts per profile. All numbers are made up for the prototype.
+  const PROFILES = {
+    personal: [
+      { key: 'raif', skin: 'yellow', name: 'Райфкарта', pan: ['4149', '6093', '2718', '0451'], date: '07/29', cvv: '482',
+        bg: '#7E97B8', label: 'Власні кошти', value: 8412.50,
+        title: 'UA67 **** 04519', iban: 'UA67 3808 0500 0000 0026 2049 0451 9',
+        extra: { key: 'fishka', skin: 'red light', name: 'Фішка', pan: ['4149', '6093', '5520', '1736'], date: '02/30', cvv: '315' } },
+      { key: 'd100', skin: 'by light', name: '100 днів', pan: ['4149', '4997', '1062', '8835'], date: '10/28', cvv: '907',
+        bg: '#534E6B', label: 'Доступно з 50 000 ₴', value: 37250.00, credit: '50 000 ₴',
+        title: 'UA21 **** 88350', iban: 'UA21 3808 0500 0000 0026 2511 8835 0' },
+      { key: 'atb', skin: 'atb light', img: 'card-atb.png', shade: true, name: 'Картка АТБ', pan: ['4149', '3105', '7744', '6012'], date: '12/30', cvv: '238',
+        bg: '#4FA07E', label: 'Власні кошти', value: 0, activate: true,
+        title: 'UA94 **** 60127', iban: 'UA94 3808 0500 0000 0026 2733 6012 7' }
+    ],
+    business: [
+      { key: 'fop', kind: 'account', skin: 'acct light', img: 'card-fop-account.png', name: 'ФОП рахунок', mask: 'UA12    •••• ••••    33556',
+        pan: ['UA12', '3808', '0500', '0000', '0026', '0071', '3355', '6'],
+        bg: '#5D6B82', label: 'Залишок на рахунку', value: 126540.80,
+        title: 'UA12 **** 33556', iban: 'UA12 3808 0500 0000 0026 0071 3355 6' },
+      { key: 'biz', skin: 'biz light', img: 'card-business.png', name: 'Бізнес картка', pan: ['4149', '8820', '6417', '9530'], date: '05/29', cvv: '661',
+        bg: '#7B7466', label: 'Власні кошти ФОП', value: 126540.80,
+        title: 'UA12 **** 33556', iban: 'UA12 3808 0500 0000 0026 0071 3355 6' }
+    ]
+  };
+
+  const state = { profile: 'personal', idx: 0, sub: 0, open: false, flipped: false, activated: {} };
+  let cards = [], extraEl = null, toastTimer;
+  const list = () => PROFILES[state.profile];
+  const cur = () => list()[state.idx];
+  const multi = () => state.open && !!cur().extra;
+  const currentEl = () => (state.sub ? extraEl : cards[state.idx]);
+  const slotOf = (el) => (el === extraEl ? state.idx + 1 : cards.indexOf(el));
+
+  const BACK_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg>';
+  const visa = '<img class="visa" src="assets/visa-logo.svg" width="45" height="17" alt="Visa">';
+
+  function decor(c) {
+    const sk = c.skin.split(' ')[0];
+    let h = '';
+    if (c.img) h += '<img class="bgimg" src="assets/' + c.img + '" alt="">';
+    if (c.shade) h += '<div class="shade"></div>';
+    if (sk === 'yellow') h += '<img class="graphic" src="assets/card-graphic.svg" width="196" height="233" alt="">';
+    if (sk === 'red') h += '<div class="deco"></div><div class="deco2"></div>';
+    if (sk === 'by') h += '<div class="band"></div><div class="art2" aria-hidden="true">100</div>';
+    return h;
+  }
+  function cardHTML(c) {
+    const isAcct = c.kind === 'account';
+    const mask = c.mask || (c.pan[0] + '    •••• ••••    ' + c.pan[3]);
+    const label = isAcct ? (c.name + ', рахунок ' + c.title) : (c.name + ', картка закінчується на ' + c.pan[3]);
+    const groups = c.pan.map((g) => '<span class="g">' + g + '</span>').join('');
+    const front = '<div class="side front">' + decor(c) +
+      '<div class="c-head"><div><div class="c-name sub">' + c.name + '</div><div class="c-mask">' + mask + '</div></div>' + (isAcct ? '' : visa) + '</div>' +
+      '<div class="pan big" title="Утримуйте, щоб скопіювати">' + groups + '</div>' +
+      (isAcct
+        ? '<div class="c-bottom"><span class="lbl sub">Поточний рахунок · UAH</span></div>'
+        : '<div class="c-bottom"><span class="date">' + c.date + '</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Показати CVV-код">CVV</span></div>') +
+      '</div>';
+    const back = isAcct ? '' : '<div class="side back-side">' + decor(c) + (c.img ? '<div class="shade"></div>' : '') +
+      '<div class="mag"></div><div class="cvv-big big">' + c.cvv + '</div>' +
+      '<div class="c-bottom"><span class="date">' + c.date + '</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Повернутися до номера картки">' + BACK_ICON + '</span></div>' +
+      '<div class="warn sub">Не розголошуйте CVV-код<br>іншим особам</div></div>';
+    return '<div class="flipper">' + front + back + '</div>';
+  }
+  function makeCard(c, cls) {
+    const el = document.createElement('div');
+    el.className = 'card ' + c.skin + (c.extra ? ' acct-multi' : '') + (cls ? ' ' + cls : '');
+    el.setAttribute('role', 'button');
+    el.tabIndex = 0;
+    el.setAttribute('aria-label', c.kind === 'account' ? c.name : c.name + ', картка закінчується на ' + c.pan[3]);
+    el.innerHTML = (c.extra ? '<div class="ghost" aria-hidden="true"></div>' : '') + cardHTML(c);
+    return el;
+  }
+  function build() {
+    track.innerHTML = '';
+    cards = list().map((c) => { const el = makeCard(c); track.appendChild(el); return el; });
+    extraEl = null;
+    list().forEach((c, i) => {
+      if (!c.extra) return;
+      extraEl = makeCard(c.extra, 'extra');
+      extraEl.style.left = (35 + STEP * (i + 1)) + 'px';
+      track.appendChild(extraEl);
+    });
+    dotsWrap.innerHTML = list().map((c, i) => '<button aria-label="' + c.name + '"></button>').join('');
+    Array.from(dotsWrap.children).forEach((d, i) => d.addEventListener('click', () => go(i)));
+    wireCards();
+  }
+
+  // Balance counter
   const balInt = document.getElementById('balInt');
   const balDec = document.getElementById('balDec');
   const balLabel = document.getElementById('balLabel');
-  let shownBal = balances[0].value, balIdx = 0, balRaf = null;
+  let shownBal = null, balKey = null, balRaf = null;
   function fmt(v) {
     const parts = Math.abs(v).toFixed(2).split('.');
     return [parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' '), parts[1]];
   }
   function paint(v) { const f = fmt(v); balInt.textContent = f[0]; balDec.textContent = f[1]; }
-  function setBalance(i) {
-    if (i === balIdx) return;
-    balIdx = i;
-    const target = balances[i];
-    balLabel.classList.add('swap');
-    setTimeout(() => { balLabel.textContent = target.label; balLabel.classList.remove('swap'); }, 150);
-    const f = fmt(target.value);
-    document.getElementById('balance').setAttribute('aria-label', target.label + ' ' + f[0] + ',' + f[1] + ' гривень');
+  function setBalance() {
+    const c = cur();
+    const key = state.profile + c.key;
+    if (key === balKey) return;
+    balKey = key;
+    const f = fmt(c.value);
+    document.getElementById('balance').setAttribute('aria-label', c.label + ' ' + f[0] + ',' + f[1] + ' гривень');
+    if (shownBal === null) { shownBal = c.value; balLabel.textContent = c.label; paint(c.value); return; }
+    if (balLabel.textContent !== c.label) {
+      balLabel.classList.add('swap');
+      setTimeout(() => { balLabel.textContent = c.label; balLabel.classList.remove('swap'); }, 150);
+    }
     cancelAnimationFrame(balRaf);
-    const from = shownBal, to = target.value, start = performance.now();
+    const from = shownBal, to = c.value, start = performance.now();
     const dur = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 700;
     const step = (now) => {
       const t = dur ? Math.min(1, (now - start) / dur) : 1;
-      const e = 1 - Math.pow(1 - t, 3);
-      shownBal = from + (to - from) * e;
+      shownBal = from + (to - from) * (1 - Math.pow(1 - t, 3));
       paint(shownBal);
       if (t < 1) balRaf = requestAnimationFrame(step); else shownBal = to;
     };
@@ -681,29 +711,36 @@
 
   function render() {
     if (!multi()) state.sub = 0;
+    const c = cur();
     phone.classList.toggle('open', state.open);
     phone.classList.toggle('flipped', state.flipped);
-    phone.classList.toggle('activated', state.activated);
     phone.classList.toggle('multi', multi());
-    phone.classList.toggle('needs-activation', state.idx === 2 && !state.activated);
-    phone.classList.toggle('is-credit', state.idx === 1);
-    phone.classList.toggle('business', state.business);
-    const slot = state.sub ? 2 : state.idx;
+    phone.classList.toggle('needs-activation', !!c.activate && !state.activated[c.key]);
+    phone.classList.toggle('is-credit', !!c.credit);
+    phone.classList.toggle('is-account', c.kind === 'account');
+    phone.classList.toggle('business', state.profile === 'business');
+    const slot = state.sub ? state.idx + 1 : state.idx;
     track.style.transform = 'translateX(' + (-STEP * slot) + 'px)';
-    phone.style.background = bgs[state.idx];
-    document.documentElement.style.setProperty('--header', bgs[state.idx]);
-    all.forEach((c) => {
-      const cur = c === currentEl();
-      c.classList.toggle('current', cur);
-      c.classList.toggle('before', !cur && slotOf(c) < slot);
-      c.classList.toggle('after', !cur && slotOf(c) >= slot);
-      c.setAttribute('aria-expanded', String(state.open && cur));
-      c.querySelector('.front').setAttribute('aria-hidden', String(cur && state.flipped));
-      c.querySelector('.back-side').setAttribute('aria-hidden', String(!(cur && state.flipped)));
+    phone.style.background = c.bg;
+    document.documentElement.style.setProperty('--header', c.bg);
+    cards.concat(extraEl ? [extraEl] : []).forEach((el) => {
+      const isCur = el === currentEl();
+      el.classList.toggle('current', isCur);
+      el.classList.toggle('before', !isCur && slotOf(el) < slot);
+      el.classList.toggle('after', !isCur && slotOf(el) >= slot);
+      el.setAttribute('aria-expanded', String(state.open && isCur));
+      const back = el.querySelector('.back-side');
+      if (back) {
+        el.querySelector('.front').setAttribute('aria-hidden', String(isCur && state.flipped));
+        back.setAttribute('aria-hidden', String(!(isCur && state.flipped)));
+      }
     });
-    dots.forEach((d, i) => d.classList.toggle('on', i === state.idx));
-    title.textContent = titles[state.idx];
-    setBalance(state.idx);
+    Array.from(dotsWrap.children).forEach((d, i) => d.classList.toggle('on', i === state.idx));
+    title.textContent = c.title;
+    document.getElementById('iban').textContent = c.iban;
+    if (c.credit) document.getElementById('credLimit').textContent = 'Поточний ліміт ' + c.credit;
+    document.getElementById('activateText').textContent = 'Активувати картку';
+    setBalance();
   }
   function toast(text) {
     const t = document.getElementById('toast');
@@ -731,16 +768,17 @@
     render();
   }
   function flip() {
-    const c = currentEl();
-    c.classList.add('lift');
-    setTimeout(() => c.classList.remove('lift'), 320);
+    const el = currentEl();
+    el.classList.add('lift');
+    setTimeout(() => el.classList.remove('lift'), 320);
     state.flipped = !state.flipped;
     render();
   }
   function activate() {
-    state.activated = true;
+    const c = cur();
+    state.activated[c.key] = true;
     render();
-    toast('Картку •• 4410 активовано');
+    toast('Картку •• ' + c.pan[3] + ' активовано');
   }
 
   // Swipe between cards (collapsed, or between cards of one account in details)
@@ -757,83 +795,89 @@
     else go(state.idx + (dx < 0 ? 1 : -1));
   });
 
-  // Long press on the card number copies it
   let pressTimer = null, longPressed = false;
-  document.querySelectorAll('.pan').forEach((pan) => {
-    const cancel = () => { clearTimeout(pressTimer); pan.classList.remove('pressing'); };
-    pan.addEventListener('pointerdown', () => {
-      if (!state.open) return;
-      longPressed = false;
-      pan.classList.add('pressing');
-      pressTimer = setTimeout(() => {
-        longPressed = true;
-        pan.classList.remove('pressing');
-        if (navigator.vibrate) navigator.vibrate(15);
-        copy(Array.from(pan.querySelectorAll('.g')).map((g) => g.textContent).join(' '), 'Номер картки скопійовано');
-      }, 500);
+  function wireCards() {
+    // Long press on the number copies it
+    track.querySelectorAll('.pan').forEach((pan) => {
+      const cancel = () => { clearTimeout(pressTimer); pan.classList.remove('pressing'); };
+      pan.addEventListener('pointerdown', () => {
+        if (!state.open) return;
+        longPressed = false;
+        pan.classList.add('pressing');
+        pressTimer = setTimeout(() => {
+          longPressed = true;
+          pan.classList.remove('pressing');
+          if (navigator.vibrate) navigator.vibrate(15);
+          const isAcct = cur().kind === 'account' && !state.sub;
+          copy(Array.from(pan.querySelectorAll('.g')).map((g) => g.textContent).join(isAcct ? '' : ' '), isAcct ? 'IBAN скопійовано' : 'Номер картки скопійовано');
+        }, 500);
+      });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => pan.addEventListener(ev, cancel));
+      pan.addEventListener('contextmenu', (e) => e.preventDefault());
     });
-    ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => pan.addEventListener(ev, cancel));
-    pan.addEventListener('contextmenu', (e) => e.preventDefault());
-  });
+    cards.concat(extraEl ? [extraEl] : []).forEach((el) => el.addEventListener('click', (e) => {
+      const i = cards.indexOf(el);
+      if (swiped) { swiped = false; return; }
+      if (longPressed) { longPressed = false; return; }
+      if (e.target.closest('.js-flip')) { if (state.open) flip(); return; }
+      if (el !== currentEl()) {
+        if (state.open && multi()) { state.sub = el === extraEl ? 1 : 0; state.flipped = false; render(); }
+        else if (i >= 0) go(i);
+        return;
+      }
+      if (!state.open) setOpen(true);
+    }));
+    track.querySelectorAll('[role="button"]').forEach((el) => el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); el.click(); }
+    }));
+  }
 
-  all.forEach((c) => c.addEventListener('click', (e) => {
-    const i = cards.indexOf(c);
-    if (swiped) { swiped = false; return; }
-    if (longPressed) { longPressed = false; return; }
-    if (e.target.closest('.js-flip')) { if (state.open) flip(); return; }
-    if (c !== currentEl()) {
-      if (state.open && multi()) { state.sub = c === extra ? 1 : 0; state.flipped = false; render(); }
-      else if (i >= 0) go(i);
-      return;
-    }
-    if (!state.open) setOpen(true);
-  }));
-
-  document.querySelectorAll('[role="button"]').forEach((el) => el.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); el.click(); }
-  }));
   document.querySelector('.js-activate').addEventListener('click', activate);
   document.querySelector('.js-activate-cta').addEventListener('click', activate);
-  document.querySelector('.js-copy-iban').addEventListener('click', () => copy(document.getElementById('iban').textContent.replace(/\s/g, ''), 'IBAN скопійовано'));
+  document.querySelector('.js-copy-iban').addEventListener('click', () => copy(cur().iban.replace(/\s/g, ''), 'IBAN скопійовано'));
   document.getElementById('collapse').addEventListener('click', () => setOpen(false));
-  dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
   document.addEventListener('keydown', (e) => {
-    if (e.key !== 'Escape' || !state.open) return;
+    if (e.key !== 'Escape') return;
+    if (profile.classList.contains('show')) { showProfile(false); return; }
+    if (!state.open) return;
     if (state.flipped) flip(); else setOpen(false);
   });
+
   // Navbar gets its sticky surface once content scrolls under it
   scroller.addEventListener('scroll', () => phone.classList.toggle('scrolled', scroller.scrollTop > 4), { passive: true });
 
   // Profile modal + switching between personal and business (ФОП) profiles
   const profile = document.getElementById('profile');
-  const prName = document.getElementById('prName');
-  const prCaption = document.getElementById('prCaption');
   function showProfile(v) {
     profile.classList.toggle('show', v);
     profile.setAttribute('aria-hidden', String(!v));
     if (v) setTimeout(() => document.getElementById('closeProfile').focus(), 300);
   }
   function renderProfile() {
-    prName.textContent = state.business ? 'ФОП Шевченко Тарас' : 'Шевченко Тарас';
-    prCaption.textContent = state.business ? 'Бізнес-профіль · +380 (63) 213 18 21' : '+380 (63) 213 18 21';
+    const biz = state.profile === 'business';
+    document.getElementById('prName').textContent = biz ? 'ФОП Шевченко Тарас' : 'Шевченко Тарас';
+    document.getElementById('prCaption').textContent = biz ? 'Бізнес-профіль · +380 (63) 213 18 21' : '+380 (63) 213 18 21';
   }
   document.getElementById('openProfile').addEventListener('click', () => showProfile(true));
   document.getElementById('closeProfile').addEventListener('click', () => showProfile(false));
   document.querySelectorAll('.js-switch').forEach((b) => b.addEventListener('click', () => {
-    state.business = b.dataset.to === 'business';
+    state.profile = b.dataset.to;
+    state.idx = 0; state.sub = 0; state.open = false; state.flipped = false;
+    scroller.scrollTop = 0;
+    build();
     renderProfile();
     render();
     setTimeout(() => {
       showProfile(false);
-      toast(state.business ? 'Ви в профілі ФОП Шевченко Т. Г.' : 'Ви в особистому профілі');
+      toast(state.profile === 'business' ? 'Ви в профілі ФОП Шевченко Т. Г.' : 'Ви в особистому профілі');
     }, 200);
   }));
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && profile.classList.contains('show')) showProfile(false); });
 
   document.getElementById('peek').addEventListener('input', (e) => {
     document.documentElement.style.setProperty('--peek', e.target.value + 'px');
   });
 
+  build();
   render();
 })();
 </script>
