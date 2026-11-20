@@ -281,6 +281,9 @@
   .cell.l { min-height: 72px; }
   .cell .lead { position: relative; width: 44px; height: 44px; margin: 0 16px; flex: none; }
   .cell .lead img.ic { position: absolute; left: 12px; top: 12px; }
+  /* Squircle Small / Rounded */
+  .cell .lead.sm { width: 32px; height: 32px; }
+  .cell .lead.sm img.ic { left: 8px; top: 8px; }
   .cell .main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 16px; padding: 8px 16px 8px 0; }
   .cell .txt { flex: 1; min-width: 0; }
   .cell .t { display: block; font-size: 16px; line-height: 24px; }
@@ -476,7 +479,7 @@
 
       <div class="widget"><div class="w-wrap">
         <a class="cell l" href="#" onclick="return false">
-          <span class="lead"><img src="assets/limits-squircle.svg" width="44" height="44" alt=""><img class="ic" src="assets/limits-branch.svg" width="20" height="20" alt=""></span>
+          <span class="lead sm"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img class="ic" src="assets/dt-branch-09.svg" width="16" height="16" alt=""></span>
           <span class="main"><span class="txt"><span class="t m">Ліміти по рахунках</span><span class="c m">Встановлені законодавством України</span></span></span>
         </a>
       </div></div>
@@ -628,7 +631,7 @@
         title: 'UA67 **** 04519', iban: 'UA67 3808 0500 0000 0026 2049 0451 9',
         extra: { key: 'fishka', skin: 'red light', img: 'card-fishka.png', name: 'Фішка', pan: ['4149', '6093', '5520', '1736'], date: '02/30', cvv: '315' } },
       { key: 'd100', skin: 'by light', img: 'card-100.png', name: '100 днів', pan: ['4149', '4997', '1062', '8835'], date: '10/28', cvv: '907',
-        bg: '#534E6B', label: 'Доступно з 50 000 ₴', value: 37250.00, credit: '50 000 ₴',
+        bg: '#534E6B', label: 'Використано 12 750,00 з 50 000,00 ₴', value: 37250.00, credit: '50 000 ₴',
         title: 'UA21 **** 88350', iban: 'UA21 3808 0500 0000 0026 2511 8835 0' },
       { key: 'atb', skin: 'atb light', img: 'card-atb.png', shade: true, name: 'Картка АТБ', pan: ['4149', '3105', '7744', '6012'], date: '12/30', cvv: '238',
         bg: '#4FA07E', label: 'Власні кошти', value: 0, activate: true,
