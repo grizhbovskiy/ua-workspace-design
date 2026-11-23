@@ -1,0 +1,1402 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RBUA">
+<meta name="theme-color" id="themeColor" content="#7E97B8">
+<title>Banners · Головна — картка в кишені</title>
+<style>
+  /* Amalia (brand font). Files live in ./fonts; falls back to system UI if absent. */
+  @font-face { font-family: 'Amalia'; src: local('Amalia Regular'), local('Amalia-Regular'), url('fonts/Amalia-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+  @font-face { font-family: 'Amalia'; src: local('Amalia Medium'), local('Amalia-Medium'), url('fonts/Amalia-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+  @font-face { font-family: 'Amalia'; src: local('Amalia Bold'), local('Amalia-Bold'), url('fonts/Amalia-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+
+  /* UDS RB Mobile tokens (from Figma) */
+  :root {
+    --surface-background: #F8F6F2;
+    --surface-baseline: #FFFFFF;
+    --surface-accent: #FEE600;
+    --surface-inverted: #2B2D34;
+    --tint-primary: #2B2D34;
+    --tint-secondary: #505258;
+    --tint-tertiary: #808185;
+    --tint-action: #0077A4;
+    --border-regular: rgba(156, 150, 127, .24);
+    --elevation-1: 0 1px 1px 0 rgba(43, 45, 52, .2);
+    --header: #7E97B8;
+    /* Geometry */
+    --card-w: 320px;
+    --card-h: 202px;
+    --sb: 54px;                       /* status bar height (mock on desktop) */
+    --shift: calc(var(--sb) - 54px);
+    --top-closed: calc(279px + var(--shift));
+    --peek: 81px;
+    --top-open: calc(118px + var(--shift));
+    --spring: cubic-bezier(.32, 1.28, .52, 1);
+    --lift: cubic-bezier(.22, 1, .36, 1);
+    --ease: cubic-bezier(.2, .8, .2, 1);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: #D9D6CF;
+    font-family: 'Amalia', -apple-system, system-ui, sans-serif;
+    color: var(--tint-primary);
+    display: flex; align-items: center; justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font-family: inherit; color: inherit; cursor: pointer; padding: 0; border: 0; background: none; }
+  button:focus-visible, [role="button"]:focus-visible { outline: 3px solid var(--tint-action); outline-offset: 2px; }
+  img { display: block; }
+
+  .phone {
+    position: relative; width: 390px; height: 844px; overflow: hidden;
+    border-radius: 44px; background: var(--header);
+    box-shadow: 0 30px 80px rgba(0,0,0,.25), 0 0 0 10px #111;
+    transition: background .45s ease;
+  }
+  /* Phones: full screen, real iOS status bar and safe areas, no rubber-band */
+  html { -webkit-text-size-adjust: 100%; }
+  @media (max-width: 500px) {
+    :root { --sb: max(env(safe-area-inset-top, 0px), 8px); }
+    html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+    body { display: block; background: var(--header); touch-action: manipulation; }
+    .phone { width: 100%; height: 100vh; height: 100dvh; border-radius: 0; box-shadow: none; }
+    .status, .pr-status, .home-ind { display: none !important; }
+    .tabbar { bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important; }
+    .scroller, .pr-scroll { -webkit-overflow-scrolling: touch; }
+  }
+
+  /* iOS glass (approximation of the Figma "Glass Effect" button background) */
+  .glass {
+    background: rgba(255, 255, 255, .38);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    backdrop-filter: blur(12px) saturate(160%);
+    box-shadow: 1.25px 0 0 -.75px rgba(208,208,208,.9), -1.25px 0 0 -.75px rgba(208,208,208,.9),
+                0 0 0 .5px rgba(232,232,232,.7), inset 0 1px 0 rgba(255,255,255,.55), 0 8px 15px rgba(0,0,0,.02);
+    border-radius: 1000px;
+  }
+
+  /* Status bar */
+  .status { position: absolute; left: 0; right: 0; top: 0; height: var(--sb); z-index: 6; display: flex; align-items: center; justify-content: space-between; padding: 0 30px 0 52px; color: #fff; font-size: 17px; font-weight: 600; z-index: 6; pointer-events: none; }
+  .status .sys { display: flex; gap: 6px; align-items: center; }
+
+  /* Navigation bar (Toolbar: top 54, padding 8 16) */
+  .navbar { position: absolute; left: 0; right: 0; top: var(--sb); height: 60px; z-index: 5; }
+  .scroller { z-index: 1; }
+  .nav-home, .nav-detail { position: absolute; left: 16px; right: 16px; top: 8px; height: 44px; display: flex; align-items: center; justify-content: space-between; transition: opacity .25s, transform .35s var(--ease); }
+  .nav-detail { opacity: 0; transform: translateY(-6px); pointer-events: none; }
+  .open .nav-home { opacity: 0; transform: translateY(-6px); pointer-events: none; }
+  .open .nav-detail { opacity: 1; transform: none; pointer-events: auto; transition-delay: .12s; }
+  .avatar { position: relative; width: 44px; height: 44px; }
+  .avatar .ph { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+  /* Avatar / Badge / Small / Top — top-right corner (Figma 1538:115526) */
+  .avatar .badge-biz { position: absolute; left: calc(50% + 25.7px); top: calc(50% - 18px); transform: translate(-50%, -50%) scale(.6); opacity: 0; padding: 0 4px 1px; border-radius: 100px; background: var(--surface-accent); color: var(--tint-primary); font-size: 10px; line-height: 12px; font-weight: 500; white-space: nowrap; transition: opacity .2s, transform .3s var(--spring); }
+  .avatar .badge-biz::after { content: ''; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none;
+    background: linear-gradient(180deg, rgba(43,45,52,.08) 0%, rgba(43,45,52,.08) 15%, rgba(43,45,52,.1) 90%, rgba(43,45,52,.2) 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+  /* FOP avatar: Light/Solid/Info circle with the case icon instead of a photo */
+  .av-biz { display: none; border-radius: 50%; background: #118DB8; align-items: center; justify-content: center; }
+  .avatar .av-biz { width: 44px; height: 44px; }
+  .business .avatar .ph, .business .pr-avatar .ph { display: none; }
+  .business .av-biz { display: flex; }
+  .avatar { transition: transform .2s var(--ease); -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
+  .avatar.pressing { transform: scale(.9); }
+  .business .avatar .badge-biz { opacity: 1; transform: translate(-50%, -50%); }
+  .nav-right { display: flex; gap: 10px; align-items: center; }
+  .icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+  .btn-group { display: flex; gap: 8px; height: 44px; align-items: center; padding: 0 6px; }
+  .btn-group button { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
+  .nav-title { position: absolute; left: 60px; right: 60px; text-align: center; font-size: 17px; line-height: 22px; font-weight: 500; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Balance (Caption 1 + Headline 1 / Headline 3) */
+  .balance { position: absolute; left: 0; right: 0; top: calc(131px + var(--shift)); text-align: center; color: #fff; transition: opacity .22s, transform .4s var(--ease); }
+  .balance .label { font-size: 14px; line-height: 24px; transition: opacity .15s, transform .25s var(--ease); }
+  .balance .label.swap { opacity: 0; transform: translateY(4px); }
+  .amount { margin-top: 4px; height: 44px; display: flex; justify-content: center; align-items: baseline; font-weight: 700; white-space: nowrap; }
+  .amount .int, .amount .comma { font-size: 40px; line-height: 44px; letter-spacing: -.2px; }
+  .amount .dec { font-size: 24px; line-height: 28px; letter-spacing: -.12px; margin-left: 1px; }
+  .amount .cur { font-size: 24px; line-height: 28px; margin-left: 8px; }
+  .open .balance { opacity: 0; transform: translateY(-18px) scale(.96); }
+
+  /* Activate card pill (shown for a card that needs activation) */
+  /* UDS Pill: Size=Large, Intent=Accent, Style=Subtle (3.6.0, 25005:12958) */
+  .activate-pill { position: absolute; left: 50%; top: calc(211px + var(--shift)); transform: translateX(-50%); display: flex; align-items: center; padding: 8px 12px; border-radius: 100px; background: var(--surface-accent); border: 1px solid rgba(156,150,127,.32); color: var(--tint-primary); white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .25s; }
+  .activate-pill svg { flex: none; }
+  .activate-pill .pl-label { padding: 0 4px; font-size: 14px; line-height: 24px; font-weight: 400; }
+  .needs-activation:not(.open) .activate-pill { opacity: 1; pointer-events: auto; }
+  .activate-pill::after { content: ''; position: absolute; inset: -4px 0; }
+
+  /* Cards */
+  .cards { position: absolute; left: 0; right: 0; height: var(--card-h); top: var(--top-closed); transition: top .7s var(--lift); touch-action: pan-y; z-index: 1; }
+  .open .cards { top: var(--top-open); }
+  .track { position: relative; display: flex; gap: 12px; padding-left: 35px; transition: transform .45s var(--ease); }
+  .card { position: relative; flex: 0 0 var(--card-w); height: var(--card-h); perspective: 1100px; cursor: pointer; border-radius: 16px; outline-offset: 4px; transition: opacity .25s, transform .3s var(--ease); -webkit-user-select: none; user-select: none; }
+  .open .card.before { opacity: 0; transform: translateX(-40px); }
+  .open .card.after { opacity: 0; transform: translateX(40px); }
+  .card.current.lift { transform: scale(.95); }
+  .ghost { position: absolute; left: 10px; right: 10px; top: -8px; height: 40px; border-radius: 16px 16px 0 0; background: rgba(255,255,255,.35); transition: opacity .25s, transform .35s var(--ease); }
+  .open .ghost { opacity: 0; transform: translateY(8px); }
+  .card.extra { position: absolute; left: 699px; top: 0; width: var(--card-w); opacity: 0; transform: translateX(40px); pointer-events: none; }
+  .open.multi .card.extra { opacity: 1; transform: none; pointer-events: auto; transition-delay: .35s; }
+  .open.multi .card.acct-multi.before { opacity: 1; transform: none; }
+
+  .flipper { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.3, .7, .2, 1.05); }
+  .flipped .card.current .flipper { transform: rotateY(180deg); }
+  .side { position: absolute; inset: 0; border-radius: 16px; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+          box-shadow: 0 1.35px 4.05px rgba(43,45,52,.15), 0 .68px .68px rgba(43,45,52,.15); }
+  .back-side { transform: rotateY(180deg); }
+  /* UDS Theme: Light.Utility.Border.Gradient Primary (1px gradient stroke) */
+  .side::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: 5;
+                 background: linear-gradient(180deg, rgba(43,45,52,.08) 0%, rgba(43,45,52,.08) 15%, rgba(43,45,52,.1) 90%, rgba(43,45,52,.2) 100%);
+                 -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+                 mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+
+  /* Card header: Caption 1/Default-Tight + Body 2/Bold, Visa 44.6×16.7 (Figma "card") */
+  .c-head { position: absolute; left: 11px; right: 11px; top: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .c-name { font-size: 14px; line-height: 18px; }
+  .c-mask { font-size: 16px; line-height: 24px; font-weight: 700; white-space: nowrap; transition: opacity .2s, transform .3s var(--ease); }
+  .open .current .c-mask { opacity: 0; transform: translateY(-4px); }
+  .visa { width: 44.6px; height: 16.7px; flex: none; }
+  .dark .visa { filter: brightness(0) invert(1); }
+
+  .big { font-size: 22px; line-height: 28px; font-weight: 700; letter-spacing: 1px; }
+  /* Full number spans the card width so it sits centered and even */
+  .pan { position: absolute; left: 14px; right: 14px; top: 84px; display: flex; justify-content: space-between; padding: 2px 6px; border-radius: 10px; transition: background .2s; }
+  .acct .pan { display: none; }
+  .pan .g { opacity: 0; transform: translateY(8px); filter: blur(4px); transition: opacity .25s, transform .35s var(--ease), filter .3s; }
+  .open .current .pan .g { opacity: 1; transform: none; filter: none; }
+  .open .current .pan .g:nth-child(1) { transition-delay: .26s; }
+  .open .current .pan .g:nth-child(2) { transition-delay: .32s; }
+  .open .current .pan .g:nth-child(3) { transition-delay: .38s; }
+  .open .current .pan .g:nth-child(4) { transition-delay: .44s; }
+  .pan.pressing { background: rgba(0,0,0,.08); }
+  .dark .pan.pressing { background: rgba(255,255,255,.12); }
+
+  .c-bottom { position: absolute; left: 12px; bottom: 14px; display: flex; gap: 10px; align-items: center; height: 28px; }
+  .c-bottom .date { font-size: 16px; line-height: 24px; font-weight: 700; }
+  .front .c-bottom { opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity .25s, transform .35s var(--ease); }
+  .open .current .front .c-bottom { opacity: 1; transform: none; pointer-events: auto; transition-delay: .5s; }
+  .pill { position: relative; display: inline-flex; align-items: center; justify-content: center; height: 28px; min-width: 44px; padding: 0 12px; border-radius: 14px; background: rgba(255,255,255,.5); font-size: 13px; font-weight: 700; letter-spacing: .5px; }
+  .pill::after { content: ''; position: absolute; inset: -8px -4px; }
+  .dark .pill { background: rgba(255,255,255,.16); }
+  .pearl .pill { background: rgba(43,45,52,.08); }
+
+  .mag { position: absolute; left: 0; right: 0; top: 20px; height: 40px; background: var(--surface-inverted); }
+  .dark .mag { background: #0E0E12; }
+  .cvv-big { position: absolute; left: 0; right: 0; top: 86px; text-align: center; }
+  .warn { position: absolute; right: 12px; bottom: 14px; font-size: 11px; line-height: 14px; text-align: right; }
+
+  /* Card skins */
+  .bgimg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .shade { position: absolute; inset: 0; background: rgba(0,0,0,.45); }
+  .back-side .shade { background: rgba(0,0,0,.6); }
+  .light .side { color: #fff; }
+  .light .sub { color: rgba(255,255,255,.78); }
+  .light .visa { filter: brightness(0) invert(1); }
+  .light .pill { background: rgba(255,255,255,.2); }
+  .light .pan.pressing { background: rgba(255,255,255,.14); }
+  .red .side { background: radial-gradient(120% 140% at 85% 0%, #FF5A5F 0%, #E3262E 38%, #B3121D 100%); }
+  .red .deco { position: absolute; width: 240px; height: 240px; right: -90px; bottom: -120px; border-radius: 50%; border: 28px solid rgba(255,255,255,.12); }
+  .red .deco2 { position: absolute; width: 120px; height: 120px; left: -40px; top: 90px; border-radius: 50%; background: rgba(255,255,255,.08); }
+  .by .side { background: var(--surface-inverted); }
+  .by .band { position: absolute; left: 0; right: 0; bottom: 0; height: 62px; background: var(--surface-accent); }
+  .by .front .c-bottom .date, .by .pan, .by .cvv-big { color: var(--tint-primary); }
+  .by .pan.pressing { background: rgba(43,45,52,.08); }
+  .by .front .pill { background: rgba(43,45,52,.12); color: var(--tint-primary); }
+  .by .art2 { position: absolute; right: 14px; bottom: 6px; z-index: 1; font-size: 50px; line-height: 1; font-weight: 700; letter-spacing: -2px; color: transparent; -webkit-text-stroke: 1.5px rgba(43,45,52,.35); }
+  .by .back-side .c-bottom .date, .by .back-side .warn { color: var(--tint-primary); }
+  .by .back-side .pill { background: rgba(43,45,52,.12); color: var(--tint-primary); }
+  .acct .side, .biz .side { background: #141518; }
+  .acct .c-bottom .lbl { font-size: 14px; line-height: 20px; }
+  /* Account art has a cut (transparent) corner: no fill, ring or box shadow behind it; shadow follows the PNG alpha */
+  .card.acct .side { background: transparent; box-shadow: none; overflow: visible; filter: drop-shadow(0 .68px .68px rgba(43,45,52,.15)) drop-shadow(0 1.35px 2px rgba(43,45,52,.12)); }
+  .card.acct .side::after { display: none; }
+  .card.acct .bgimg { border-radius: 16px; }
+  .acct.blue .side { color: var(--tint-primary); }
+  .acct.blue .sub { color: var(--tint-secondary); }
+  .yellow .side { background: var(--surface-accent); color: var(--tint-primary); }
+  .yellow .graphic { position: absolute; left: -6px; top: -37px; width: 196px; height: 233px; }
+  .yellow .sub { color: #4A4200; }
+  .dark .side { background: var(--surface-inverted); color: #fff; }
+  .dark .sub { color: #C9C7D1; }
+  .dark .art { position: absolute; right: -8px; bottom: -34px; font-size: 128px; font-weight: 700; letter-spacing: -6px; color: var(--surface-accent); opacity: .9; line-height: 1; }
+  .pearl .side { background: #EFECE4; color: var(--tint-primary); }
+  .pearl .sub { color: var(--tint-secondary); }
+  .pearl .stripes { position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(43,45,52,.06) 0 8px, rgba(43,45,52,0) 8px 16px); transition: opacity .4s; }
+  .activated .pearl .stripes { opacity: 0; }
+
+
+  /* Quick profile switcher: long press on the avatar (Figma 1568:64160) */
+  .psheet { position: absolute; inset: 0; z-index: 40; visibility: hidden; pointer-events: none; }
+  .psheet.show { visibility: visible; pointer-events: auto; }
+  .psheet .bd { position: absolute; inset: 0; background: rgba(0,0,0,.5); opacity: 0; transition: opacity .3s ease; }
+  .psheet.show .bd { opacity: 1; }
+  .psheet .sh { position: absolute; left: 0; right: 0; bottom: 0; background: #fff; border-radius: 16px 16px 0 0; padding: 4px 0 calc(32px + env(safe-area-inset-bottom, 0px));
+                transform: translateY(100%); transition: transform .45s var(--lift); touch-action: none; }
+  .psheet.show .sh { transform: none; }
+  .psheet .notch { width: 36px; height: 4px; border-radius: 7px; background: rgba(156,150,127,.32); margin: 0 auto 16px; }
+  .psheet .row { position: relative; display: flex; align-items: center; gap: 16px; width: 100%; min-height: 72px; padding: 4px 32px; text-align: left; }
+  .psheet .row::before { content: ''; position: absolute; inset: 4px 16px; border-radius: 12px; background: rgba(156,150,127,.1); transition: background .15s; }
+  .psheet .row:active::before { background: rgba(156,150,127,.2); }
+  .psheet .row > * { position: relative; }
+  .psheet .row .av { width: 44px; height: 44px; border-radius: 50%; flex: none; object-fit: cover; }
+  .psheet .row .av-biz { display: flex; }
+  .psheet .row .tt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .psheet .row b { font-size: 16px; line-height: 24px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--tint-primary); }
+  .psheet .row span.c { font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
+  .psheet .row .ck { width: 24px; height: 24px; flex: none; opacity: 0; transition: opacity .2s; }
+  .psheet .row.on .ck { opacity: 1; }
+
+
+  /* ===== Services tab (Figma 1489:94363) ===== */
+  .svc { position: absolute; inset: 0; z-index: 5; background: var(--surface-background); visibility: hidden; pointer-events: none; }
+  .on-svc .svc { visibility: visible; pointer-events: auto; }
+  .on-svc .status { filter: brightness(0); opacity: .85; }
+  .svc-scroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; overscroll-behavior: contain; padding-bottom: 110px; }
+  .svc-scroll::-webkit-scrollbar { display: none; }
+  .svc-nav { position: sticky; top: 0; z-index: 2; height: calc(var(--sb) + 44px); padding-top: var(--sb); display: flex; align-items: center; justify-content: center;
+             background: color-mix(in srgb, var(--surface-background) 62%, transparent); -webkit-backdrop-filter: blur(24px) saturate(185%); backdrop-filter: blur(24px) saturate(185%); transition: box-shadow .2s; }
+  .svc.scrolled .svc-nav { box-shadow: 0 .5px 0 rgba(156,150,127,.3); }
+  .svc-nav h1 { margin: 0; font-size: 17px; line-height: 22px; font-weight: 500; }
+  .svc-nav .srch { position: absolute; right: 8px; bottom: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+  .w-hdr { display: flex; align-items: center; gap: 16px; padding: 11px 16px; }
+  .w-hdr h2 { flex: 1; margin: 0; font-size: 20px; line-height: 26px; font-weight: 700; letter-spacing: -.1px; }
+  .w-hdr a { font-size: 16px; line-height: 20px; color: var(--tint-action); text-decoration: none; cursor: pointer; }
+  .wcard { position: relative; background: var(--surface-baseline); border-radius: 16px; box-shadow: var(--elevation-1); overflow: hidden; }
+  .wpad { padding: 8px 16px; }
+  .sqs { width: 32px; height: 32px; flex: none; display: flex; align-items: center; justify-content: center; background: center / 100% 100% no-repeat; }
+  .sqs img { width: 16px; height: 16px; }
+  .tiles { display: grid; gap: 16px; padding: 8px 16px; }
+  .tiles.t2 { grid-template-columns: 1fr 1fr; }
+  .tiles.t3 { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .tile-s { height: 104px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; text-align: left; width: 100%; }
+  .tile-s .tl2 { font-size: 14px; line-height: 18px; font-weight: 500; color: var(--tint-primary); }
+  .t3 .tile-s .tl2 { font-size: 12px; }
+  .lcell { position: relative; display: flex; align-items: center; gap: 16px; width: 100%; min-height: 60px; padding: 8px 8px 8px 16px; text-align: left; }
+  .lcell + .lcell::before { content: ''; position: absolute; left: 64px; right: 0; top: 0; height: 1px; background: rgba(156,150,127,.24); }
+  .lcell .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .lcell .tx b { font-size: 16px; line-height: 24px; font-weight: 500; }
+  .lcell .tx span { font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
+  .lcell .chev { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex: none; }
+  /* Utilities carousel */
+  .ut-rail { overflow: hidden; padding: 8px 0 4px; touch-action: pan-y; cursor: grab; }
+  .ut-rail.drag { cursor: grabbing; }
+  .ut-track { position: relative; display: flex; gap: 12px; padding: 0 16px; transition: transform .45s var(--ease); will-change: transform; }
+  .ut-rail.drag .ut-track { transition: none; }
+  .ut-card { flex: none; width: 320px; height: 178px; display: flex; flex-direction: column; -webkit-user-select: none; user-select: none; }
+  .ut-card img { -webkit-user-drag: none; }
+  .ut-empty { flex: none; width: 320px; height: 178px; border-radius: 16px; border: 1.5px dashed rgba(156,150,127,.55); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; padding: 12px 16px; text-align: center; -webkit-user-select: none; user-select: none; }
+  .ut-empty.solo { width: 100%; }
+  .ut-empty img { width: 56px; height: 56px; -webkit-user-drag: none; }
+  .ut-empty p { margin: 0; font-size: 14px; line-height: 20px; color: var(--tint-secondary); }
+  .ut-empty .btn-info { width: auto; padding: 0 16px; margin-top: 6px; }
+  .ut-dots { display: flex; justify-content: center; gap: 6px; padding: 6px 0 4px; }
+  .ut-dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(43,45,52,.2); transition: width .3s var(--ease), background .3s; }
+  .ut-dots i.on { width: 16px; background: var(--tint-primary); }
+  .ut-card.solo { width: 100%; }
+  .ut-card::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+     background: linear-gradient(180deg, rgba(43,45,52,.08) 0%, rgba(43,45,52,.08) 15%, rgba(43,45,52,.1) 90%, rgba(43,45,52,.2) 100%);
+     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+  .ut-top { display: flex; align-items: center; gap: 16px; padding: 14px 16px 6px; }
+  .ut-top .nm { font-size: 16px; line-height: 24px; font-weight: 500; }
+  .ut-top .ad, .ut-mid .cp { font-size: 12px; line-height: 20px; color: var(--tint-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ut-mid { flex: 1; padding: 6px 16px 0; }
+  .ut-mid .am { font-size: 20px; line-height: 26px; font-weight: 700; letter-spacing: -.1px; }
+  .ut-mid .am small { font-size: 20px; font-weight: 400; }
+  .ut-act { padding: 0 10px 10px; }
+  .btn-info { width: 100%; height: 40px; border-radius: 8px; background: #E2F4FC; color: var(--tint-action); font-size: 14px; line-height: 24px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-info:active { background: #CDEBF8; }
+  .ut-ill { flex: 1; display: flex; align-items: center; gap: 16px; padding: 14px 16px 8px; }
+  .ut-ill img { width: 72px; height: 72px; flex: none; }
+  .ut-ghost { flex: none; width: 160px; height: 178px; border-radius: 16px; border: 1.5px dashed rgba(156,150,127,.55); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; scroll-snap-align: start; color: var(--tint-action); font-size: 16px; line-height: 24px; font-weight: 500; }
+  .ut-ghost img { width: 56px; height: 56px; }
+  /* Rates table */
+  .rates .rh { padding: 16px; font-size: 16px; line-height: 20px; font-weight: 500; }
+  .rrow { display: flex; align-items: center; min-height: 58px; }
+  .rrow .fl { width: 56px; display: flex; justify-content: center; }
+  .rrow .main { flex: 1; display: flex; align-items: center; align-self: stretch; font-size: 16px; line-height: 20px; font-weight: 500; }
+  .rrow + .rrow .main, .rrow + .rrow .ic { border-top: 1px solid rgba(156,150,127,.24); }
+  .rrow .main span { flex: 1; }
+  .rrow .main span.v { text-align: right; padding-right: 16px; }
+  .rrow .ic { width: 52px; align-self: stretch; display: flex; align-items: center; justify-content: center; }
+
+  /* Sheet */
+  /* Full-screen scroll: header, cards and content scroll together */
+  .scroller { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; overscroll-behavior: contain; }
+  .scroller::-webkit-scrollbar { display: none; }
+  .page { position: relative; min-height: 100%; display: flow-root; }
+  /* Glass navigation surface: keeps the card colour, blurs content scrolling under it */
+  .navbg { position: absolute; left: 0; right: 0; top: 0; height: calc(var(--sb) + 60px); z-index: 4; pointer-events: none;
+           background: color-mix(in srgb, var(--header) 64%, transparent);
+           -webkit-backdrop-filter: blur(24px) saturate(185%); backdrop-filter: blur(24px) saturate(185%);
+           transition: background .45s ease, box-shadow .2s; }
+  .scrolled .navbg { box-shadow: 0 .5px 0 rgba(255,255,255,.25), 0 1px 0 rgba(0,0,0,.08); }
+
+  .sheet { position: relative; margin-top: calc(var(--top-closed) + var(--peek)); min-height: 620px; padding-bottom: 120px; background: var(--surface-background); border-radius: 24px 24px 0 0; transition: margin-top .7s var(--lift); z-index: 2; }
+  .open .sheet { padding-bottom: 40px; }
+  .pane { transition: opacity .25s, transform .4s var(--ease); }
+  .pane.card-pane { position: absolute; left: 0; right: 0; top: 0; height: 0; overflow: hidden; visibility: hidden; opacity: 0; pointer-events: none; padding-top: 8px; }
+  .open .pane.home-pane { position: absolute; left: 0; right: 0; top: 0; height: 0; overflow: hidden; visibility: hidden; opacity: 0; transform: translateY(16px); pointer-events: none; }
+  .open .pane.card-pane { position: static; height: auto; overflow: visible; visibility: visible; opacity: 1; transform: none; pointer-events: auto; transition: none; }
+
+  /* Profile (modal, slides up). Figma concept 764:99142 */
+  /* Full-screen profile with a frosted background: the home screen shows through, blurred */
+  .profile { position: absolute; inset: 0; z-index: 20; background: color-mix(in srgb, var(--surface-background) 72%, transparent);
+             -webkit-backdrop-filter: blur(28px) saturate(150%); backdrop-filter: blur(28px) saturate(150%);
+             transform: translateY(100%); transition: transform .45s var(--ease); visibility: hidden; }
+  .pr-on .navbg { opacity: 0; transition: opacity .3s; }
+  .profile.show { transform: none; visibility: visible; }
+  .profile:not(.show) { transition: transform .45s var(--ease), visibility 0s .45s; }
+  .pr-status { position: absolute; left: 0; right: 0; top: 0; height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px 0 52px; font-size: 17px; font-weight: 600; color: var(--tint-primary); z-index: 3; pointer-events: none; }
+  .pr-scroll { position: absolute; inset: 0; overflow-y: auto; scrollbar-width: none; padding-bottom: 40px; }
+  .pr-scroll::-webkit-scrollbar { display: none; }
+  .pr-nav { position: sticky; top: 0; height: calc(var(--sb) + 56px); padding-top: var(--sb); display: flex; justify-content: space-between; align-items: center; z-index: 2; background: transparent; transition: background .2s, box-shadow .2s; }
+  .profile.scrolled .pr-nav { background: color-mix(in srgb, var(--surface-background) 80%, transparent); -webkit-backdrop-filter: blur(24px) saturate(185%); backdrop-filter: blur(24px) saturate(185%); box-shadow: 0 .5px 0 rgba(156,150,127,.3); }
+  .pr-nav button { width: 56px; height: 44px; display: flex; align-items: center; justify-content: center; }
+  .pr-avatar { position: relative; width: 84px; height: 84px; margin: 0 auto; }
+  .pr-avatar .ph { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; }
+  .business .pr-avatar .cam { display: none; }
+  .pr-avatar .cam { position: absolute; left: calc(50% + 32.7px); top: calc(50% + 32px); transform: translate(-50%, -50%); width: 28px; height: 24px; border-radius: 100px; background: #118DB8; box-shadow: 0 0 0 2px var(--surface-baseline); display: flex; align-items: center; justify-content: center; }
+  .pr-head { padding: 16px; text-align: center; }
+  .pr-head h1 { margin: 0; padding: 4px 16px; font-size: 24px; line-height: 28px; font-weight: 700; letter-spacing: -.12px; }
+  .pr-head p { margin: 0; font-size: 16px; line-height: 24px; color: var(--tint-secondary); }
+  .tile { width: 100%; background: var(--surface-baseline); border-radius: 16px; box-shadow: var(--elevation-1); padding: 16px 16px 8px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; }
+  .tile .tt { display: flex; flex-direction: column; padding: 8px 16px 8px 0; min-height: 56px; justify-content: center; }
+  .tile .tt b { font-size: 16px; line-height: 24px; font-weight: 500; }
+  .tile .tt span { font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
+  .sq { position: relative; flex: none; display: flex; align-items: center; justify-content: center; }
+  .sq > img:first-child { position: absolute; inset: 0; }
+  .sq img + img { position: relative; }
+  .pr-pad { padding: 8px 16px; }
+  .pr-two { display: flex; padding: 0 8px; }
+  .pr-two > div { flex: 1 0 0; min-width: 0; padding: 8px; display: flex; }
+  .pr-two .tile { height: 100%; }
+  .pr-two .tile .tt span { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .switch-business, .business .switch-personal { display: none; }
+  .business .switch-business { display: flex; }
+  .pr-sec { padding: 11px 16px; margin: 0; font-size: 20px; line-height: 26px; font-weight: 700; letter-spacing: -.1px; }
+  .plist .pr-row { display: flex; align-items: center; width: 100%; min-height: 56px; text-align: left; position: relative; }
+  .plist .pr-row .sq { margin: 0 16px; }
+  .plist .pr-row .rt { flex: 1; min-width: 0; padding: 8px 0; }
+  .plist .pr-row .rt b { display: block; font-size: 16px; line-height: 24px; font-weight: 500; }
+  .plist .pr-row .rt b.sub-only { line-height: 20px; }
+  .plist .pr-row .rt span { display: block; font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
+  .plist .pr-row .chev { margin: 0 16px; flex: none; }
+  .plist .pr-row + .pr-row::before { content: ''; position: absolute; left: 64px; right: 0; top: 0; height: 1px; background: var(--border-regular); }
+  .plist .pr-row.tall { min-height: 64px; }
+
+  /* Page Indicator (UDS: Pages=3 — container p8 gap6, active dot 16×6, inactive 6×6) */
+  .dots { height: 30px; display: flex; justify-content: center; align-items: flex-start; padding-top: 4px; }
+  .dots .wrap { display: flex; gap: 6px; align-items: center; padding: 8px; border-radius: 100px; }
+  .dots button { position: relative; display: block; height: 6px; width: 6px; border-radius: 999px; background: var(--tint-tertiary); transition: width .3s var(--ease), background .3s; }
+  .dots button::after { content: ''; position: absolute; inset: -16px -3px; }
+  .dots button.on { width: 16px; background: var(--tint-primary); }
+
+  /* Quick actions (Button / Icon + Text) */
+  .quick { display: flex; padding-bottom: 8px; }
+  .quick button { flex: 1 0 0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 8px; min-height: 100px; }
+  .quick .lbl { font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: .12px; color: #232529; text-align: center; }
+  .qa-dark { position: relative; width: 48px; height: 48px; border-radius: 12px; background: var(--surface-inverted); border: 1px solid rgba(19,20,22,.08); }
+  .qa-dark img { position: absolute; left: 11px; top: 11px; }
+
+  /* Widget */
+  .widget { padding: 8px 16px; }
+  .w-wrap { background: var(--surface-baseline); border-radius: 16px; box-shadow: var(--elevation-1); overflow: hidden; }
+  .w-head { display: flex; align-items: center; gap: 16px; padding: 16px; font-size: 16px; line-height: 20px; font-weight: 500; letter-spacing: .16px; }
+  .sec-head { display: flex; align-items: center; gap: 16px; padding: 16px; }
+  .sec-head h2 { flex: 1; margin: 0; font-size: 20px; line-height: 26px; font-weight: 700; letter-spacing: -.1px; }
+  .sec-head a { font-size: 16px; line-height: 24px; color: var(--tint-action); text-decoration: none; }
+
+  /* List Cell */
+  .cell { display: flex; align-items: center; min-height: 64px; width: 100%; text-align: left; color: inherit; text-decoration: none; }
+  .cell.l { min-height: 72px; }
+  .cell .lead { position: relative; width: 44px; height: 44px; margin: 0 16px; flex: none; }
+  .cell .lead img.ic { position: absolute; left: 12px; top: 12px; }
+  /* List Cell / Left Slot / Squircle (Rounded, Medium 44) with a merchant logo */
+  .cell .lead.merchant { border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 0 1px rgba(156,150,127,.24); transition: background .3s; }
+  .cell .lead.merchant img { max-width: 36px; max-height: 30px; object-fit: contain; }
+  .cell .lead.merchant .mono { display: none; font-weight: 700; line-height: 1; white-space: nowrap; letter-spacing: -.2px; }
+  .cell .lead.merchant.no-logo img { display: none; }
+  .cell .lead.merchant.no-logo .mono { display: block; }
+  /* Squircle Small / Rounded */
+  .cell .lead.sm { width: 32px; height: 32px; }
+  .cell .lead.sm img.ic { left: 8px; top: 8px; }
+  .cell .main { flex: 1; min-width: 0; display: flex; align-items: center; gap: 16px; padding: 8px 16px 8px 0; }
+  .cell .txt { flex: 1; min-width: 0; }
+  .cell .t { display: block; font-size: 16px; line-height: 24px; }
+  .cell .t.m { font-weight: 500; letter-spacing: .16px; }
+  .cell .c { display: block; font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
+  .cell .c.m { letter-spacing: .12px; }
+  .cell .val { font-size: 16px; line-height: 24px; font-weight: 500; letter-spacing: .64px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .w-btn { width: 100%; height: 48px; display: flex; align-items: center; justify-content: center; font-size: 16px; line-height: 16px; font-weight: 500; letter-spacing: .16px; color: var(--tint-action); }
+
+  /* Offer banner */
+  .offer { position: relative; margin: 8px 16px; min-height: 102px; padding: 16px; border: 1px solid #C3AAFF; border-radius: 16px; display: flex; align-items: center; gap: 16px;
+           background: linear-gradient(-66.9deg, #F2EDFF 5.69%, #FCF5FF 95.16%); }
+  .offer .ot { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+  .offer .title { font-size: 16px; line-height: 20px; font-weight: 500; }
+  .offer .lnk { display: inline-flex; align-items: center; gap: 1px; font-size: 12px; line-height: 20px; font-weight: 700; color: var(--tint-action); text-decoration: none; }
+  .offer .close { position: absolute; right: 2px; top: -3px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
+
+
+  /* ---------- Banner concepts in context ---------- */
+  .bx-lab { margin: 20px 16px 0; font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: .02em; color: #0077A4; }
+  .bx { position: relative; margin: 8px 16px; min-height: 112px; border-radius: 16px; overflow: hidden; display: flex; align-items: stretch; background: #fff;
+        box-shadow: 0 1px 1px rgba(43,45,52,.2); }
+  .bx .bx-t { flex: 1; min-width: 0; padding: 16px 12px 16px 16px; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 4px; }
+  .bx .title { font-size: 16px; line-height: 20px; font-weight: 500; }
+  .bx .cap { font-size: 12px; line-height: 18px; color: var(--tint-secondary); }
+  .bx .lnk { margin-top: 4px; display: inline-flex; align-items: center; gap: 1px; font-size: 12px; line-height: 20px; font-weight: 700; color: var(--tint-action); text-decoration: none; }
+  /* Illustration always sits in its own square, edge to edge: shadows were drawn to end at the square's edges */
+  .bx-sq { flex: 0 0 112px; align-self: stretch; position: relative; overflow: hidden; }
+  .bx-sq img { position: absolute; left: 50%; top: 50%; width: 128px; height: 128px; margin: -64px 0 0 -64px; }
+  .bx-x { position: absolute; top: 4px; right: 4px; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; background: rgba(255,255,255,.72); }
+  .bx-x img { width: 16px; height: 16px; }
+  .bx-pill { display: inline-flex; align-self: flex-start; padding: 4px 8px; border-radius: 100px; background: #2B2D34; color: #fff; font-size: 10px; line-height: 12px; font-weight: 500; margin-bottom: 2px; white-space: nowrap; }
+  /* C: banner background == illustration background, so the scene spreads over the whole card */
+  .bx-merge { min-height: 124px; }
+  .bx-merge .bx-sq { flex-basis: 128px; }
+  .bx-merge .bx-sq img { width: 140px; height: 140px; margin: -70px 0 0 -66px; }
+  .bx-merge.dark .bx-sq img { width: 120px; height: 120px; margin: -60px 0 0 -56px; }
+  .bx-merge .cap { color: rgba(43,45,52,.72); }
+  .bx-merge .lnk { color: #2B2D34; }
+  .bx-merge.dark { color: #fff; }
+  .bx-merge.dark .cap { color: rgba(255,255,255,.72); }
+  .bx-merge.dark .lnk { color: #fff; }
+  .bx-merge.dark .lnk img { filter: brightness(0) invert(1); }
+  .bx-merge.dark .bx-pill { background: #FEE600; color: #2B2D34; }
+  .bx-merge.dark .bx-x { background: rgba(255,255,255,.16); }
+  .bx-merge.dark .bx-x img { filter: brightness(0) invert(1); opacity: .8; }
+  /* D: cover cards carousel */
+  .cv-row { display: flex; gap: 12px; overflow-x: auto; padding: 8px 16px 12px; scroll-snap-type: x mandatory; scroll-padding: 0 16px; scrollbar-width: none; }
+  .cv-row::-webkit-scrollbar { display: none; }
+  .cv-row::after { content: ''; flex: 0 0 4px; }
+  .cv { flex: 0 0 220px; border-radius: 16px; overflow: hidden; background: #fff; box-shadow: 0 1px 1px rgba(43,45,52,.2); scroll-snap-align: start; }
+  .cv-img { position: relative; height: 132px; overflow: hidden; }
+  .cv-img img { position: absolute; left: 50%; top: 50%; width: 150px; height: 150px; margin: -70px 0 0 -75px; }
+  .cv-img .bx-pill { position: absolute; left: 10px; top: 10px; }
+  .cv-t { padding: 10px 12px 12px; }
+  .cv .title { font-size: 14px; line-height: 18px; font-weight: 500; }
+  .cv .cap { font-size: 12px; line-height: 16px; color: var(--tint-secondary); margin-top: 2px; }
+
+  /* Table cell (rates) */
+  .trow { display: flex; align-items: center; min-height: 56px; }
+  .trow .flag { width: 32px; height: 20px; margin: 0 16px; flex: none; object-fit: cover; }
+  .trow .tm { flex: 1; display: flex; align-items: center; align-self: stretch; position: relative; }
+  .trow + .trow .tm::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--border-regular); }
+  .trow .cur { flex: 1; font-size: 16px; line-height: 24px; letter-spacing: .16px; }
+  .trow .rate { flex: 1; text-align: right; padding-right: 16px; font-size: 16px; line-height: 20px; font-weight: 500; letter-spacing: .16px; font-variant-numeric: tabular-nums; }
+
+  /* Support (Button / Icon + Text, 40px icon) */
+  .support { display: flex; padding: 8px 0; }
+  .support button { flex: 1 0 0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 8px; }
+  .support .lbl { font-size: 12px; line-height: 14px; font-weight: 500; letter-spacing: .12px; text-align: center; }
+
+  /* Card details */
+  .cta { display: none; margin: 8px 16px; width: calc(100% - 32px); min-height: 52px; border-radius: 26px; background: var(--surface-accent); font-size: 17px; font-weight: 700; align-items: center; justify-content: center; gap: 8px; }
+  .needs-activation .cta { display: flex; }
+  .tiles3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 8px 16px; }
+  .tiles3 button { background: var(--surface-baseline); border-radius: 16px; box-shadow: var(--elevation-1); min-height: 84px; padding: 12px 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: .12px; text-align: center; }
+  .tiles3 svg { color: var(--tint-action); }
+  .rows .row { display: flex; align-items: center; gap: 16px; width: 100%; min-height: 56px; padding: 8px 16px; text-align: left; position: relative; }
+  .rows .row + .row::before { content: ''; position: absolute; left: 56px; right: 0; top: 0; height: 1px; background: var(--border-regular); }
+  .rows .ri { width: 24px; flex: none; display: flex; justify-content: center; color: var(--tint-primary); }
+  .rows .rt { flex: 1; min-width: 0; }
+  .rows .rt b { display: block; font-size: 16px; line-height: 24px; font-weight: 400; }
+  .rows .rt span { display: block; font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
+  .rows .chev { color: var(--tint-action); flex: none; }
+  .iban-row .rt span { font-size: 13px; letter-spacing: .1px; white-space: nowrap; }
+  .iban-lead { position: relative; width: 40px; height: 40px; border-radius: 20px; background: var(--surface-inverted); flex: none; display: flex; align-items: center; justify-content: center; color: #fff; }
+  .copy-btn { width: 44px; height: 44px; margin: -10px -10px -10px 0; display: flex; align-items: center; justify-content: center; color: var(--tint-action); flex: none; }
+  /* Card / account details */
+  .nav-tiles { display: flex; padding: 16px 8px 0; }
+  .nav-tiles button { flex: 1 0 0; min-width: 0; padding: 10px 8px; }
+  .nav-tiles .nt { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 16px; min-width: 80px; background: var(--surface-baseline); border-radius: 16px; filter: drop-shadow(0 1px .5px rgba(43,45,52,.2)); }
+  .nav-tiles .nt span { font-size: 12px; line-height: 16px; font-weight: 500; color: #232529; text-align: center; white-space: nowrap; }
+  .dl { display: flex; flex-direction: column; }
+  .dl-row { display: flex; align-items: center; width: 100%; min-height: 56px; text-align: left; color: var(--tint-primary); }
+  .dl-row.tall { min-height: 72px; }
+  .dl-row .sq32 { position: relative; width: 32px; height: 32px; margin: 0 16px; flex: none; display: flex; align-items: center; justify-content: center; }
+  .dl-row .sq32 img:first-child { position: absolute; inset: 0; }
+  .dl-row .sq32 img + img { position: relative; }
+  .dl-row .dm { flex: 1; min-width: 0; align-self: stretch; display: flex; align-items: center; gap: 16px; padding: 8px 16px 8px 0; position: relative; }
+  .dl-row + .dl-row .dm::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: var(--border-regular); }
+  .dl-row .dt { flex: 1; min-width: 0; }
+  .dl-row .dt b { display: block; font-size: 16px; line-height: 24px; font-weight: 400; }
+  .dl-row .dt span { display: block; font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
+  .dl-row .copy { width: 40px; height: 40px; margin: -8px -10px -8px 0; display: flex; align-items: center; justify-content: center; }
+  .only-credit { display: none !important; }
+  .is-account .card-only { display: none !important; }
+  .is-credit .only-credit { display: flex !important; }
+
+  /* iOS Tab Bar (floating glass) */
+  .tabbar { position: absolute; left: 18px; right: 18px; bottom: 26px; height: 62px; padding: 4px; display: flex; border-radius: 31px; z-index: 6;
+            background: linear-gradient(180deg, rgba(255,255,255,.5) 0%, rgba(255,255,255,.34) 100%);
+            -webkit-backdrop-filter: blur(16px) saturate(220%) brightness(1.06); backdrop-filter: blur(16px) saturate(220%) brightness(1.06);
+            border: 1px solid rgba(255,255,255,.7);
+            box-shadow: 0 0 0 .5px rgba(43,45,52,.1), inset 0 1px 1px rgba(255,255,255,.9), inset 0 -1px 1px rgba(255,255,255,.35), 0 10px 30px rgba(43,45,52,.16), 0 2px 6px rgba(43,45,52,.06);
+            transition: transform .45s var(--ease), opacity .3s; }
+  .tabbar button { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 27px; color: var(--tint-secondary); }
+  .tabbar button .tl { font-size: 10px; line-height: 12px; font-weight: 500; }
+  .tabbar button { transition: color .25s ease; }
+  .tabbar button.on { color: var(--tint-action); }
+  .tab-ind { position: absolute; left: 0; top: 3px; bottom: 3px; width: 0; border-radius: 27px; background: rgba(43,45,52,.07); pointer-events: none;
+             transition: transform .55s cubic-bezier(.3,1.25,.4,1), width .55s cubic-bezier(.3,1.25,.4,1); }
+  .tab-ind.moving { animation: tabSquash .55s ease; }
+  @keyframes tabSquash { 0% { scale: 1 1; } 35% { scale: 1.12 .9; } 100% { scale: 1 1; } }
+  .home-ind { position: absolute; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 20px; background: #111; z-index: 7; pointer-events: none; }
+  .open .tabbar { transform: translateY(120px); opacity: 0; pointer-events: none; }
+
+  .toast { position: absolute; left: 16px; right: 16px; top: calc(var(--sb) + 8px); z-index: 30; background: var(--tint-primary); color: #fff; border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 24px rgba(0,0,0,.25); z-index: 10; opacity: 0; transform: translateY(-12px); pointer-events: none; transition: opacity .25s, transform .35s var(--ease); font-size: 15px; }
+  .toast.show { opacity: 1; transform: none; }
+  .toast .ok { width: 26px; height: 26px; border-radius: 13px; background: #3DBE6E; display: flex; align-items: center; justify-content: center; flex: none; }
+
+  .controls { position: fixed; right: 16px; bottom: 16px; background: #fff; border-radius: 16px; padding: 12px 14px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.12); display: flex; flex-direction: column; gap: 8px; max-width: 250px; }
+  .controls label { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
+  .controls p { margin: 0; color: var(--tint-secondary); line-height: 1.4; }
+  @media (max-width: 900px) { .controls { display: none; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; transition-delay: 0s !important; } }
+</style>
+</head>
+<body>
+<div class="phone" id="phone">
+
+  <div class="status" aria-hidden="true">
+    <span>4:20</span>
+    <span class="sys">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="#fff"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="#fff"><path d="M8 2.6c2.2 0 4.2.9 5.7 2.3l1.1-1.1A9.7 9.7 0 008 1 9.7 9.7 0 001.2 3.8l1.1 1.1A8.1 8.1 0 018 2.6zm0 3.2c1.3 0 2.5.5 3.4 1.3l1.1-1.1A6.5 6.5 0 008 4.2 6.5 6.5 0 003.5 6l1.1 1.1A4.9 4.9 0 018 5.8zm0 3.2c.5 0 .9.2 1.2.5L8 10.8 6.8 9.5c.3-.3.7-.5 1.2-.5z"/></svg>
+      <svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x=".5" y=".5" width="22" height="11" rx="3.5" stroke="#fff" opacity=".5"/><rect x="2" y="2" width="19" height="8" rx="2" fill="#fff"/><rect x="24" y="4" width="1.5" height="4" rx=".75" fill="#fff" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="navbar">
+    <div class="nav-home">
+      <button class="avatar" id="openProfile" aria-label="Профіль">
+        <img class="ph" src="assets/pr-photo.png" width="44" height="44" alt="" draggable="false">
+        <span class="av-biz" aria-hidden="true"><img src="assets/av-case-white.svg" width="20" height="20" alt="" draggable="false"></span>
+        <span class="badge-biz">Бізнес</span>
+      </button>
+      <div class="nav-right">
+        <button class="glass icon-btn" aria-label="Асистент"><img src="assets/nav-star.svg" width="24" height="24" alt=""></button>
+        <div class="glass btn-group">
+          <button aria-label="QR-код"><img src="assets/nav-qr.svg" width="24" height="24" alt=""></button>
+          <button aria-label="Сповіщення"><img src="assets/nav-bell.svg" width="24" height="24" alt=""></button>
+          <button aria-label="Мої картки"><img src="assets/nav-cards.svg" width="24" height="24" alt=""></button>
+        </div>
+      </div>
+    </div>
+    <div class="nav-detail">
+      <button class="glass icon-btn" id="collapse" aria-label="Закрити деталі картки"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2B2D34" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <span class="nav-title" id="title"></span>
+      <button class="glass icon-btn" aria-label="Більше дій"><svg width="22" height="22" viewBox="0 0 24 24" fill="#2B2D34" aria-hidden="true"><circle cx="6" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18" cy="12" r="1.8"/></svg></button>
+    </div>
+  </div>
+
+  <div class="navbg" aria-hidden="true"></div>
+  <div class="scroller" id="scroller"><div class="page">
+  <div class="balance" id="balance" aria-label="Власні кошти 8 412,50 гривень">
+    <div class="label" id="balLabel" aria-hidden="true">Власні кошти</div>
+    <div class="amount" aria-hidden="true"><span class="int" id="balInt">8 412</span><span class="comma">,</span><span class="dec" id="balDec">50</span><span class="cur">₴</span></div>
+  </div>
+
+  <button class="activate-pill js-activate" aria-label="Активувати картку, закінчується на 4410">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="card">
+<g id="shape">
+<path d="M22 17C22 18.6569 20.6569 20 19 20H5C3.34315 20 2 18.6569 2 17V10H22V17ZM6 12V14H10.5078V12H6Z" fill-rule="evenodd" clip-rule="evenodd" fill="currentColor"/>
+<path d="M19 4C20.6569 4 22 5.34315 22 7V8H2V7C2 5.34315 3.34315 4 5 4H19Z" fill="currentColor"/>
+</g>
+</g>
+</svg><span class="pl-label" id="activateText">Активувати картку</span>
+  </button>
+
+  <div class="cards" id="cards">
+    <div class="track" id="track"></div>
+  </div>
+
+  <div class="sheet">
+    <div class="pane home-pane">
+      <div class="dots"><div class="wrap" id="dots">
+
+      </div></div>
+
+      <div class="quick">
+        <button><img src="assets/qa-transfer.svg" width="48" height="48" alt=""><span class="lbl">Переказ<br>на картку</span></button>
+        <button><img src="assets/qa-iban.svg" width="48" height="48" alt=""><span class="lbl">Платіж<br>за IBAN</span></button>
+        <button><img src="assets/qa-mobile.svg" width="48" height="48" alt=""><span class="lbl">Поповнити мобільний</span></button>
+        <button><span class="qa-dark"><img src="assets/qa-wallet-icon.svg" width="24" height="24" alt=""></span><span class="lbl">Усі<br>Платежі</span></button>
+      </div>
+
+      <div class="widget"><div class="w-wrap">
+        <div style="height:8px"></div>
+        <a class="cell" href="#" onclick="return false">
+          <span class="lead merchant" id="txLogoWrap"><img id="txLogo" src="" alt=""><span class="mono" id="txMono" aria-hidden="true"></span></span>
+          <span class="main"><span class="txt"><span class="t" id="txName"></span><span class="c" id="txCat"></span></span><span class="val" id="txAmount"></span></span>
+        </a>
+        <button class="w-btn">Всі операції</button>
+      </div></div>
+
+      <div class="sec-head"><h2>Пропозиції для вас</h2><a href="#" onclick="return false">Показати всі</a></div>
+      <div class="bx-lab">A · Медіа-слот: білий банер, ілюстрація на брендовому жовтому</div>
+      <div class="bx bx-media"><div class="bx-t"><div class="title">До 100 днів без %<br>з новою кредиткою</div><div class="cap">Оформіть онлайн за 5 хвилин</div><a class="lnk" href="#" onclick="return false">Оформити картку <img src="assets/go-right.svg" width="12" height="12" alt=""></a></div><div class="bx-sq" style="background:#FEE600"><img src="../banners/assets/ill/credit-cards.svg" alt=""></div><button class="bx-x" aria-label="Закрити"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>
+      <div class="bx bx-media"><div class="bx-t"><div class="title">Відкрийте ФОП-рахунок</div><div class="cap">Кешбек до 400 ₴ на старті</div><a class="lnk" href="#" onclick="return false">Відкрити рахунок <img src="assets/go-right.svg" width="12" height="12" alt=""></a></div><div class="bx-sq" style="background:#FEE600"><img src="../banners/assets/ill/briefcase.svg" alt=""></div><button class="bx-x" aria-label="Закрити"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>
+      <div class="bx-lab">B · Медіа-слот: квадрат у кольорі категорії</div>
+      <div class="bx bx-media"><div class="bx-t"><div class="title">До 100 днів без %<br>з новою кредиткою</div><div class="cap">Оформіть онлайн за 5 хвилин</div><a class="lnk" href="#" onclick="return false">Оформити картку <img src="assets/go-right.svg" width="12" height="12" alt=""></a></div><div class="bx-sq" style="background:#D9CCF5"><img src="../banners/assets/ill/credit-cards.svg" alt=""></div><button class="bx-x" aria-label="Закрити"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>
+      <div class="bx bx-media"><div class="bx-t"><div class="title">Депозит до 15% річних</div><div class="cap">Відкривається за хвилину</div><a class="lnk" href="#" onclick="return false">Відкрити депозит <img src="assets/go-right.svg" width="12" height="12" alt=""></a></div><div class="bx-sq" style="background:#BDE8F7"><img src="../banners/assets/ill/piggy.svg" alt=""></div><button class="bx-x" aria-label="Закрити"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>
+      <div class="bx bx-media"><div class="bx-t"><div class="title">Кешбек 10% на АЗС</div><div class="cap">Активуйте категорію в Raif+</div><a class="lnk" href="#" onclick="return false">Активувати <img src="assets/go-right.svg" width="12" height="12" alt=""></a></div><div class="bx-sq" style="background:#C9EFC0"><img src="../banners/assets/ill/car.svg" alt=""></div><button class="bx-x" aria-label="Закрити"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>
+      <div class="bx-lab">C · Колір у колір: увесь банер — сцена ілюстрації</div>
+      <div class="bx bx-merge" style="background:#FEE600"><div class="bx-t"><span class="bx-pill">0% до 100 днів</span><div class="title">До 100 днів без %<br>з новою кредиткою</div><div class="cap">Оформіть онлайн за 5 хвилин</div><a class="lnk" href="#" onclick="return false">Оформити картку <img src="assets/go-right.svg" width="12" height="12" alt=""></a></div><div class="bx-sq"><img src="../banners/assets/ill/credit-cards.svg" alt=""></div><button class="bx-x" aria-label="Закрити"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>
+      <div class="bx bx-merge" style="background:#E4DBFA"><div class="bx-t"><span class="bx-pill">+200 ₴</span><div class="title">Запросіть друга</div><div class="cap">200 ₴ вам і другові</div><a class="lnk" href="#" onclick="return false">Запросити <img src="assets/go-right.svg" width="12" height="12" alt=""></a></div><div class="bx-sq"><img src="../banners/assets/ill/referral.svg" alt=""></div><button class="bx-x" aria-label="Закрити"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>
+      <div class="bx bx-merge dark" style="background:#2B2D34"><div class="bx-t"><span class="bx-pill">Онлайн</span><div class="title">Автоцивілка за 3 хвилини</div><div class="cap">Поліс одразу на пошту</div><a class="lnk" href="#" onclick="return false">Оформити поліс <img src="assets/go-right.svg" width="12" height="12" alt=""></a></div><div class="bx-sq"><img src="../banners/assets/ill/shield.svg" alt=""></div><button class="bx-x" aria-label="Закрити"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>
+      <div class="bx-lab">D · Карусель обкладинок (як картки вгорі)</div>
+      <div class="cv-row"><div class="cv"><div class="cv-img" style="background:#FEE600"><img src="../banners/assets/ill/credit-cards.svg" alt=""><span class="bx-pill">0% до 100 днів</span></div><div class="cv-t"><div class="title">До 100 днів без %</div><div class="cap">Нова кредитка онлайн</div></div></div><div class="cv"><div class="cv-img" style="background:#BDE8F7"><img src="../banners/assets/ill/boarding-pass.svg" alt=""><span class="bx-pill">Visa</span></div><div class="cv-t"><div class="title">Подорожі без комісії</div><div class="cap">Платіть у гривні</div></div></div><div class="cv"><div class="cv-img" style="background:#C9EFC0"><img src="../banners/assets/ill/car.svg" alt=""><span class="bx-pill">Raif+</span></div><div class="cv-t"><div class="title">Кешбек 10% на АЗС</div><div class="cap">До 31 грудня</div></div></div><div class="cv"><div class="cv-img" style="background:#FFD9B8"><img src="../banners/assets/ill/gift.svg" alt=""><span class="bx-pill">Новий рік</span></div><div class="cv-t"><div class="title">Знижки до 30%</div><div class="cap">Подарунки від партнерів</div></div></div></div>
+      <div class="bx-lab">Зараз у прототипі (3D-ілюстрація) — для порівняння</div>
+      <div class="offer">
+        <div class="ot">
+          <div class="title">До 100 днів без %<br>з новою кредиткою</div>
+          <a class="lnk" href="#" onclick="return false">Оформити картку <img src="assets/go-right.svg" width="12" height="12" alt=""></a>
+        </div>
+        <img src="assets/offer-illustration.png" width="70" height="70" alt="">
+        <button class="close" aria-label="Закрити пропозицію"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button>
+      </div>
+
+      <div class="widget"><div class="w-wrap">
+        <div class="w-head">Курс обміну валют</div>
+        <div class="trow"><img class="flag" src="assets/flag-usd.png" alt="США"><div class="tm"><span class="cur">USD</span><span class="rate">41,0223</span><span class="rate">41,1865</span></div></div>
+        <div class="trow"><img class="flag" src="assets/flag-eur.png" alt="ЄС"><div class="tm"><span class="cur">EUR</span><span class="rate">48,5138</span><span class="rate">48,8591</span></div></div>
+      </div></div>
+
+      <div class="widget"><div class="w-wrap">
+        <div class="w-head">Підтримка</div>
+        <div class="support">
+          <button><img src="assets/sup-chat.svg" width="40" height="40" alt=""><span class="lbl">Написати в чат</span></button>
+          <button><img src="assets/sup-headphones.svg" width="40" height="40" alt=""><span class="lbl">Служба<br>підтримки</span></button>
+          <button><img src="assets/sup-faq.svg" width="40" height="40" alt=""><span class="lbl">Поширені<br>запитання</span></button>
+          <button><img src="assets/sup-atm.svg" width="40" height="40" alt=""><span class="lbl">Мапа банкоматів</span></button>
+        </div>
+      </div></div>
+
+      <div class="widget"><div class="w-wrap">
+        <a class="cell l" href="#" onclick="return false">
+          <span class="lead"><img src="assets/limits-squircle.svg" width="44" height="44" alt=""><img class="ic" src="assets/limits-branch.svg" width="20" height="20" alt=""></span>
+          <span class="main"><span class="txt"><span class="t m">Ліміти по рахунках</span><span class="c m">Встановлені законодавством України</span></span></span>
+        </a>
+      </div></div>
+    </div>
+
+    <div class="pane card-pane" id="cardPane">
+      <button class="cta js-activate-cta"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="card">
+<g id="shape">
+<path d="M22 17C22 18.6569 20.6569 20 19 20H5C3.34315 20 2 18.6569 2 17V10H22V17ZM6 12V14H10.5078V12H6Z" fill-rule="evenodd" clip-rule="evenodd" fill="currentColor"/>
+<path d="M19 4C20.6569 4 22 5.34315 22 7V8H2V7C2 5.34315 3.34315 4 5 4H19Z" fill="currentColor"/>
+</g>
+</g>
+</svg>Активувати картку</button>
+
+      <div class="nav-tiles">
+        <button><span class="nt"><img src="assets/dt-pdf.svg" width="24" height="24" alt=""><span>Надіслати<br>реквізити</span></span></button>
+        <button><span class="nt"><img src="assets/dt-case.svg" width="24" height="24" alt=""><span>Деталі<br>рахунку</span></span></button>
+        <button><span class="nt"><img src="assets/dt-docs.svg" width="24" height="24" alt=""><span>Виписка<br>за рахунком</span></span></button>
+      </div>
+
+      <div class="widget"><div class="w-wrap dl">
+        <div class="dl-row"><span class="sq32"><img src="assets/dt-sq-dark.svg" width="32" height="32" alt=""><img src="assets/dt-invoice.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Рахунок</b><span id="iban"></span></span><button class="copy js-copy-iban" aria-label="Скопіювати IBAN"><img src="assets/dt-copy.svg" width="20" height="20" alt=""></button></span></div>
+      </div></div>
+
+      <div class="widget"><div class="w-wrap dl">
+        <button class="dl-row"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-premium.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Обслуговування пакету</b></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+        <button class="dl-row card-only"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-apple.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Налаштувати Apple Pay</b><span>Картку не підключено</span></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+        <button class="dl-row card-only"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-locked.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Заблокувати картку</b><span>Ви завжди зможете її розблокувати</span></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+        <button class="dl-row card-only"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-card-settings.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Перевипустити картку</b></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+        <button class="dl-row card-only"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-card-pin.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Налаштувати PIN</b></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+        <button class="dl-row only-credit"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-card-credit.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Змінити кредитний ліміт</b><span id="credLimit">Поточний ліміт 50 000 ₴</span></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+      </div></div>
+
+      <div class="widget"><div class="w-wrap dl">
+        <button class="dl-row"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-card-add.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Додаткова картка до рахунку</b></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+        <button class="dl-row"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-suitcase.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Заява на зарплату</b><span>Отримувати зарплату на цей рахунок</span></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+      </div></div>
+
+      <div class="widget"><div class="w-wrap dl">
+        <button class="dl-row card-only"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-office.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Перекази за номером телефону</b><span>Картку не підключено</span></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+        <button class="dl-row"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-bell.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>SMS-інформування</b></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+        <button class="dl-row"><span class="sq32"><img src="assets/dt-sq.svg" width="32" height="32" alt=""><img src="assets/dt-mobile.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Номер підтвердження оплат</b><span>+380 63 721 73 91</span></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></span></button>
+      </div></div>
+
+      <div class="widget"><div class="w-wrap dl">
+        <div class="dl-row tall"><span class="sq32"><img src="assets/dt-sq-blue.svg" width="32" height="32" alt=""><img src="assets/dt-branch.svg" width="16" height="16" alt=""></span><span class="dm"><span class="dt"><b>Ліміти по рахунку</b><span>Встановлені законодавством України</span></span></span></div>
+      </div></div>
+    </div>
+  </div>
+  </div></div>
+
+  <section class="svc" id="svc" aria-label="Послуги" aria-hidden="true">
+    <div class="svc-scroll" id="svcScroll">
+      <div class="svc-nav"><h1>Послуги</h1><button class="srch" aria-label="Пошук"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0077A4" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></svg></button></div>
+
+      <div class="w-hdr"><h2>Платежі</h2></div>
+      <div class="tiles t2">
+          <button class="wcard tile-s"><span class="sqs" style="background-image:url(assets/sv-sq-green.svg)"><img src="assets/sv-card-out.svg" alt=""></span><span class="tl2">Переказати<br>на картку</span></button>
+          <button class="wcard tile-s"><span class="sqs" style="background-image:url(assets/sv-sq-purple.svg)"><img src="assets/sv-invoice.svg" alt=""></span><span class="tl2">Оплатити<br>за IBAN</span></button>
+      </div>
+      <div class="wpad"><div class="wcard">
+          <button class="lcell"><span class="sqs" style="background-image:url(assets/sv-sq-brown.svg)"><img src="assets/sv-mobile.svg" alt=""></span><span class="tx"><b>Поповнити мобільний</b><span>Поповнюйте мобільний</span></span><span class="chev"><img src="assets/sv-go-right.svg" width="20" height="20" alt=""></span></button>
+          <button class="lcell"><span class="sqs" style="background-image:url(assets/sv-sq-orange.svg)"><img src="assets/sv-cur-transfer.svg" alt=""></span><span class="tx"><b>Міжнародні платежі</b><span>MoneyGram</span></span><span class="chev"><img src="assets/sv-go-right.svg" width="20" height="20" alt=""></span></button>
+      </div></div>
+
+      <div class="w-hdr"><h2>Комунальні послуги</h2><a id="utAll">Показати всі</a></div>
+      <div class="ut-rail" id="utRail"></div>
+      <div class="ut-dots" id="utDots" aria-hidden="true"></div>
+
+      <div class="w-hdr"><h2>Валютні послуги</h2></div>
+      <div class="wpad"><div class="wcard rates">
+        <div class="rh">Курс обміну валют</div>
+          <div class="rrow"><span class="fl"><img src="assets/sv-flag-us.svg" width="20" height="15" alt=""></span><span class="main"><span>USD</span><span class="v">41,0223</span><span class="v">41,1865</span></span><button class="ic" aria-label="Графік USD"><img src="assets/sv-chart.svg" width="20" height="20" alt=""></button></div>
+          <div class="rrow"><span class="fl"><img src="assets/sv-flag-eu.svg" width="20" height="15" alt=""></span><span class="main"><span>EUR</span><span class="v">41,0223</span><span class="v">41,1865</span></span><button class="ic" aria-label="Графік EUR"><img src="assets/sv-chart.svg" width="20" height="20" alt=""></button></div>
+        <div style="height:4px"></div>
+      </div></div>
+      <div class="tiles t3">
+          <button class="wcard tile-s"><span class="sqs" style="background-image:url(assets/sv-sq-green.svg)"><img src="assets/sv-exchange.svg" alt=""></span><span class="tl2">Обміняти<br>валюту</span></button>
+          <button class="wcard tile-s"><span class="sqs" style="background-image:url(assets/sv-sq-blue.svg)"><img src="assets/sv-money.svg" alt=""></span><span class="tl2">Замовити<br>валюту</span></button>
+          <button class="wcard tile-s"><span class="sqs" style="background-image:url(assets/sv-sq-grey.svg)"><img src="assets/sv-deposit.svg" alt=""></span><span class="tl2">Валютний<br>депозит</span></button>
+      </div>
+
+      <div class="w-hdr"><h2>Додаткові послуги</h2></div>
+      <div class="wpad"><div class="wcard">
+          <button class="lcell"><span class="sqs" style="background-image:url(assets/sv-sq-red.svg)"><img src="assets/sv-insurance.svg" alt=""></span><span class="tx"><b>Страхування</b><span>Медицина, авто, захист від шахраїв</span></span><span class="chev"><img src="assets/sv-go-right.svg" width="20" height="20" alt=""></span></button>
+          <button class="lcell"><span class="sqs" style="background-image:url(assets/sv-sq-purple.svg)"><img src="assets/sv-bank.svg" alt=""></span><span class="tx"><b>Комісії та послуги банку</b><span>Оплата комісій і послуг</span></span><span class="chev"><img src="assets/sv-go-right.svg" width="20" height="20" alt=""></span></button>
+          <button class="lcell"><span class="sqs" style="background-image:url(assets/sv-sq-lime.svg)"><img src="assets/sv-heart.svg" alt=""></span><span class="tx"><b>Благодійність</b><span>Донати на благодійність</span></span><span class="chev"><img src="assets/sv-go-right.svg" width="20" height="20" alt=""></span></button>
+      </div></div>
+    </div>
+  </section>
+
+  <nav class="tabbar" aria-label="Основна навігація">
+    <span class="tab-ind" id="tabInd" aria-hidden="true"></span>
+    <button class="on" aria-current="page">
+      <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 16V20C11 20.5523 10.5523 21 10 21H4C3.44772 21 3 20.5523 3 20V12C3 11.7348 3.10536 11.4804 3.29289 11.2929L11.2929 3.29289C11.6834 2.90237 12.3166 2.90237 12.7071 3.29289L20.7071 11.2929C20.8946 11.4804 21 11.7348 21 12V20C21 20.5523 20.5523 21 20 21H14C13.4477 21 13 20.5523 13 20V16H11Z" fill="currentColor"/></svg>
+      <span class="tl">Головна</span>
+    </button>
+    <button>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 3C3.34315 3 2 4.34315 2 6V9H20L20 16C20 16.5523 19.5523 17 19 17L16 17V19L19 19C20.6569 19 22 17.6569 22 16L22 6C22 4.34315 20.6569 3 19 3H5ZM20 6V7L4 7V6C4 5.44772 4.44772 5 5 5H19C19.5523 5 20 5.44772 20 6Z" fill-rule="evenodd" clip-rule="evenodd"/><path d="M12 17C10.8954 17 10 17.8954 10 19C10 20.1046 10.8954 21 12 21C13.1046 21 14 20.1046 14 19C14 17.8954 13.1046 17 12 17Z"/><path d="M2 13C2 11.8954 2.89543 11 4 11C5.10457 11 6 11.8954 6 13C6 14.1046 5.10457 15 4 15C2.89543 15 2 14.1046 2 13Z"/><path d="M4.20706 21.2071L13.2071 12.2071L11.7928 10.7929L2.79285 19.7929L4.20706 21.2071Z"/></svg>
+      <span class="tl">Кредити</span>
+    </button>
+    <button><img src="assets/tab-safe.png" width="24" height="24" alt=""><span class="tl">Накопичення</span></button>
+    <button>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2 5H12.9296C13.264 5 13.5762 5.1671 13.7617 5.4453L16.1315 9H12.9812C12.4902 8.99999 11.7004 8.99997 11.0255 9.06746C10.6931 9.10071 10.3175 9.15639 10.001 9.26595C9.84627 9.31952 9.63345 9.40979 9.44254 9.57108C9.23547 9.74602 9 10.0578 9 10.5C9 10.8133 9.13646 11.0502 9.18463 11.1315C9.25326 11.2473 9.33473 11.3523 9.40696 11.4381C9.55373 11.6124 9.74302 11.8017 9.94106 11.9873C10.3422 12.3634 10.864 12.803 11.3694 13.2136C11.8783 13.6271 12.3855 14.0233 12.7645 14.3154C12.9543 14.4617 13.1125 14.5824 13.2236 14.6667L13.3132 14.7345C13.3175 14.7402 13.3221 14.7464 13.3269 14.7531C13.3664 14.8085 13.4044 14.8754 13.4263 14.9412C13.4469 15.0029 13.4467 15.0422 13.4413 15.0695C13.4373 15.0894 13.4192 15.1666 13.2929 15.2929C13.1683 15.4175 12.8749 15.5052 12.3211 15.3944C12.0801 15.3462 11.8551 15.2719 11.6871 15.2073C11.6046 15.1755 11.5393 15.1475 11.4969 15.1285C11.4758 15.119 11.4606 15.1119 11.4521 15.1079L11.4446 15.1043C10.951 14.8576 10.3881 14.6031 9.82284 14.3475C9.51429 14.208 9.20503 14.0682 8.90595 13.9291C8.02751 13.5207 7.17344 13.0917 6.42225 12.6005C4.90894 11.6111 4 10.4996 4 9V8H2V9C2 11.5004 3.59106 13.1389 5.32775 14.2745C6.20156 14.8458 7.15999 15.323 8.0628 15.7427C8.40862 15.9035 8.73891 16.0527 9.05518 16.1956C9.59244 16.4382 10.0949 16.6655 10.5585 16.8973L10.5672 16.9015L10.5933 16.9141C10.6146 16.9242 10.6433 16.9376 10.6788 16.9535C10.7497 16.9853 10.8486 17.0276 10.9691 17.074C11.2074 17.1656 11.5449 17.2788 11.9289 17.3556C12.6251 17.4948 13.8317 17.5825 14.7071 16.7071C15.0808 16.3334 15.3127 15.9106 15.4025 15.4617C15.4908 15.0203 15.4281 14.6221 15.3237 14.3088C15.2206 13.9996 15.0711 13.754 14.9544 13.5906C14.8946 13.507 14.8396 13.4394 14.7967 13.39C14.7752 13.3651 14.7564 13.3445 14.7413 13.3283L14.7213 13.3073L14.7134 13.2993L14.7101 13.2959L14.7085 13.2943L14.6569 13.2426L14.5896 13.1922L14.5572 13.1678L14.4327 13.0735C14.325 12.9918 14.1707 12.8742 13.9855 12.7314C13.6145 12.4454 13.1217 12.0604 12.6306 11.6614C12.3615 11.4427 12.0972 11.2234 11.856 11.0161C12.2582 11.0004 12.6687 11 13 11L20 11V13H17L17 15H20V19H7L7 17H5L5 19C5 20.1046 5.89543 21 7 21H20C21.1046 21 22 20.1046 22 19V11C22 9.89543 21.1046 9 20 9H18.5352L15.4258 4.3359C14.8694 3.5013 13.9327 3 12.9296 3H2V5Z"/></svg>
+      <span class="tl">Послуги</span>
+    </button>
+    <button><img src="assets/tab-gift.png" width="24" height="24" alt=""><span class="tl">Raif+</span></button>
+  </nav>
+  <div class="home-ind" aria-hidden="true"></div>
+
+
+  <div class="profile" id="profile" role="dialog" aria-modal="true" aria-label="Профіль" aria-hidden="true">
+    <div class="pr-status" aria-hidden="true"><span>4:20</span><span class="sys">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="#2B2D34"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x=".5" y=".5" width="22" height="11" rx="3.5" stroke="#2B2D34" opacity=".5"/><rect x="2" y="2" width="19" height="8" rx="2" fill="#2B2D34"/></svg>
+    </span></div>
+    <div class="pr-scroll">
+      <div class="pr-nav">
+        <button id="closeProfile" aria-label="Закрити профіль"><img src="assets/pr-close.svg" width="24" height="24" alt=""></button>
+        <button aria-label="Підтримка"><img src="assets/pr-headphones.svg" width="24" height="24" alt=""></button>
+      </div>
+      <div class="pr-avatar">
+        <img class="ph" src="assets/pr-photo.png" width="84" height="84" alt="Фото профілю">
+        <span class="av-biz" style="width:84px;height:84px" aria-hidden="true"><img src="assets/av-case-white.svg" width="36" height="36" alt=""></span>
+        <button class="cam" aria-label="Змінити фото"><img src="assets/pr-camera.svg" width="24" height="18" alt=""></button>
+      </div>
+      <div class="pr-head"><h1 id="prName">Шевченко Тарас</h1><p id="prCaption">+380 (63) 213 18 21</p></div>
+
+      <div class="pr-pad">
+        <button class="tile switch-personal js-switch" data-to="business">
+          <span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-case.svg" width="32" height="32" alt=""><img src="assets/pr-case.svg" width="16" height="16" alt=""></span>
+          <span class="tt"><b>ФОП Шевченко Тарас Григорович</b><span>Управляйте своїм бізнес рахунком</span></span>
+        </button>
+        <button class="tile switch-business js-switch" data-to="personal">
+          <span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-man.svg" width="32" height="32" alt=""><img src="assets/pr-man.svg" width="16" height="16" alt=""></span>
+          <span class="tt"><b>Шевченко Тарас Григорович</b><span>Фізична особа · особисті рахунки</span></span>
+        </button>
+      </div>
+
+      <div class="pr-two">
+        <div><button class="tile"><span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-man.svg" width="32" height="32" alt=""><img src="assets/pr-man.svg" width="16" height="16" alt=""></span><span class="tt"><b>Особисті дані</b><span>Переглядайте і редагуйте</span></span></button></div>
+        <div><button class="tile"><span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-premium.svg" width="32" height="32" alt=""><img src="assets/pr-premium.svg" width="16" height="16" alt=""></span><span class="tt"><b>Ваш преміум</b><span>Привілеї пакету, персональний менеджер</span></span></button></div>
+      </div>
+
+      <div class="widget"><div class="w-wrap plist">
+        <button class="pr-row"><span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-people.svg" width="32" height="32" alt=""><img src="assets/pr-people.svg" width="16" height="16" alt=""></span><span class="rt"><b>Запросіть друзів</b><span>Отримайте до 400 ₴ кешбеку</span></span><img class="chev" src="assets/pr-go-right.svg" width="20" height="20" alt=""></button>
+      </div></div>
+
+      <h2 class="pr-sec">Сервіси</h2>
+      <div class="widget"><div class="w-wrap plist">
+        <button class="pr-row"><span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-docs.svg" width="32" height="32" alt=""><img src="assets/pr-docs.svg" width="16" height="16" alt=""></span><span class="rt"><b>Довідки та виписки</b><span>За рахунком, кредитом чи депозитом</span></span><img class="chev" src="assets/pr-go-right.svg" width="20" height="20" alt=""></button>
+        <button class="pr-row"><span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-scheme.svg" width="32" height="32" alt=""><img src="assets/pr-scheme.svg" width="16" height="16" alt=""></span><span class="rt"><b>Відкритий банкінг</b><span>Доступ до рахунків і платежів</span></span><img class="chev" src="assets/pr-go-right.svg" width="20" height="20" alt=""></button>
+        <button class="pr-row"><span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-invoice.svg" width="32" height="32" alt=""><img src="assets/pr-invoice-info.svg" width="16" height="16" alt=""></span><span class="rt"><b class="sub-only">Тарифи та умови</b></span><img class="chev" src="assets/pr-go-right.svg" width="20" height="20" alt=""></button>
+      </div></div>
+
+      <h2 class="pr-sec">Налаштування</h2>
+      <div class="widget"><div class="w-wrap plist">
+        <button class="pr-row"><span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-locked.svg" width="32" height="32" alt=""><img src="assets/pr-locked.svg" width="16" height="16" alt=""></span><span class="rt"><b>Приватність і безпека</b><span>Змінити пароль, вхід за біометрією, налаштування доступів</span></span><img class="chev" src="assets/pr-go-right.svg" width="20" height="20" alt=""></button>
+        <button class="pr-row"><span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-people.svg" width="32" height="32" alt=""><img src="assets/pr-settings.svg" width="16" height="16" alt=""></span><span class="rt"><b>Налаштування застосунку</b><span>Змінити мову, вибрати тему</span></span><img class="chev" src="assets/pr-go-right.svg" width="20" height="20" alt=""></button>
+      </div></div>
+
+      <div class="widget"><div class="w-wrap plist">
+        <button class="pr-row tall"><span class="sq" style="width:32px;height:32px"><img src="assets/pr-sq-exit.svg" width="32" height="32" alt=""><img src="assets/pr-exit.svg" width="16" height="16" alt=""></span><span class="rt"><b class="sub-only">Вийти із застосунку</b></span><img class="chev" src="assets/pr-go-right.svg" width="20" height="20" alt=""></button>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="psheet" id="psheet" role="dialog" aria-modal="true" aria-label="Перемкнути профіль" aria-hidden="true">
+    <div class="bd" data-close></div>
+    <div class="sh" id="psheetBody">
+      <div class="notch" aria-hidden="true"></div>
+      <button class="row" data-to="personal">
+        <img class="av" src="assets/pr-photo.png" alt="" draggable="false">
+        <span class="tt"><b>Шевченко Тарас Григорович</b><span class="c">Особисті рахунки</span></span>
+        <svg class="ck" viewBox="0 0 24 24" fill="none" stroke="#0077A4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l4.5 4.5L19 7"/></svg>
+      </button>
+      <button class="row" data-to="business">
+        <span class="av av-biz"><img src="assets/av-case-white.svg" width="20" height="20" alt=""></span>
+        <span class="tt"><b>ФОП Шевченко Т. Г.</b><span class="c">Управляйте своїм бізнес рахунком</span></span>
+        <svg class="ck" viewBox="0 0 24 24" fill="none" stroke="#0077A4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l4.5 4.5L19 7"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"><span class="ok"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" aria-hidden="true"><path d="M5 12l4.5 4.5L19 7"/></svg></span><span id="toastText"></span></div>
+</div>
+
+<div class="controls" aria-label="Налаштування прототипу">
+  <label>Видима смуга <input id="peek" type="range" min="64" max="110" step="1" value="81"></label>
+  <p>Свайп або точки — гортати картки. Тап по картці — відкрити; у «Райфкарти» до рахунку є ще «Фішка». Аватар — профіль і перемикання на ФОП. «CVV» — перевернути. Утримуйте номер — скопіювати. Esc — назад.</p>
+</div>
+
+<script>
+(function () {
+  const phone = document.getElementById('phone');
+  const track = document.getElementById('track');
+  const dotsWrap = document.getElementById('dots');
+  const title = document.getElementById('title');
+  const scroller = document.getElementById('scroller');
+  const STEP = 332;
+
+  // Cards and accounts per profile. All numbers are made up for the prototype.
+  const PROFILES = {
+    personal: [
+      { key: 'raif', skin: 'yellow', name: 'Райфкарта', pan: ['4149', '6093', '2718', '0451'], date: '07/29', cvv: '482',
+        bg: '#7E97B8', label: 'Власні кошти', value: 8412.50,
+        tx: { name: 'Glovo', cat: 'Доставка їжі', amount: '-385,00 ₴', bg: '#FFC244', mark: 'glovo', fg: '#00A082', fs: 13 },
+        title: 'UA67 **** 04519', iban: 'UA67 3808 0500 0000 0026 2049 0451 9',
+        extra: { key: 'fishka', skin: 'red light', img: 'card-fishka.png', shade: true, name: 'Фішка', pan: ['4149', '6093', '5520', '1736'], date: '02/30', cvv: '315' } },
+      { key: 'd100', skin: 'by light', img: 'card-100.png', name: '100 днів', pan: ['4149', '4997', '1062', '8835'], date: '10/28', cvv: '907',
+        bg: '#534E6B', label: 'Використано 12 750,00 з 50 000,00 ₴', value: 37250.00, credit: '50 000 ₴',
+        tx: { name: 'Decathlon', cat: 'Спорттовари', amount: '-3 299,00 ₴', bg: '#0082C3', mark: 'DECATHLON', fg: '#FFFFFF', fs: 6.5 },
+        title: 'UA21 **** 88350', iban: 'UA21 3808 0500 0000 0026 2511 8835 0' },
+      { key: 'atb', skin: 'atb light', img: 'card-atb.png', shade: true, name: 'Картка АТБ', pan: ['4149', '3105', '7744', '6012'], date: '12/30', cvv: '238',
+        bg: '#4FA07E', label: 'Власні кошти', value: 0, activate: true,
+        tx: { name: 'Bolt', cat: 'Таксі', amount: '-214,00 ₴', bg: '#34D186', mark: 'Bolt', fg: '#FFFFFF', fs: 14 },
+        title: 'UA94 **** 60127', iban: 'UA94 3808 0500 0000 0026 2733 6012 7' },
+      { key: 'cur', kind: 'account', skin: 'acct blue', img: 'card-current-blue.png', name: 'Поточний рахунок', faceLabel: 'Особистий рахунок · UAH', mask: 'UA58 •••• •••• 72214',
+        pan: ['UA58', '3808', '0500', '0000', '0026', '2058', '7221', '4'],
+        bg: '#6C8FBF', label: 'Залишок на рахунку', value: 23870.15,
+        tx: { name: 'Переказ на рахунок', cat: 'Поповнення', amount: '+5 000,00 ₴', logo: 'ic-bank.svg', bg: '#EEE8CD' },
+        title: 'UA58 **** 72214', iban: 'UA58 3808 0500 0000 0026 2058 7221 4' }
+    ],
+    business: [
+      { key: 'fop', kind: 'account', skin: 'acct light', img: 'card-fop-account.png', name: 'ФОП рахунок', mask: 'UA12 •••• •••• 33556',
+        pan: ['UA12', '3808', '0500', '0000', '0026', '0071', '3355', '6'],
+        bg: '#5D6B82', label: 'Залишок на рахунку', value: 126540.80,
+        tx: { name: 'Нова пошта', cat: 'Доставка відправлень', amount: '-1 120,00 ₴', logo: 'm-novaposhta.png', bg: '#FFFFFF' },
+        title: 'UA12 **** 33556', iban: 'UA12 3808 0500 0000 0026 0071 3355 6' },
+      { key: 'biz', skin: 'biz light', img: 'card-business.png', name: 'Бізнес картка', pan: ['4149', '8820', '6417', '9530'], date: '05/29', cvv: '661',
+        bg: '#7B7466', label: 'Власні кошти', value: 48215.30,
+        tx: { name: 'Uber', cat: 'Таксі', amount: '-486,00 ₴', bg: '#000000', mark: 'Uber', fg: '#FFFFFF', fs: 13 },
+        title: 'UA35 **** 71904', iban: 'UA35 3808 0500 0000 0026 0094 7190 4' }
+    ]
+  };
+
+  const state = { profile: 'personal', idx: 0, sub: 0, open: false, flipped: false, activated: {} };
+  let cards = [], extraEl = null, toastTimer;
+  const list = () => PROFILES[state.profile];
+  const cur = () => list()[state.idx];
+  const multi = () => state.open && !!cur().extra;
+  const currentEl = () => (state.sub ? extraEl : cards[state.idx]);
+  const slotOf = (el) => (el === extraEl ? state.idx + 1 : cards.indexOf(el));
+
+  const BACK_ICON = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 010 11H11"/></svg>';
+  const visa = '<img class="visa" src="assets/visa-logo.svg" width="45" height="17" alt="Visa">';
+
+  function decor(c) {
+    const sk = c.skin.split(' ')[0];
+    let h = '';
+    if (c.img) h += '<img class="bgimg" src="assets/' + c.img + '" alt="">';
+    if (c.shade) h += '<div class="shade"></div>';
+    if (sk === 'yellow') h += '<img class="graphic" src="assets/card-graphic.svg" width="196" height="233" alt="">';
+    return h;
+  }
+  function cardHTML(c) {
+    const isAcct = c.kind === 'account';
+    const mask = c.mask || (c.pan[0] + ' •••• •••• ' + c.pan[3]);
+    const label = isAcct ? (c.name + ', рахунок ' + c.title) : (c.name + ', картка закінчується на ' + c.pan[3]);
+    const groups = c.pan.map((g) => '<span class="g">' + g + '</span>').join('');
+    const front = '<div class="side front">' + decor(c) +
+      '<div class="c-head"><div><div class="c-name sub">' + c.name + '</div><div class="c-mask">' + mask + '</div></div>' + (isAcct ? '' : visa) + '</div>' +
+      '<div class="pan big" title="Утримуйте, щоб скопіювати">' + groups + '</div>' +
+      (isAcct
+        ? '<div class="c-bottom"><span class="lbl sub">' + (c.faceLabel || 'Поточний рахунок · UAH') + '</span></div>'
+        : '<div class="c-bottom"><span class="date">' + c.date + '</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Показати CVV-код">CVV</span></div>') +
+      '</div>';
+    const back = isAcct ? '' : '<div class="side back-side">' + decor(c) + (c.shade ? '<div class="shade"></div>' : '') +
+      '<div class="mag"></div><div class="cvv-big big">' + c.cvv + '</div>' +
+      '<div class="c-bottom"><span class="date">' + c.date + '</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Повернутися до номера картки">' + BACK_ICON + '</span></div>' +
+      '<div class="warn sub">Не розголошуйте CVV-код<br>іншим особам</div></div>';
+    return '<div class="flipper">' + front + back + '</div>';
+  }
+  function makeCard(c, cls) {
+    const el = document.createElement('div');
+    el.className = 'card ' + c.skin + (c.extra ? ' acct-multi' : '') + (cls ? ' ' + cls : '');
+    el.setAttribute('role', 'button');
+    el.tabIndex = 0;
+    el.setAttribute('aria-label', c.kind === 'account' ? c.name : c.name + ', картка закінчується на ' + c.pan[3]);
+    el.innerHTML = (c.extra ? '<div class="ghost" aria-hidden="true"></div>' : '') + cardHTML(c);
+    return el;
+  }
+  function build() {
+    track.innerHTML = '';
+    cards = list().map((c) => { const el = makeCard(c); track.appendChild(el); return el; });
+    extraEl = null;
+    list().forEach((c, i) => {
+      if (!c.extra) return;
+      extraEl = makeCard(c.extra, 'extra');
+      extraEl.style.left = (35 + STEP * (i + 1)) + 'px';
+      track.appendChild(extraEl);
+    });
+    dotsWrap.innerHTML = list().map((c, i) => '<button aria-label="' + c.name + '"></button>').join('');
+    Array.from(dotsWrap.children).forEach((d, i) => d.addEventListener('click', () => go(i)));
+    wireCards();
+  }
+
+  // Balance counter
+  const balInt = document.getElementById('balInt');
+  const balDec = document.getElementById('balDec');
+  const balLabel = document.getElementById('balLabel');
+  let shownBal = null, balKey = null, balRaf = null;
+  function fmt(v) {
+    const parts = Math.abs(v).toFixed(2).split('.');
+    return [parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' '), parts[1]];
+  }
+  function paint(v) { const f = fmt(v); balInt.textContent = f[0]; balDec.textContent = f[1]; }
+  function setBalance() {
+    const c = cur();
+    const key = state.profile + c.key;
+    if (key === balKey) return;
+    balKey = key;
+    const f = fmt(c.value);
+    document.getElementById('balance').setAttribute('aria-label', c.label + ' ' + f[0] + ',' + f[1] + ' гривень');
+    if (shownBal === null) { shownBal = c.value; balLabel.textContent = c.label; paint(c.value); return; }
+    if (balLabel.textContent !== c.label) {
+      balLabel.classList.add('swap');
+      setTimeout(() => { balLabel.textContent = c.label; balLabel.classList.remove('swap'); }, 150);
+    }
+    cancelAnimationFrame(balRaf);
+    const from = shownBal, to = c.value, start = performance.now();
+    const dur = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 700;
+    const step = (now) => {
+      const t = dur ? Math.min(1, (now - start) / dur) : 1;
+      shownBal = from + (to - from) * (1 - Math.pow(1 - t, 3));
+      paint(shownBal);
+      if (t < 1) balRaf = requestAnimationFrame(step); else shownBal = to;
+    };
+    balRaf = requestAnimationFrame(step);
+  }
+
+  function render() {
+    if (!multi()) state.sub = 0;
+    const c = cur();
+    phone.classList.toggle('open', state.open);
+    phone.classList.toggle('flipped', state.flipped);
+    phone.classList.toggle('multi', multi());
+    phone.classList.toggle('needs-activation', !!c.activate && !state.activated[c.key]);
+    phone.classList.toggle('is-credit', !!c.credit);
+    phone.classList.toggle('is-account', c.kind === 'account');
+    phone.classList.toggle('business', state.profile === 'business');
+    const slot = state.sub ? state.idx + 1 : state.idx;
+    track.style.transform = 'translateX(' + (-STEP * slot) + 'px)';
+    phone.style.background = c.bg;
+    document.documentElement.style.setProperty('--header', c.bg);
+    if (!phone.classList.contains('on-svc')) document.getElementById('themeColor').setAttribute('content', c.bg);
+    cards.concat(extraEl ? [extraEl] : []).forEach((el) => {
+      const isCur = el === currentEl();
+      el.classList.toggle('current', isCur);
+      el.classList.toggle('before', !isCur && slotOf(el) < slot);
+      el.classList.toggle('after', !isCur && slotOf(el) >= slot);
+      el.setAttribute('aria-expanded', String(state.open && isCur));
+      const back = el.querySelector('.back-side');
+      if (back) {
+        el.querySelector('.front').setAttribute('aria-hidden', String(isCur && state.flipped));
+        back.setAttribute('aria-hidden', String(!(isCur && state.flipped)));
+      }
+    });
+    Array.from(dotsWrap.children).forEach((d, i) => d.classList.toggle('on', i === state.idx));
+    title.textContent = c.title;
+    document.getElementById('iban').textContent = c.iban;
+    if (c.tx) {
+      const logo = document.getElementById('txLogo');
+      const wrap = document.getElementById('txLogoWrap');
+      wrap.classList.remove('no-logo');
+      const mono = document.getElementById('txMono');
+      mono.textContent = c.tx.mark || c.tx.name;
+      mono.style.color = c.tx.fg || 'var(--tint-primary)';
+      mono.style.fontSize = (c.tx.fs || 12) + 'px';
+      logo.onerror = () => wrap.classList.add('no-logo');
+      if (c.tx.logo) logo.src = 'assets/' + c.tx.logo;
+      else { logo.removeAttribute('src'); wrap.classList.add('no-logo'); }
+      document.getElementById('txLogo').alt = c.tx.name;
+      document.getElementById('txLogoWrap').style.background = c.tx.bg;
+      document.getElementById('txName').textContent = c.tx.name;
+      document.getElementById('txCat').textContent = c.tx.cat;
+      document.getElementById('txAmount').textContent = c.tx.amount;
+    }
+    if (c.credit) document.getElementById('credLimit').textContent = 'Поточний ліміт ' + c.credit;
+    document.getElementById('activateText').textContent = 'Активувати картку';
+    setBalance();
+  }
+  function toast(text) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastText').textContent = text;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+  }
+  function copy(text, msg) {
+    if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
+    toast(msg);
+  }
+  function go(i) {
+    state.idx = Math.max(0, Math.min(cards.length - 1, i));
+    state.sub = 0;
+    state.flipped = false;
+    render();
+  }
+  function setOpen(v) {
+    scroller.scrollTop = 0;
+    phone.classList.remove('scrolled');
+    state.open = v;
+    state.sub = 0;
+    state.flipped = false;
+    render();
+    if (v) requestAnimationFrame(() => requestAnimationFrame(bricksIn));
+  }
+
+  // "Bricks": tiles and widgets rise one after another and settle into place;
+  // rows inside each widget follow in sequence.
+  let bricksTimer = null;
+  function bricksIn() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (!state.open) return;
+    const pane = document.getElementById('cardPane');
+    // Never leave a block hidden: finish any brick animation that has not played out
+    const settle = () => pane.getAnimations({ subtree: true }).forEach((a) => { try { a.finish(); } catch (e) { a.cancel(); } });
+    settle();
+    clearTimeout(bricksTimer);
+    bricksTimer = setTimeout(settle, 2000);
+    const visible = (el) => el.offsetParent !== null;
+    const brick = [
+      { opacity: 0, transform: 'translateY(36px) scale(.94)' },
+      { opacity: 1, transform: 'translateY(-4px) scale(1.01)', offset: .65 },
+      { opacity: 1, transform: 'translateY(0) scale(1)' }
+    ];
+    const row = [
+      { opacity: 0, transform: 'translateY(12px)' },
+      { opacity: 1, transform: 'translateY(0)' }
+    ];
+    let delay = 220;
+    const fold = phone.getBoundingClientRect().bottom;
+    const blocks = [pane.querySelector('.cta')]
+      .concat(Array.from(pane.querySelectorAll('.nav-tiles > button')))
+      .concat(Array.from(pane.querySelectorAll(':scope > .widget')))
+      .filter((el) => el && visible(el) && el.getBoundingClientRect().top < fold)
+      .reverse();
+    blocks.forEach((el) => {
+      el.animate(brick, { duration: 560, delay, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' });
+      const rows = Array.from(el.querySelectorAll('.dl-row')).filter(visible).reverse();
+      rows.forEach((r, k) => r.animate(row, { duration: 380, delay: delay + 100 + k * 55, easing: 'cubic-bezier(.2,.8,.2,1)', fill: 'backwards' }));
+      delay += rows.length > 1 ? 70 + rows.length * 30 : 60;
+    });
+  }
+  function flip() {
+    const el = currentEl();
+    el.classList.add('lift');
+    setTimeout(() => el.classList.remove('lift'), 320);
+    state.flipped = !state.flipped;
+    render();
+  }
+  function activate() {
+    const c = cur();
+    state.activated[c.key] = true;
+    render();
+    toast('Картку •• ' + c.pan[3] + ' активовано');
+  }
+
+  // Swipe between cards (collapsed, or between cards of one account in details)
+  let startX = null, swiped = false;
+  const area = document.getElementById('cards');
+  area.addEventListener('pointerdown', (e) => { if (!state.open || multi()) { startX = e.clientX; swiped = false; } });
+  area.addEventListener('pointerup', (e) => {
+    if (startX === null) return;
+    const dx = e.clientX - startX;
+    startX = null;
+    if (Math.abs(dx) <= 40) return;
+    swiped = true;
+    if (multi()) { state.sub = dx < 0 ? 1 : 0; state.flipped = false; render(); }
+    else go(state.idx + (dx < 0 ? 1 : -1));
+  });
+
+  let pressTimer = null, longPressed = false;
+  function wireCards() {
+    // Long press on the number copies it
+    track.querySelectorAll('.pan').forEach((pan) => {
+      const cancel = () => { clearTimeout(pressTimer); pan.classList.remove('pressing'); };
+      pan.addEventListener('pointerdown', () => {
+        if (!state.open) return;
+        longPressed = false;
+        pan.classList.add('pressing');
+        pressTimer = setTimeout(() => {
+          longPressed = true;
+          pan.classList.remove('pressing');
+          if (navigator.vibrate) navigator.vibrate(15);
+          const isAcct = cur().kind === 'account' && !state.sub;
+          copy(Array.from(pan.querySelectorAll('.g')).map((g) => g.textContent).join(isAcct ? '' : ' '), isAcct ? 'IBAN скопійовано' : 'Номер картки скопійовано');
+        }, 500);
+      });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => pan.addEventListener(ev, cancel));
+      pan.addEventListener('contextmenu', (e) => e.preventDefault());
+    });
+    cards.concat(extraEl ? [extraEl] : []).forEach((el) => el.addEventListener('click', (e) => {
+      const i = cards.indexOf(el);
+      if (swiped) { swiped = false; return; }
+      if (longPressed) { longPressed = false; return; }
+      if (e.target.closest('.js-flip')) { if (state.open) flip(); return; }
+      if (el !== currentEl()) {
+        if (state.open && multi()) { state.sub = el === extraEl ? 1 : 0; state.flipped = false; render(); }
+        else if (i >= 0) go(i);
+        return;
+      }
+      if (!state.open) setOpen(true);
+    }));
+    track.querySelectorAll('[role="button"]').forEach((el) => el.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); el.click(); }
+    }));
+  }
+
+  document.querySelector('.js-activate').addEventListener('click', activate);
+  document.querySelector('.js-activate-cta').addEventListener('click', activate);
+  document.querySelector('.js-copy-iban').addEventListener('click', () => copy(cur().iban.replace(/\s/g, ''), 'IBAN скопійовано'));
+  document.getElementById('collapse').addEventListener('click', () => setOpen(false));
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (psheet.classList.contains('show')) { showSwitcher(false); return; }
+    if (profile.classList.contains('show')) { showProfile(false); return; }
+    if (!state.open) return;
+    if (state.flipped) flip(); else setOpen(false);
+  });
+
+  // Navbar gets its sticky surface once content scrolls under it
+  scroller.addEventListener('scroll', () => phone.classList.toggle('scrolled', scroller.scrollTop > 4), { passive: true });
+
+  // Profile modal + switching between personal and business (ФОП) profiles
+  const profile = document.getElementById('profile');
+  function showProfile(v) {
+    profile.classList.toggle('show', v);
+    phone.classList.toggle('pr-on', v);
+    profile.setAttribute('aria-hidden', String(!v));
+    if (v) setTimeout(() => document.getElementById('closeProfile').focus(), 300);
+  }
+  function renderProfile() {
+    const biz = state.profile === 'business';
+    document.getElementById('prName').textContent = biz ? 'ФОП Шевченко Тарас' : 'Шевченко Тарас';
+    document.getElementById('prCaption').textContent = biz ? 'Бізнес-профіль · +380 (63) 213 18 21' : '+380 (63) 213 18 21';
+  }
+  function switchProfile(to) {
+    state.profile = to;
+    state.idx = 0; state.sub = 0; state.open = false; state.flipped = false;
+    scroller.scrollTop = 0;
+    build();
+    renderProfile();
+    render();
+    renderServices();
+  }
+  const switchedMsg = () => (state.profile === 'business' ? 'Ви в профілі ФОП Шевченко Т. Г.' : 'Ви в особистому профілі');
+  document.getElementById('closeProfile').addEventListener('click', () => showProfile(false));
+  document.querySelector('.pr-scroll').addEventListener('scroll', (e) => profile.classList.toggle('scrolled', e.target.scrollTop > 4), { passive: true });
+  document.querySelectorAll('.js-switch').forEach((b) => b.addEventListener('click', () => {
+    switchProfile(b.dataset.to);
+    setTimeout(() => { showProfile(false); toast(switchedMsg()); }, 200);
+  }));
+
+  // Avatar: short tap opens the profile, long press opens the quick switcher (touch and mouse)
+  const avatar = document.getElementById('openProfile');
+  const psheet = document.getElementById('psheet');
+  const psBody = document.getElementById('psheetBody');
+  let lpTimer = null, lpFired = false, lpStart = null;
+  function showSwitcher(v) {
+    psheet.querySelectorAll('.row').forEach((r) => r.classList.toggle('on', r.dataset.to === state.profile));
+    psheet.classList.toggle('show', v);
+    psheet.setAttribute('aria-hidden', String(!v));
+    psBody.style.transform = '';
+    if (v) setTimeout(() => psheet.querySelector('.row.on').focus({ preventScroll: true }), 350);
+  }
+  const lpCancel = () => { clearTimeout(lpTimer); lpTimer = null; avatar.classList.remove('pressing'); };
+  avatar.addEventListener('pointerdown', (e) => {
+    if (e.button > 0) return;
+    lpFired = false; lpStart = [e.clientX, e.clientY];
+    avatar.classList.add('pressing');
+    lpTimer = setTimeout(() => {
+      lpFired = true; lpCancel();
+      if (navigator.vibrate) navigator.vibrate(12);
+      showSwitcher(true);
+    }, 450);
+  });
+  avatar.addEventListener('pointermove', (e) => {
+    if (lpTimer && lpStart && Math.hypot(e.clientX - lpStart[0], e.clientY - lpStart[1]) > 10) lpCancel();
+  });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach((t) => avatar.addEventListener(t, lpCancel));
+  avatar.addEventListener('contextmenu', (e) => e.preventDefault());
+  avatar.addEventListener('click', (e) => {
+    if (lpFired) { lpFired = false; e.preventDefault(); return; }
+    showProfile(true);
+  });
+  psheet.querySelector('[data-close]').addEventListener('click', () => showSwitcher(false));
+  psheet.querySelectorAll('.row').forEach((r) => r.addEventListener('click', () => {
+    if (r.dataset.to === state.profile) { showSwitcher(false); return; }
+    psheet.querySelectorAll('.row').forEach((x) => x.classList.toggle('on', x === r));
+    setTimeout(() => { switchProfile(r.dataset.to); showSwitcher(false); toast(switchedMsg()); }, 180);
+  }));
+  // Drag the sheet down to dismiss
+  let dragY = null;
+  psBody.addEventListener('pointerdown', (e) => { if (!e.target.closest('.row')) { dragY = e.clientY; psBody.style.transition = 'none'; psBody.setPointerCapture(e.pointerId); } });
+  psBody.addEventListener('pointermove', (e) => { if (dragY !== null) psBody.style.transform = 'translateY(' + Math.max(0, e.clientY - dragY) + 'px)'; });
+  psBody.addEventListener('pointerup', (e) => {
+    if (dragY === null) return;
+    const d = e.clientY - dragY; dragY = null; psBody.style.transition = '';
+    if (d > 60) showSwitcher(false); else psBody.style.transform = '';
+  });
+
+
+  // ===== Tabs: Головна <-> Послуги =====
+  const svc = document.getElementById('svc');
+  const svcScroll = document.getElementById('svcScroll');
+  const tabs = Array.from(document.querySelectorAll('.tabbar button'));
+  const UTIL = {
+    personal: [
+      { name: 'Батьки', addr: 'вул. Нижній Вал, буд. 22, кв. 12', sum: ['3 897', '23'], cap: '4 рахунки · найближчий до 20 жовтня' },
+      { name: 'Мій дім', addr: 'просп. Берестейський, 47, кв. 88', sum: ['2 114', '60'], cap: '3 рахунки · найближчий до 25 жовтня' }
+    ],
+    business: []
+  };
+  const EMPTY_UT = (solo) => '<div class="ut-empty' + (solo ? ' solo' : '') + '"><img src="assets/sv-house-ill.svg" alt="" draggable="false">' +
+    '<p>Додайте адресу — рахунки<br>ми знайдемо самі</p>' +
+    '<button class="btn-info js-addr"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8.67 3.33a.67.67 0 1 0-1.34 0v4H3.33a.67.67 0 1 0 0 1.34h4v4a.67.67 0 1 0 1.34 0v-4h4a.67.67 0 1 0 0-1.34h-4v-4Z"/></svg>Додати адресу</button></div>';
+  const ut = { idx: 0, n: 0 };
+  const UT_STEP = 332;
+  function utGo(i) {
+    ut.idx = Math.max(0, Math.min(ut.n - 1, i));
+    const rail = document.getElementById('utRail');
+    const last = rail.querySelector('.ut-track').lastElementChild;
+    const max = Math.max(0, last.offsetLeft + last.offsetWidth + 16 - rail.clientWidth);
+    const x = Math.min(ut.idx * UT_STEP, max);
+    rail.querySelector('.ut-track').style.transform = 'translateX(' + (-x) + 'px)';
+    document.querySelectorAll('#utDots i').forEach((d, k) => d.classList.toggle('on', k === ut.idx));
+  }
+  function renderServices() {
+    const list = UTIL[state.profile];
+    const rail = document.getElementById('utRail');
+    document.getElementById('utAll').style.display = list.length ? '' : 'none';
+    const slides = list.map((u) => '<div class="wcard ut-card">' +
+        '<div class="ut-top"><span class="sqs" style="background-image:url(assets/sv-sq-yellow.svg)"><img src="assets/sv-house.svg" alt="" draggable="false"></span><div style="min-width:0"><div class="nm">' + u.name + '</div><div class="ad">' + u.addr + '</div></div></div>' +
+        '<div class="ut-mid"><div class="am">' + u.sum[0] + ',' + u.sum[1] + ' <small>₴</small></div><div class="cp">' + u.cap + '</div></div>' +
+        '<div class="ut-act"><button class="btn-info js-pay" data-name="' + u.name + '">Сплатити</button></div></div>');
+    slides.push(EMPTY_UT(!list.length));
+    ut.n = slides.length;
+    rail.innerHTML = '<div class="ut-track">' + slides.join('') + '</div>';
+    document.getElementById('utDots').innerHTML = ut.n > 1 ? slides.map(() => '<i></i>').join('') : '';
+    utGo(0);
+    rail.querySelectorAll('.js-pay').forEach((b) => b.addEventListener('click', () => { if (!utMoved) toast('Оплата комуналки: ' + b.dataset.name); }));
+    rail.querySelectorAll('.js-addr').forEach((b) => b.addEventListener('click', () => { if (!utMoved) toast('Додавання адреси — наступний крок прототипу'); }));
+  }
+  // Drag / swipe the utilities carousel (touch and mouse)
+  let utStart = null, utDX = 0, utMoved = false;
+  const utRail = document.getElementById('utRail');
+  utRail.addEventListener('pointerdown', (e) => {
+    if (ut.n < 2) return;
+    utStart = [e.clientX, e.clientY]; utDX = 0; utMoved = false;
+  });
+  utRail.addEventListener('pointermove', (e) => {
+    if (!utStart) return;
+    const dx = e.clientX - utStart[0], dy = e.clientY - utStart[1];
+    if (!utMoved) {
+      if (Math.abs(dx) < 6) return;
+      if (Math.abs(dy) > Math.abs(dx)) { utStart = null; return; }
+      utMoved = true; utRail.classList.add('drag'); utRail.setPointerCapture(e.pointerId);
+    }
+    utDX = dx;
+    const track = utRail.querySelector('.ut-track');
+    const lastEl = track.lastElementChild;
+    const base = -Math.min(ut.idx * UT_STEP, Math.max(0, lastEl.offsetLeft + lastEl.offsetWidth + 16 - utRail.clientWidth));
+    const edge = (ut.idx === 0 && dx > 0) || (ut.idx === ut.n - 1 && dx < 0);
+    track.style.transform = 'translateX(' + (base + (edge ? dx * .35 : dx)) + 'px)';
+  });
+  const utEnd = () => {
+    if (!utStart && !utMoved) return;
+    utStart = null; utRail.classList.remove('drag');
+    if (utMoved) utGo(ut.idx + (utDX < -50 ? 1 : utDX > 50 ? -1 : 0));
+    setTimeout(() => { utMoved = false; }, 0);
+  };
+  utRail.addEventListener('pointerup', utEnd);
+  utRail.addEventListener('pointercancel', utEnd);
+  const tabInd = document.getElementById('tabInd');
+  let tabIdx = 0;
+  function placeInd(i, animate) {
+    const t = tabs[i];
+    if (!animate) tabInd.style.transition = 'none';
+    tabInd.style.width = t.offsetWidth + 'px';
+    tabInd.style.transform = 'translateX(' + t.offsetLeft + 'px)';
+    if (!animate) { tabInd.offsetWidth; tabInd.style.transition = ''; }
+    else { tabInd.classList.remove('moving'); tabInd.offsetWidth; tabInd.classList.add('moving'); }
+  }
+  requestAnimationFrame(() => placeInd(0, false));
+  window.addEventListener('resize', () => placeInd(tabIdx, false));
+  function setTab(i) {
+    const toSvc = i === 3;
+    if (i === tabIdx) return;
+    if (i !== 0 && !toSvc) { toast('Розділ ще не зібрано в прототипі'); return; }
+    tabIdx = i;
+    placeInd(i, true);
+    if (toSvc && state.open) setOpen(false);
+    tabs.forEach((t, k) => { t.classList.toggle('on', k === i); if (k === i) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); });
+    phone.classList.toggle('on-svc', toSvc);
+    svc.setAttribute('aria-hidden', String(!toSvc));
+    document.getElementById('themeColor').setAttribute('content', toSvc ? '#F8F6F2' : cur().bg);
+    if (toSvc) { renderServices(); svcScroll.scrollTop = 0; svc.classList.remove('scrolled'); }
+  }
+  tabs.forEach((t, i) => t.addEventListener('click', () => setTab(i)));
+  svcScroll.addEventListener('scroll', () => svc.classList.toggle('scrolled', svcScroll.scrollTop > 4), { passive: true });
+
+  document.getElementById('peek').addEventListener('input', (e) => {
+    document.documentElement.style.setProperty('--peek', e.target.value + 'px');
+  });
+
+  build();
+  render();
+})();
+</script>
+</body>
+</html>
