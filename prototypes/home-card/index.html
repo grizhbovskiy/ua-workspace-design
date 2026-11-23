@@ -526,8 +526,9 @@
   .bn.gone { opacity: 0; transform: scale(.94); }
   /* ===== Ghost product (pre-approved 100-days card) ===== */
   /* Ghost card face: 100-days art, darkened (shade), no name / number / date — only Visa stays */
-  .ghost-card .c-head > div, .ghost-card .pan, .ghost-card .c-bottom { display: none; }
-  .ghost-card .c-head { justify-content: flex-end; }
+  /* Name/number block stays in layout (invisible) so Visa keeps the same offsets as on other cards */
+  .ghost-card .c-head > div { visibility: hidden; }
+  .ghost-card .pan, .ghost-card .c-bottom { display: none; }
   .is-ghost .quick, .is-ghost .tx-widget, .is-ghost #bnWrap { display: none; }
   .gh-wrap { display: none; overflow: hidden; transition: height .4s var(--ease), opacity .3s; }
   .is-ghost .gh-wrap { display: block; }
