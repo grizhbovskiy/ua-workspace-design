@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RBUA Banners</title>
+<style>
+  @font-face { font-family: 'Amalia'; src: local('Amalia Regular'), local('Amalia-Regular'), url('../home-card/fonts/Amalia-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+  @font-face { font-family: 'Amalia'; src: local('Amalia Medium'), local('Amalia-Medium'), url('../home-card/fonts/Amalia-Medium.ttf') format('truetype'); font-weight: 500; font-display: swap; }
+  @font-face { font-family: 'Amalia'; src: local('Amalia Bold'), local('Amalia-Bold'), url('../home-card/fonts/Amalia-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+
+  /* UDS RB Light tokens (see docs/design-handoff.md §3) */
+  :root {
+    --bg: #F8F6F2; --surface: #FFFFFF; --accent: #FEE600; --inverted: #2B2D34;
+    --tint-primary: #2B2D34; --tint-secondary: #505258; --tint-tertiary: #808185;
+    --action: #0077A4; --info: #E2F4FC;
+    --border: rgba(156,150,127,.24); --border-em: rgba(156,150,127,.32);
+    --elev1: 0 1px 1px 0 rgba(43,45,52,.2);
+    --ease: cubic-bezier(.2,.8,.2,1); --lift: cubic-bezier(.22,1,.36,1); --spring: cubic-bezier(.32,1.28,.52,1);
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--tint-primary);
+    font-family: 'Amalia', -apple-system, system-ui, 'Segoe UI', Roboto, sans-serif; font-size: 16px; line-height: 24px;
+    -webkit-font-smoothing: antialiased; }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  h1, h2, h3, p { margin: 0; }
+  img { display: block; }
+
+  /* ---------- Page layout ---------- */
+  .page { max-width: 1320px; margin: 0 auto; padding: 32px 24px 80px; display: grid; grid-template-columns: 420px 1fr; gap: 40px; align-items: start; }
+  .intro { grid-column: 1 / -1; display: grid; gap: 20px; }
+  .eyebrow { font-size: 12px; line-height: 20px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--tint-tertiary); }
+  .intro h1 { font-size: 40px; line-height: 44px; font-weight: 700; letter-spacing: -.4px; max-width: 18ch; }
+  .lead { font-size: 18px; line-height: 28px; color: var(--tint-secondary); max-width: 70ch; }
+
+  .refs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .ref { background: var(--surface); border-radius: 16px; box-shadow: var(--elev1); padding: 20px; display: grid; gap: 10px; align-content: start; }
+  .ref h3 { font-size: 16px; line-height: 20px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .ref h3 i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .ref ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 20px; color: var(--tint-secondary); display: grid; gap: 6px; }
+  .ref.take { background: var(--inverted); color: #fff; }
+  .ref.take ul { color: rgba(255,255,255,.78); }
+  .ref a { color: var(--action); text-decoration: none; white-space: nowrap; }
+  .refs-src { font-size: 12px; line-height: 18px; color: var(--tint-tertiary); }
+
+  .palette { display: grid; gap: 10px; background: var(--surface); border-radius: 16px; box-shadow: var(--elev1); padding: 20px; }
+  .palette-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; }
+  .sw { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); font-size: 12px; line-height: 16px; }
+  .sw-c { height: 44px; display: flex; }
+  .sw-c span { flex: 1; }
+  .sw-l { padding: 8px 10px; display: grid; gap: 2px; }
+  .sw-l b { font-weight: 500; font-size: 13px; }
+  .sw-l small { color: var(--tint-tertiary); font-size: 11px; }
+  .note { font-size: 12px; line-height: 18px; color: var(--tint-tertiary); }
+
+  /* ---------- Phone preview ---------- */
+  .side { position: sticky; top: 24px; display: grid; gap: 12px; justify-items: center; }
+  .side-cap { font-size: 13px; line-height: 18px; color: var(--tint-tertiary); text-align: center; }
+  .side-cap b { color: var(--tint-primary); font-weight: 500; }
+  .phone { width: 390px; height: 800px; border-radius: 52px; background: var(--bg); position: relative; overflow: hidden;
+    box-shadow: 0 0 0 10px #1d1e22, 0 0 0 11px #3a3b40, 0 30px 60px -10px rgba(43,45,52,.35); }
+  .scr { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; padding: 54px 0 40px; scrollbar-width: none; }
+  .scr::-webkit-scrollbar { display: none; }
+  .island { position: absolute; top: 11px; left: 50%; width: 120px; height: 34px; margin-left: -60px; background: #000; border-radius: 20px; z-index: 5; }
+  .h-top { display: flex; align-items: center; justify-content: space-between; padding: 4px 16px 12px; }
+  .h-top h2 { font-size: 24px; line-height: 28px; font-weight: 700; }
+  .h-av { width: 44px; height: 44px; border-radius: 50%; background: #E9E4D8; display: grid; place-items: center; }
+  .w { margin: 8px 16px; background: var(--surface); border-radius: 16px; box-shadow: var(--elev1); }
+  .w-acc { padding: 16px; display: grid; gap: 2px; }
+  .w-acc small { font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
+  .w-acc b { font-size: 24px; line-height: 28px; font-weight: 700; }
+  .tiles3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 8px 16px; }
+  .tile { background: var(--surface); border-radius: 16px; box-shadow: var(--elev1); height: 104px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; }
+  .sq { width: 32px; height: 32px; border-radius: 10px; }
+  .tile span { font-size: 12px; line-height: 16px; font-weight: 500; }
+  .wh { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 4px; }
+  .wh h3 { font-size: 20px; line-height: 26px; font-weight: 700; letter-spacing: -.1px; }
+  .wh a { font-size: 16px; line-height: 24px; color: var(--action); text-decoration: none; }
+  .rates { padding: 4px 16px; }
+  .rates div { display: grid; grid-template-columns: 1fr auto auto; gap: 20px; font-size: 16px; line-height: 20px; padding: 14px 0; }
+  .rates div + div { border-top: 1px solid var(--border); }
+  .rates span:first-child { font-weight: 500; }
+
+  /* banner carousel inside phone */
+  .slot { position: relative; }
+  .car { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 8px 16px; scroll-padding: 0 16px; scrollbar-width: none; }
+  .car::-webkit-scrollbar { display: none; }
+  .car::after { content: ''; flex: 0 0 4px; }
+  .car > .bn { flex: 0 0 100%; scroll-snap-align: start; }
+  .car > .tiles-row { flex: 0 0 100%; }
+  .dots { display: flex; justify-content: center; gap: 6px; padding: 4px 0 8px; }
+  .dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(43,45,52,.2); transition: width .3s var(--ease), background .3s; }
+  .dots i.on { width: 16px; background: var(--tint-primary); }
+  .restore { display: block; margin: 8px auto; font-size: 14px; line-height: 24px; color: var(--action); }
+
+  /* ---------- Variant list ---------- */
+  .list { display: grid; gap: 20px; }
+  .vc { background: var(--surface); border-radius: 20px; box-shadow: var(--elev1); padding: 20px; display: grid; grid-template-columns: 358px 1fr; gap: 24px; cursor: pointer;
+    outline: 2px solid transparent; outline-offset: 2px; transition: outline-color .2s, transform .3s var(--lift), box-shadow .3s; }
+  .vc:hover { box-shadow: 0 8px 24px -8px rgba(43,45,52,.2); }
+  .vc.sel { outline-color: var(--tint-primary); }
+  .vc-demo { display: grid; gap: 12px; align-content: start; align-self: start; border-radius: 14px; background: var(--bg); padding: 12px 0; }
+  .vc-demo > * { margin: 0 auto; }
+  .vc-info { display: grid; gap: 12px; align-content: start; }
+  .vc-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .vc-num { font-size: 13px; line-height: 20px; font-weight: 700; color: var(--tint-tertiary); font-variant-numeric: tabular-nums; }
+  .vc-head h2 { font-size: 20px; line-height: 26px; font-weight: 700; letter-spacing: -.1px; }
+  .rec { font-size: 11px; line-height: 14px; font-weight: 700; padding: 4px 8px; border-radius: 100px; background: var(--accent); color: var(--tint-primary); }
+  .vc-src { font-size: 13px; line-height: 18px; color: var(--tint-tertiary); }
+  .vc-desc { font-size: 14px; line-height: 20px; color: var(--tint-secondary); }
+  .pc { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px; line-height: 18px; }
+  .pc ul { margin: 4px 0 0; padding-left: 16px; display: grid; gap: 4px; color: var(--tint-secondary); }
+  .pc b { font-size: 12px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
+  .pc .p b { color: #2E8B57; } .pc .c b { color: #C24E4E; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag { font-size: 12px; line-height: 16px; padding: 4px 8px; border-radius: 8px; background: var(--bg); color: var(--tint-secondary); border: 1px solid var(--border); }
+  .tag.ds { background: #EAF7F0; border-color: #BFE5D0; color: #1F6B47; }
+  .tag.new { background: #FFF4E0; border-color: #F5D9A6; color: #8A5A00; }
+  .vc-act { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--action); justify-self: start; }
+  .vc.sel .vc-act { color: var(--tint-tertiary); }
+
+  .summary { grid-column: 1 / -1; background: var(--inverted); color: #fff; border-radius: 20px; padding: 28px; display: grid; gap: 14px; }
+  .summary h2 { font-size: 24px; line-height: 28px; font-weight: 700; }
+  .summary ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; color: rgba(255,255,255,.82); font-size: 15px; line-height: 22px; }
+  .summary b { color: #fff; font-weight: 500; }
+
+  /* =========================================================
+     BANNER COMPONENT
+     ========================================================= */
+  .bn { position: relative; isolation: isolate; width: 100%; max-width: 358px; min-height: 112px; border-radius: 16px; overflow: hidden;
+    display: flex; align-items: center; gap: 8px; padding: 16px 0 16px 16px; text-align: left; color: var(--tint-primary);
+    box-shadow: var(--elev1); background: var(--surface); transition: transform .2s var(--ease), opacity .3s, max-height .4s var(--ease), margin .4s var(--ease), padding .4s var(--ease); -webkit-tap-highlight-color: transparent; }
+  .bn:active { transform: scale(.98); }
+  .bn::after { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 1px solid var(--br, transparent); pointer-events: none; z-index: 4; }
+  .bn-txt { position: relative; z-index: 2; flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+  .bn-t { font-size: 16px; line-height: 20px; font-weight: 500; }
+  .bn-c { font-size: 12px; line-height: 18px; color: var(--tint-secondary); }
+  .bn-cta { margin-top: 6px; display: inline-flex; align-items: center; gap: 2px; font-size: 12px; line-height: 20px; font-weight: 700; color: var(--action); }
+  .bn-cta svg { width: 12px; height: 12px; }
+  .bn-art { position: relative; z-index: 1; flex: 0 0 88px; height: 88px; margin-right: 14px; }
+  .bn-art img { width: 100%; height: 100%; }
+  .bn-x { position: absolute; z-index: 5; top: 2px; right: 2px; width: 32px; height: 32px; display: grid; place-items: center; color: var(--tint-tertiary); }
+  .bn-x svg { width: 16px; height: 16px; }
+  .bn.gone { opacity: 0; transform: scale(.96); }
+
+  /* Pills (above title) — from concept 1490:92807 */
+  .pill { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 100px; font-size: 10px; line-height: 12px; font-weight: 500; white-space: nowrap;
+    background: linear-gradient(90deg, #F8ED81, #FFF05C); color: var(--tint-primary); margin-bottom: 2px; }
+  .pill.white { background: #fff; box-shadow: 0 0 0 1px var(--border-em) inset; }
+  .pill.tint { background: var(--pt); color: var(--pc); }
+  .pill.dark { background: var(--inverted); color: var(--accent); }
+  .pill.glass { background: rgba(255,255,255,.22); color: #fff; box-shadow: 0 0 0 1px rgba(255,255,255,.35) inset; }
+
+  /* Buttons */
+  .bn-btn { margin-top: 8px; display: inline-flex; align-items: center; height: 32px; padding: 0 14px; border-radius: 100px; font-size: 14px; line-height: 24px; font-weight: 500; white-space: nowrap; }
+  .bn-btn.light { background: #fff; color: var(--tint-primary); }
+  .bn-btn.dark { background: var(--inverted); color: #fff; border-radius: 8px; padding: 0 12px; }
+  .bn-btn.accent { background: var(--accent); color: var(--tint-primary); box-shadow: 0 0 0 1px var(--border-em) inset; }
+
+  /* 0 — current (white) */
+  .bn.v0 { background: var(--surface); }
+  .bn.v0 .bn-art { border: 1.5px dashed #9A85F5; background: #F2EFFF; border-radius: 12px; display: grid; place-items: center; }
+  .bn.v0 .bn-art svg { width: 28px; height: 28px; color: #6A4CAD; }
+
+  /* 1 — Pastel gradient + border (concept 1573:65624) */
+  .bn.v1 { background: linear-gradient(-66.9deg, var(--a) 5.7%, var(--b) 95.2%); }
+
+  /* 2 — Pill + pastel (concept 1490:93734) */
+  .bn.v2 { background: linear-gradient(74.4deg, var(--a) 0%, var(--b) 97.4%); }
+  .bn.v2 .bn-art { flex-basis: 96px; height: 96px; margin: -8px 4px -16px 0; }
+
+  /* 3 — Dark premium (concept 1490:92807) */
+  .bn.v3 { background: radial-gradient(90px 90px at 86% 52%, rgba(255,255,255,.22), transparent 70%), linear-gradient(74.4deg, var(--a) 0%, var(--b) 97.4%); color: #F9F9F9; }
+  .bn.v3 .bn-c { color: #D5D5D6; }
+  .bn.v3 .bn-cta { color: #fff; }
+  .bn.v3 .bn-x { color: rgba(255,255,255,.72); }
+  .bn.v3 .bn-art { flex-basis: 96px; height: 96px; margin: -8px 4px -16px 0; }
+
+  /* 4 — Vivid solid (Revolut-like) */
+  .bn.v4 { min-height: 148px; align-items: stretch; padding-top: 18px; padding-bottom: 16px;
+    background: radial-gradient(140% 120% at 100% 100%, var(--b) 0%, transparent 60%), var(--a); color: #fff; }
+  .bn.v4 .bn-txt { justify-content: center; }
+  .bn.v4 .bn-t { font-size: 20px; line-height: 24px; font-weight: 700; letter-spacing: -.1px; }
+  .bn.v4 .bn-c { color: rgba(255,255,255,.82); }
+  .bn.v4 .bn-x { color: rgba(255,255,255,.75); }
+  .bn.v4 .bn-art { flex: 0 0 132px; height: 132px; margin: auto -14px -40px -8px; align-self: flex-end; filter: drop-shadow(0 10px 18px rgba(0,0,0,.18)); }
+
+  /* 5 — Bleed illustration on solid pastel (Monzo-like) */
+  .bn.v5 { min-height: 136px; background: var(--a); }
+  .bn.v5 .bn-txt { padding-right: 118px; }
+  .bn.v5 .bn-art { position: absolute; right: -30px; bottom: -42px; width: 172px; height: 172px; margin: 0; }
+  .bn.v5 .bn-x { background: rgba(255,255,255,.7); border-radius: 50%; width: 24px; height: 24px; top: 8px; right: 8px; }
+  .bn.v5 .bn-x svg { width: 14px; height: 14px; }
+
+  /* 6 — White + colour spotlight circle */
+  .bn.v6 { background: var(--surface); }
+  .bn.v6::before { content: ''; position: absolute; z-index: 0; right: -34px; top: 50%; width: 156px; height: 156px; margin-top: -78px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--b), var(--a) 70%); }
+  .bn.v6 .bn-art { flex-basis: 96px; height: 96px; margin-right: 10px; }
+  .bn.v6 .bn-x { color: rgba(43,45,52,.55); }
+
+  /* 7 — Big number */
+  .bn.v7 { background: linear-gradient(74.4deg, var(--a) 0%, var(--b) 97.4%); min-height: 132px; }
+  .bn-big { font-size: 40px; line-height: 44px; font-weight: 700; letter-spacing: -.8px; color: var(--d); margin: 2px 0 -2px; }
+  .bn.v7 .bn-t { font-size: 14px; line-height: 18px; }
+  .bn.v7 .bn-art { flex-basis: 104px; height: 104px; margin: -10px 4px -18px 0; }
+
+  /* 8 — Mesh gradient + glass panel (matches the prototype's liquid-glass nav) */
+  .bn.v8 { min-height: 140px; padding: 12px; align-items: stretch;
+    background: radial-gradient(70% 110% at 92% 10%, var(--a), transparent 70%), radial-gradient(70% 120% at 0% 100%, var(--b), transparent 72%),
+                radial-gradient(60% 90% at 62% 110%, var(--c), transparent 70%), var(--base); }
+  .bn.v8 .bn-txt { flex: 0 1 216px; justify-content: center; padding: 12px 14px; border-radius: 12px;
+    background: rgba(255,255,255,.55); -webkit-backdrop-filter: blur(18px) saturate(180%); backdrop-filter: blur(18px) saturate(180%);
+    box-shadow: 0 0 0 1px rgba(255,255,255,.75) inset, 0 6px 16px -6px rgba(43,45,52,.18); }
+  .bn.v8 .bn-art { flex: 1 0 100px; height: auto; margin: -6px -8px -22px -4px; align-self: stretch; }
+  .bn.v8 .bn-art img { object-fit: contain; filter: drop-shadow(0 8px 14px rgba(43,45,52,.2)); }
+  .bn.v8 .bn-x { color: rgba(43,45,52,.6); }
+
+  /* 9 — Tall hero, illustration on top (Monzo "Protect your money") */
+  .bn.v9 { flex-direction: column; align-items: center; text-align: center; gap: 0; padding: 20px 20px 20px; background: radial-gradient(70% 55% at 50% 22%, var(--b), transparent 72%), var(--a); color: var(--fg); }
+  .bn.v9 .bn-art { flex: none; width: 128px; height: 128px; margin: -6px 0 2px; }
+  .bn.v9 .bn-txt { align-items: center; gap: 6px; width: 100%; }
+  .bn.v9 .bn-t { font-size: 24px; line-height: 28px; font-weight: 700; letter-spacing: -.2px; }
+  .bn.v9 .bn-c { color: var(--fgc); font-size: 14px; line-height: 20px; max-width: 280px; }
+  .bn.v9 .bn-btn { margin-top: 10px; height: 40px; padding: 0 20px; }
+  .bn.v9 .bn-x { background: var(--xb); color: var(--fg); border-radius: 50%; width: 28px; height: 28px; top: 12px; right: 12px; }
+  .bn.v9 .bn-x svg { width: 14px; height: 14px; }
+
+  /* 10 — Story tiles row (Revolut "Discover"-like) */
+  .tiles-row { display: flex; gap: 8px; width: 100%; max-width: 358px; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x mandatory; }
+  .tiles-row::-webkit-scrollbar { display: none; }
+  .st { position: relative; flex: 0 0 140px; height: 176px; border-radius: 16px; overflow: hidden; background: var(--a); box-shadow: var(--elev1); scroll-snap-align: start;
+    display: flex; flex-direction: column; justify-content: flex-end; padding: 12px; color: var(--fg, var(--tint-primary)); transition: transform .2s var(--ease); }
+  .st:active { transform: scale(.97); }
+  .st img { position: absolute; width: 120px; height: 120px; right: -18px; top: -8px; }
+  .st .pill { position: absolute; left: 10px; top: 10px; }
+  .st b { position: relative; font-size: 14px; line-height: 18px; font-weight: 500; }
+  .st .bn-x { top: 4px; right: 4px; width: 28px; height: 28px; color: rgba(43,45,52,.55); }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 1100px) {
+    .page { grid-template-columns: 1fr; }
+    .side { position: static; }
+    .refs { grid-template-columns: 1fr 1fr; }
+    .palette-row { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 760px) {
+    .page { padding: 20px 16px 60px; gap: 24px; }
+    .intro h1 { font-size: 30px; line-height: 34px; }
+    .lead { font-size: 16px; line-height: 24px; }
+    .refs { grid-template-columns: 1fr; }
+    .palette-row { grid-template-columns: repeat(2, 1fr); }
+    .vc { grid-template-columns: 1fr; padding: 12px; gap: 16px; }
+    .vc-demo { padding: 12px 0; }
+    .pc { grid-template-columns: 1fr; }
+    .phone { width: 100%; max-width: 390px; height: 760px; border-radius: 36px; box-shadow: 0 0 0 1px var(--border), 0 20px 40px -16px rgba(43,45,52,.3); }
+    .island { display: none; }
+    .scr { padding-top: 16px; }
+    .summary { padding: 20px; }
+  }
+  @media (max-width: 389px) { .vc-demo { margin: 0 -12px; border-radius: 0; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-x" viewBox="0 0 16 16"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M8 1.33333C4.3181 1.33333 1.33333 4.3181 1.33333 8C1.33333 11.6819 4.3181 14.6667 8 14.6667C11.6819 14.6667 14.6667 11.6819 14.6667 8C14.6667 4.3181 11.6819 1.33333 8 1.33333ZM9.8619 10.8047L8 8.94281L6.1381 10.8047L5.19529 9.8619L7.05719 8L5.19523 6.13804L6.13804 5.19523L8 7.05719L9.86196 5.19523L10.8048 6.13804L8.94281 8L10.8047 9.8619L9.8619 10.8047Z"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 12 12"><path fill="currentColor" d="M7.21967 5.92678L3.57322 9.57322L4.28033 10.2803L8.28033 6.28033C8.47559 6.08507 8.47559 5.76849 8.28033 5.57322L4.28033 1.57322L3.57322 2.28033L7.21967 5.92678Z"/></symbol>
+  <symbol id="i-img" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15.5 15.5 10 4 21"/></g></symbol>
+</svg>
+
+<main class="page">
+  <section class="intro">
+    <div class="eyebrow">RBUA Mobile · Банери · варіанти</div>
+    <h1>Банери, які помітно виділяються серед віджетів</h1>
+    <p class="lead">Зараз банер білий і зливається з віджетами. Нижче 10 напрямів: від найближчих до UDS до сміливіших за мотивами Revolut і Monzo. Натисніть на варіант, і він з'явиться на екрані телефону в контексті головної. Свайпайте банер, щоб побачити інші кольори, а «×» закриває його. Ілюстрації взято з бібліотеки RBUA, жовтий фон з них прибрано.</p>
+
+    <div class="refs">
+      <div class="ref">
+        <h3><i style="background:#191C1F"></i>Revolut — що бачимо</h3>
+        <ul>
+          <li>Промо-картка на головній: іконка, заголовок, підпис, «×» і біла кнопка-пілюля на всю ширину (<a href="https://mobbin.com/screens/a572e0ed-3324-4c07-a225-5fa751313703" target="_blank" rel="noopener">&lt;18</a>).</li>
+          <li>Пілюля з вигодою над тайтлом: «2%» на картці Samsung, «Special Offer» на Premium (<a href="https://mobbin.com/screens/afff25ef-9983-4c84-abd3-1c14842aacbf" target="_blank" rel="noopener">Shops</a>, <a href="https://mobbin.com/screens/1af3056a-424f-4d82-8f48-b5797a1e3171" target="_blank" rel="noopener">Premium</a>).</li>
+          <li>Плитки «Top weekly offers»: фото, лого, кешбек, горизонтальний скрол (<a href="https://mobbin.com/screens/416111a2-c5b0-4e7c-96dc-29d220b2f5d9" target="_blank" rel="noopener">віджет</a>).</li>
+          <li>Hero на весь перший екран з 3D-об'єктом і великим заголовком (<a href="https://mobbin.com/screens/62272aa1-883e-4c36-b853-7a0706983d62" target="_blank" rel="noopener">онбординг</a>).</li>
+        </ul>
+      </div>
+      <div class="ref">
+        <h3><i style="background:#FF4F40"></i>Monzo — що бачимо</h3>
+        <ul>
+          <li>Великий темний Hero «Protect your money from fraudsters»: ілюстрація зверху, заголовок 30+ px, лаймова кнопка-пілюля, «×» у колі (<a href="https://mobbin.com/screens/a14fa43b-a03b-4ee1-a076-0f1c7b90744a" target="_blank" rel="noopener">Home</a>).</li>
+          <li>«Suggested for you»: пастельні плитки з ілюстрацією в центрі й підписом знизу, «×» на кожній (<a href="https://mobbin.com/screens/2f04158f-17fb-4273-b8bc-5b47f0c6de44" target="_blank" rel="noopener">карусель</a>).</li>
+          <li>Компактний інлайн-банер з іконкою і «×» над картками (<a href="https://mobbin.com/screens/f5c5680b-88b8-4289-b068-100b3484222d" target="_blank" rel="noopener">Split costs</a>).</li>
+          <li>Бейдж «New» біля заголовка віджета й кнопка «Learn more» (<a href="https://mobbin.com/screens/66e61d22-0705-412a-8990-3e7b12dff0d8" target="_blank" rel="noopener">Insurance</a>).</li>
+        </ul>
+      </div>
+      <div class="ref take">
+        <h3><i style="background:#FEE600"></i>Що беремо в RBUA</h3>
+        <ul>
+          <li>Колір фону позначає категорію продукту (палітра Infographic UDS).</li>
+          <li>Пілюля над заголовком: одна вигода або дедлайн.</li>
+          <li>Ілюстрація більша (88–170 px) і може виходити за край.</li>
+          <li>Кнопка-пілюля замість дрібного посилання для Hero.</li>
+          <li>Одна дія. «×» завжди видно.</li>
+          <li>Не більше одного яскравого (Hero) банера на екрані, решта пастельні.</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="refs-src">Джерело: Mobbin (iOS, Revolut і Monzo). Посилання відкривають конкретні екрани.</p>
+    <div class="palette">
+      <div class="eyebrow">Колір = категорія продукту (Infographic UDS)</div>
+      <div class="palette-row" id="palette"></div>
+      <p class="note">Значення 400/500 взяті з UDS. Світлі 50/100-тінти частково з концепту Figma (1573:65624, 1490:93734), решту треба затвердити в UDS Theme.</p>
+    </div>
+  </section>
+
+  <aside class="side">
+    <div class="phone">
+      <div class="island"></div>
+      <div class="scr" id="scr">
+        <div class="h-top"><h2>Головна</h2><div class="h-av"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#808185" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></div></div>
+        <div class="w w-acc"><small>Картка «Фішка» · 4141 •••• 8721</small><b>8 412,50 ₴</b></div>
+        <div class="tiles3">
+          <div class="tile"><div class="sq" style="background:#5DBE99"></div><span>Поповнити мобільний</span></div>
+          <div class="tile"><div class="sq" style="background:#A592CF"></div><span>Комунальні платежі</span></div>
+          <div class="tile"><div class="sq" style="background:#ED9100"></div><span>Перекази за номером</span></div>
+        </div>
+        <div class="wh"><h3>Пропозиції для вас</h3></div>
+        <div class="slot" id="slot"></div>
+        <div class="w">
+          <div class="wh"><h3>Курси валют</h3><a href="#" onclick="return false">Усі</a></div>
+          <div class="rates">
+            <div><span>USD</span><span>41,02</span><span>41,55</span></div>
+            <div><span>EUR</span><span>47,80</span><span>48,40</span></div>
+          </div>
+        </div>
+        <div class="w" style="height:120px"></div>
+      </div>
+    </div>
+    <p class="side-cap" id="cap"></p>
+  </aside>
+
+  <section class="list" id="list"></section>
+
+  <section class="summary">
+    <div class="eyebrow" style="color:rgba(255,255,255,.55)">Рекомендація</div>
+    <h2>Система з трьох рівнів, а не один шаблон</h2>
+    <ol>
+      <li><b>Стандарт (02 · Пілюля + пастель)</b> для більшості пропозицій у «Пропозиції для вас». Найближчий до UDS варіант: концепт уже є у Figma, потрібні лише тінти Infographic 100 як токени.</li>
+      <li><b>Hero (04 · Яскравий, 03 · Темний преміум або 09 · Висока Hero)</b>: не більше одного на екрані, для головної кампанії тижня (кредитка, ФОП). Використовуємо його, коли банер має «кричати».</li>
+      <li><b>Добірка (10 · Плитки-історії)</b>, коли пропозицій 3+: замість стрічки з однакових банерів.</li>
+      <li>Варіанти 05 (Monzo-кадрування) і 08 (скло) варто тестувати як сезонні або спецкампанії. Варіант 09 (висока Hero) підходить для головної кампанії або важливого повідомлення про безпеку, не частіше одного разу на сесію.</li>
+    </ol>
+  </section>
+</main>
+
+<script>
+/* ---------- Offers (copy: Ukrainian, short; numbers are mock) ---------- */
+const O = {
+  credit:   { pill: '0% до 100 днів', t: 'До 100 днів без %<br>з новою кредиткою', c: 'Оформіть онлайн за 5 хвилин', cta: 'Оформити картку', ill: 'credit-cards' },
+  fop:      { pill: 'Підвищений кешбек', t: 'Відкрийте ФОП-рахунок', c: 'Отримайте до 400 ₴ кешбеку', cta: 'Відкрити рахунок', ill: 'briefcase' },
+  referral: { pill: '+200 ₴ за друга', t: 'Запросіть друга й отримайте бонус', c: 'Бонус прийде, щойно друг стане клієнтом', cta: 'Запросити друга', ill: 'referral' },
+  deposit:  { pill: 'Новинка', big: '15%', t: 'річних на депозит «Онлайн»', c: 'Депозит на 6 місяців', cta: 'Відкрити депозит', ill: 'piggy' },
+  utility:  { pill: 'Без комісії', t: 'Комуналка в один тап', c: 'Додайте адресу, і рахунки з’являться самі', cta: 'Додати адресу', ill: 'lightbulb' },
+  fuel:     { pill: 'До 31 грудня', t: 'Кешбек 10% на АЗС', c: 'Активуйте категорію в Raif+', cta: 'Активувати', ill: 'car' },
+  insurance:{ pill: 'Онлайн', t: 'Автоцивілка за 3 хвилини', c: 'Поліс одразу на пошту', cta: 'Оформити поліс', ill: 'shield' },
+  travel:   { pill: 'Visa', t: 'Подорожуйте без комісії за обмін', c: 'Платіть за кордоном у гривні', cta: 'Детальніше', ill: 'boarding-pass' },
+  anketa:   { pill: 'Важливо', t: 'Оновіть дані анкети', c: 'Залишилось 13 днів', cta: 'Оновити дані', ill: 'clipboard', p: 60 },
+  gift:     { pill: 'Raif+', t: 'Новорічні знижки від партнерів', c: 'До 30% до 31 грудня', cta: 'Обрати подарунок', ill: 'gift' },
+  savings:  { pill: 'Скарбничка', t: 'Відкладайте решту з покупок', c: 'Округлюємо до 10 ₴ автоматично', cta: 'Увімкнути', ill: 'wallet' },
+  invest:   { pill: 'Новинка', big: '+12%', t: 'середня дохідність ОВДП', c: 'Купуйте від 1 000 ₴', cta: 'Інвестувати', ill: 'rocket' },
+};
+
+/* ---------- Category palette (Infographic UDS) ---------- */
+const P = [
+  { n: 'Кредити',       k: '04 фіолетовий', c: ['#F2EDFF', '#E1D6FF', '#A592CF', '#6A4CAD'] },
+  { n: 'Бізнес / ФОП',   k: '07 лайм',      c: ['#F6FDDB', '#D5FACC', '#6ECB41', '#3E8A1E'] },
+  { n: 'Накопичення',    k: '06 блакитний', c: ['#F2FAFE', '#CDEEFA', '#1DA1C9', '#0077A4'] },
+  { n: 'Кешбек / Raif+', k: '05 помаранчевий', c: ['#FFF8EC', '#FFE6BF', '#ED9100', '#B56E00'] },
+  { n: 'Сервіси',        k: '09 бежевий',   c: ['#F8F5E9', '#EEE8CD', '#A49D8E', '#8F8574'] },
+  { n: 'Страхування',    k: '02 зелений',   c: ['#F0FFF8', '#D3F2E5', '#5DBE99', '#2E8B6A'] },
+];
+
+const chev = '<svg><use href="#i-chev"/></svg>';
+const xBtn = '<button class="bn-x" aria-label="Закрити" data-x><svg><use href="#i-x"/></svg></button>';
+const art = (o, cls = '') => `<div class="bn-art ${cls}"><img src="assets/ill/${o.ill}.svg" alt=""></div>`;
+const st = v => Object.entries(v).map(([k, val]) => `--${k}:${val}`).join(';');
+
+/* Each variant: meta + colourways ({ v: css vars, o: offer, pill: pill class }) + render(cw) */
+const V = [
+  { id: 0, name: 'Як зараз', src: 'Поточний банер у продукті', tags: [['UDS', 'ds']],
+    desc: 'Білий банер із плейсхолдером ілюстрації праворуч. Для порівняння.',
+    pros: ['Чисто й нейтрально'], cons: ['Зливається з білими віджетами', 'Ілюстрація «в рамці» виглядає як заглушка', 'Немає ієрархії: усі банери однакові'],
+    cws: [{ v: {}, o: O.credit }],
+    r: (cw) => `<article class="bn v0"><div class="bn-txt"><h3 class="bn-t">${cw.o.t.replace('<br>', ' ')}</h3><p class="bn-c">${cw.o.c}</p></div><div class="bn-art"><svg><use href="#i-img"/></svg></div>${xBtn}</article>` },
+
+  { id: 1, name: 'Пастель з бордером', src: 'Концепт Figma 1573:65624 · «Пропозиції для вас»', tags: [['UDS + концепт', 'ds'], ['тінти 100 → токени', 'new']],
+    desc: 'М’який градієнт кольору категорії і тонований 1px бордер. Ілюстрація 88 px. CTA посиланням Action.',
+    pros: ['Найближче до UDS і вже існує в концепті', 'Колір кодує продукт', 'Спокійний, преміальний вигляд'], cons: ['Все ще досить тихий', 'CTA-посилання дрібне (12 px)'],
+    cws: [
+      { v: { a: '#F2EDFF', b: '#FCF5FF', br: '#C3AAFF' }, o: O.credit },
+      { v: { a: '#F0FFF8', b: '#F3FFF9', br: '#96D1B9' }, o: O.insurance },
+      { v: { a: '#FFF3E0', b: '#FFFAF2', br: '#F5CF9F' }, o: O.fuel },
+    ],
+    r: (cw) => `<article class="bn v1" style="${st(cw.v)}"><div class="bn-txt"><h3 class="bn-t">${cw.o.t}</h3><p class="bn-c">${cw.o.c}</p><span class="bn-cta">${cw.o.cta}${chev}</span></div>${art(cw.o)}${xBtn}</article>` },
+
+  { id: 2, name: 'Пілюля + пастель', src: 'Концепт Figma 1490:93734 · ФОП-рахунок', rec: true, tags: [['UDS + концепт', 'ds'], ['пілюля над тайтлом', '']],
+    desc: 'Жовта пілюля над заголовком показує вигоду. Діагональний градієнт категорії, ілюстрація трохи виходить за низ.',
+    pros: ['Пілюля одразу показує вигоду', 'Яскравіше за варіант 01, але в межах DS', 'Легко масштабувати на будь-яку категорію'], cons: ['Жовта пілюля конкурує з основною жовтою кнопкою, якщо поруч'],
+    cws: [
+      { v: { a: '#D5FACC', b: '#F6FDDB', br: '#ADDE9F' }, o: O.fop },
+      { v: { a: '#E6DDFF', b: '#F7F3FF', br: '#C9B8F5' }, o: O.credit },
+      { v: { a: '#CDEEFA', b: '#F2FAFE', br: '#9FD6EC' }, o: O.travel },
+    ],
+    r: (cw) => `<article class="bn v2" style="${st(cw.v)}"><div class="bn-txt"><span class="pill">${cw.o.pill}</span><h3 class="bn-t">${cw.o.t}</h3><p class="bn-c">${cw.o.c}</p></div>${art(cw.o)}${xBtn}</article>` },
+
+  { id: 3, name: 'Темний преміум', src: 'Концепт Figma 1490:92807 · ФОП (темний)', tags: [['кольори концепту', 'new'], ['Hero', '']],
+    desc: 'Темний градієнт, білий текст, жовта пілюля. Під ілюстрацією світловий «спот».',
+    pros: ['Максимальний контраст зі світлим фоном', 'Відчуття преміальності (бізнес, Premium)', 'Жовтий акцент сильно «світиться»'], cons: ['Важкий: тільки один такий банер на екран', 'Ілюстрації з темними деталями губляться'],
+    cws: [
+      { v: { a: '#2D3F51', b: '#8F9AA3', br: '#5C6B78' }, o: O.fop },
+      { v: { a: '#412F59', b: '#9D88D9', br: '#6A4CAD' }, o: O.credit },
+      { v: { a: '#163F4E', b: '#4FA3BE', br: '#2E6F86' }, o: O.travel },
+    ],
+    r: (cw) => `<article class="bn v3" style="${st(cw.v)}"><div class="bn-txt"><span class="pill">${cw.o.pill}</span><h3 class="bn-t">${cw.o.t}</h3><p class="bn-c">${cw.o.c}</p><span class="bn-cta">${cw.o.cta}${chev}</span></div>${art(cw.o)}${xBtn}</article>` },
+
+  { id: 4, name: 'Яскравий Hero', src: 'За мотивами Revolut (промо-картки на головній)', rec: true, tags: [['Hero', ''], ['кнопка-пілюля', ''], ['насичені кольори', 'new']],
+    desc: 'Насичений колір категорії, заголовок 20/24 Bold, біла кнопка-пілюля. Велика ілюстрація виходить за правий і нижній край.',
+    pros: ['Найпомітніший: видно з першого скролу', 'Кнопка замість дрібного посилання підвищує CTR', 'Об’ємна ілюстрація без рамки'], cons: ['Потрібні 2–3 нові «hero»-кольори в UDS', 'Тільки одна кампанія на екран'],
+    cws: [
+      { v: { a: '#6A4CAD', b: '#9D88D9' }, o: O.credit },
+      { v: { a: '#0077A4', b: '#1DA1C9' }, o: O.deposit },
+      { v: { a: '#2B2D34', b: '#505258' }, o: O.fop, btn: 'accent' },
+    ],
+    r: (cw) => `<article class="bn v4" style="${st(cw.v)}"><div class="bn-txt"><span class="pill">${cw.o.pill}</span><h3 class="bn-t">${cw.o.big ? cw.o.big + ' ' + cw.o.t : cw.o.t.replace('<br>', ' ')}</h3><span class="bn-btn ${cw.btn || 'light'}">${cw.o.cta}</span></div>${art(cw.o)}${xBtn}</article>` },
+
+  { id: 5, name: 'Ілюстрація під обріз', src: 'За мотивами Monzo (картки у стрічці Home)', tags: [['тінти 100', 'new'], ['Button Small', '']],
+    desc: 'Суцільний пастельний тінт 100. Велика ілюстрація 170 px навмисно обрізана правим нижнім кутом. Темна кнопка Small.',
+    pros: ['Ілюстрація стає героєм, як в ілюстративних кампаніях', 'Чітка кнопка', 'Добре працює і без градієнтів'], cons: ['Ілюстрацію треба підбирати під кадрування', 'Текст коротший (зона ~200 px)'],
+    cws: [
+      { v: { a: '#CDEEFA' }, o: O.savings },
+      { v: { a: '#FFE6BF' }, o: O.gift },
+      { v: { a: '#E1D6FF' }, o: O.referral },
+    ],
+    r: (cw) => `<article class="bn v5" style="${st(cw.v)}"><div class="bn-txt"><span class="pill white">${cw.o.pill}</span><h3 class="bn-t">${cw.o.t}</h3><span class="bn-btn dark">${cw.o.cta}</span></div>${art(cw.o)}${xBtn}</article>` },
+
+  { id: 6, name: 'Білий + кольорове коло', src: 'Гібрид: UDS-поверхня + акцент Infographic', tags: [['UDS', 'ds'], ['Infographic 400', 'ds']],
+    desc: 'Поверхня лишається білою, але за ілюстрацією велике коло кольору категорії, а пілюля тонована в той самий колір.',
+    pros: ['Майже без нових токенів', 'Колір є, але банер не «кричить»', 'Пасує до білих віджетів'], cons: ['Менш помітний, ніж суцільний фон', 'Коло обмежує розмір ілюстрації'],
+    cws: [
+      { v: { a: '#ED9100', b: '#FFC266', pt: '#FFF1DB', pc: '#8A5A00' }, o: O.fuel },
+      { v: { a: '#5DBE99', b: '#A3E2CC', pt: '#E2F5EC', pc: '#1F6B47' }, o: O.insurance },
+      { v: { a: '#A592CF', b: '#D9CCF5', pt: '#EFEAFB', pc: '#563E83' }, o: O.referral },
+    ],
+    r: (cw) => `<article class="bn v6" style="${st(cw.v)}"><div class="bn-txt"><span class="pill tint">${cw.o.pill}</span><h3 class="bn-t">${cw.o.t}</h3><p class="bn-c">${cw.o.c}</p><span class="bn-cta">${cw.o.cta}${chev}</span></div>${art(cw.o)}${xBtn}</article>` },
+
+  { id: 7, name: 'Велика цифра', src: 'Патерн «оффер-цифра» (Revolut, Monzo Savings)', tags: [['Headline 1 40/44', 'ds']],
+    desc: 'Головна вигода великою цифрою (Headline 1) в кольорі категорії, під нею пояснення.',
+    pros: ['Цифру зчитують за пів секунди', 'Підходить для ставок, кешбеку, лімітів'], cons: ['Тільки для офферів із цифрою', 'Вищий банер (132 px)'],
+    cws: [
+      { v: { a: '#CDEEFA', b: '#F2FAFE', br: '#9FD6EC', d: '#0077A4' }, o: O.deposit },
+      { v: { a: '#D5FACC', b: '#F6FDDB', br: '#ADDE9F', d: '#3E8A1E' }, o: O.invest },
+    ],
+    r: (cw) => `<article class="bn v7" style="${st(cw.v)}"><div class="bn-txt"><span class="pill">${cw.o.pill}</span><div class="bn-big">${cw.o.big}</div><h3 class="bn-t">${cw.o.t}</h3><span class="bn-cta">${cw.o.cta}${chev}</span></div>${art(cw.o)}${xBtn}</article>` },
+
+  { id: 8, name: 'Скло на градієнті', src: 'Продовження Liquid Glass з прототипу (навбар, таб-бар)', tags: [['blur як у навбарі', ''], ['сезонні кампанії', 'new']],
+    desc: 'Мʼякий mesh-градієнт із 3 кольорів, текст на «склі» (blur 18 + saturate), ілюстрація поруч.',
+    pros: ['Найсучасніший вигляд, рима з таб-баром', 'Можна підлаштовувати під сезон'], cons: ['Ризик «зайвого» декору', 'Blur коштує продуктивності на старих Android'],
+    cws: [
+      { v: { a: '#FFB36B', b: '#FF8FA3', c: '#FEE600', base: '#FFE3CC' }, o: O.gift },
+      { v: { a: '#7FD8E8', b: '#B6A3F2', c: '#A3E2CC', base: '#DDEFFB' }, o: O.travel },
+    ],
+    r: (cw) => `<article class="bn v8" style="${st(cw.v)}"><div class="bn-txt"><span class="pill dark">${cw.o.pill}</span><h3 class="bn-t">${cw.o.t}</h3><p class="bn-c">${cw.o.c}</p><span class="bn-cta">${cw.o.cta}${chev}</span></div>${art(cw.o)}${xBtn}</article>` },
+
+  { id: 9, name: 'Висока Hero-картка', src: 'Monzo «Protect your money from fraudsters» (Mobbin)', tags: [['Hero', ''], ['Headline 2 24/28', 'ds']],
+    desc: 'Висока картка: велика ілюстрація зверху, заголовок 24/28 Bold по центру, кнопка-пілюля. Для головної кампанії або важливого повідомлення.',
+    pros: ['Найсильніший акцент без фото', 'Ілюстрація RBUA тут головна, як у кампаніях Monzo', 'Жовтий варіант нативний для бренду'], cons: ['Займає ~300 px, тож тільки одна на екран', 'Потрібен короткий заголовок (≤ 3 рядки)'],
+    cws: [
+      { v: { a: '#1E2A3A', b: '#2F4A66', fg: '#fff', fgc: 'rgba(255,255,255,.75)', xb: 'rgba(255,255,255,.14)' }, o: { ...O.insurance, pill: '', t: 'Захистіть рахунок від шахраїв', c: 'Увімкніть додаткове підтвердження для переказів', cta: 'Налаштувати' }, btn: 'accent' },
+      { v: { a: '#FEE600', b: '#FFF27A', fg: '#2B2D34', fgc: '#505258', xb: 'rgba(43,45,52,.08)' }, o: { ...O.credit, t: 'До 100 днів без %' }, btn: 'dark' },
+      { v: { a: '#412F59', b: '#6A4CAD', fg: '#fff', fgc: 'rgba(255,255,255,.75)', xb: 'rgba(255,255,255,.14)' }, o: { ...O.invest, t: 'ОВДП від 1 000 ₴', c: 'Середня дохідність +12% річних' }, btn: 'light' },
+    ],
+    r: (cw) => `<article class="bn v9" style="${st(cw.v)}">${art(cw.o)}<div class="bn-txt"><h3 class="bn-t">${cw.o.t}</h3><p class="bn-c">${cw.o.c}</p><span class="bn-btn ${cw.btn}">${cw.o.cta}</span></div>${xBtn}</article>` },
+
+  { id: 10, name: 'Плитки-історії', src: 'Monzo «Suggested for you» + Revolut «Top weekly offers» (Mobbin)', rec: true, tags: [['карусель', ''], ['3+ оффери', '']],
+    desc: 'Для 3+ пропозицій: кольорові плитки 140×176, ілюстрація вгорі, пілюля з вигодою, заголовок унизу, «×» на кожній. Горизонтальний свайп.',
+    pros: ['Кілька офферів без «стіни банерів»', 'Яскраво, але кожна плитка компактна', 'Знайома механіка «історій»'], cons: ['Менше тексту на оффер', 'Потрібна окрема деталка на тап'],
+    cws: [{ v: {}, o: null }],
+    r: () => `<div class="tiles-row">${[
+        [O.credit, '#E1D6FF'], [O.fuel, '#FFE6BF'], [O.travel, '#CDEEFA'], [O.insurance, '#D3F2E5'], [O.gift, '#FFD6DC']
+      ].map(([o, c]) => `<div class="st" style="--a:${c}"><img src="assets/ill/${o.ill}.svg" alt=""><span class="pill white">${o.pill}</span><b>${o.t.replace('<br>', ' ')}</b>${xBtn}</div>`).join('')}</div>` },
+];
+
+/* ---------- Render palette ---------- */
+document.getElementById('palette').innerHTML = P.map(p => `<div class="sw"><div class="sw-c">${p.c.map(c => `<span style="background:${c}" title="${c}"></span>`).join('')}</div><div class="sw-l"><b>${p.n}</b><small>${p.k} · ${p.c[2]}</small></div></div>`).join('');
+
+/* ---------- Render variant list ---------- */
+const list = document.getElementById('list');
+list.innerHTML = V.map(v => `
+  <article class="vc" data-id="${v.id}" tabindex="0">
+    <div class="vc-demo">${v.cws.map(cw => v.r(cw)).join('')}</div>
+    <div class="vc-info">
+      <div class="vc-head"><span class="vc-num">${String(v.id).padStart(2, '0')}</span><h2>${v.name}</h2>${v.rec ? '<span class="rec">Рекомендую</span>' : ''}</div>
+      <div class="vc-src">${v.src}</div>
+      <p class="vc-desc">${v.desc}</p>
+      <div class="tags">${v.tags.map(([t, c]) => `<span class="tag ${c}">${t}</span>`).join('')}</div>
+      <div class="pc"><div class="p"><b>Плюси</b><ul>${v.pros.map(x => `<li>${x}</li>`).join('')}</ul></div><div class="c"><b>Мінуси</b><ul>${v.cons.map(x => `<li>${x}</li>`).join('')}</ul></div></div>
+      <span class="vc-act">Показати на екрані →</span>
+    </div>
+  </article>`).join('');
+
+/* ---------- Phone slot: carousel of colourways ---------- */
+const slot = document.getElementById('slot'), cap = document.getElementById('cap');
+function show(id, scroll) {
+  const v = V.find(x => x.id === id);
+  document.querySelectorAll('.vc').forEach(el => el.classList.toggle('sel', +el.dataset.id === id));
+  const n = v.cws.length;
+  slot.innerHTML = `<div class="car">${v.cws.map(cw => v.r(cw)).join('')}</div>` + (n > 1 ? `<div class="dots">${v.cws.map((_, i) => `<i class="${i ? '' : 'on'}"></i>`).join('')}</div>` : '');
+  cap.innerHTML = `<b>${String(v.id).padStart(2, '0')} · ${v.name}</b>${n > 1 ? ' · свайп, щоб змінити колір' : ''}`;
+  const car = slot.querySelector('.car');
+  car.addEventListener('scroll', () => {
+    const i = Math.round(car.scrollLeft / (car.clientWidth - 32 + 12));
+    slot.querySelectorAll('.dots i').forEach((d, k) => d.classList.toggle('on', k === i));
+  }, { passive: true });
+  if (scroll && window.matchMedia('(max-width: 1100px)').matches) document.querySelector('.phone').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+list.addEventListener('click', e => {
+  if (e.target.closest('[data-x]')) return;
+  const vc = e.target.closest('.vc'); if (vc) show(+vc.dataset.id, true);
+});
+list.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.classList.contains('vc')) show(+e.target.dataset.id, true); });
+
+/* Dismiss: collapse in phone; quick fade + return in the list */
+document.addEventListener('click', e => {
+  const x = e.target.closest('[data-x]'); if (!x) return;
+  e.stopPropagation();
+  const bn = x.closest('.bn');
+  if (slot.contains(bn)) {
+    bn.style.maxHeight = bn.offsetHeight + 'px';
+    requestAnimationFrame(() => { bn.classList.add('gone'); bn.style.maxHeight = '0px'; bn.style.minHeight = '0px'; bn.style.paddingTop = bn.style.paddingBottom = '0px'; });
+    setTimeout(() => {
+      const car = bn.parentElement; bn.remove();
+      const dots = slot.querySelector('.dots'); if (dots) dots.lastElementChild?.remove();
+      if (!car.querySelector('.bn')) slot.innerHTML = `<button class="restore" data-restore>Повернути банер</button>`;
+    }, 380);
+  } else {
+    bn.classList.add('gone'); setTimeout(() => bn.classList.remove('gone'), 700);
+  }
+});
+slot.addEventListener('click', e => { if (e.target.closest('[data-restore]')) show(+document.querySelector('.vc.sel').dataset.id); });
+
+show(2);
+</script>
+</body>
+</html>
