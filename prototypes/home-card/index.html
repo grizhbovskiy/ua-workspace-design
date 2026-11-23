@@ -531,17 +531,17 @@
   .is-ghost .quick, .is-ghost .tx-widget, .is-ghost #bnWrap { display: none; }
   .gh-wrap { display: none; overflow: hidden; transition: height .4s var(--ease), opacity .3s; }
   .is-ghost .gh-wrap { display: block; }
-  .gh { position: relative; margin: 8px 16px; border-radius: 16px; overflow: hidden; padding: 14px 20px 20px; display: flex; flex-direction: column; align-items: center; text-align: center;
+  .gh { position: relative; margin: 8px 16px; border-radius: 16px; overflow: hidden; padding: 16px 20px 20px; display: flex; flex-direction: column; align-items: center; text-align: center;
         box-shadow: 0 1px 1px rgba(43,45,52,.2); cursor: pointer; transition: transform .2s var(--ease); -webkit-user-select: none; user-select: none; }
   .gh:active { transform: scale(.98); }
   .gh::after { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 1px solid var(--br); pointer-events: none; }
-  .gh-card { width: 196px; height: auto; margin: 0 0 6px; -webkit-user-drag: none; }
+  .gh-card { width: 136px; height: auto; margin: 2px 0 4px; -webkit-user-drag: none; }
   .gh-pill { padding: 4px 8px; border-radius: 100px; background: linear-gradient(90deg, #F8ED81, #FFF05C); color: var(--tint-primary); font-size: 11px; line-height: 12px; font-weight: 500; }
   .gh-ttl { margin-top: 8px; font-size: 22px; line-height: 26px; font-weight: 700; letter-spacing: -.2px; }
   .gh-cap { margin-top: 6px; max-width: 290px; font-size: 14px; line-height: 20px; color: var(--tint-secondary); }
   .gh-btn { margin-top: 14px; height: 40px; padding: 0 22px; border-radius: 100px; font-size: 16px; line-height: 40px; font-weight: 500; background: var(--surface-inverted); color: #fff; }
   .gh-x { top: 6px; right: 6px; }
-  .gh-wrap[data-v="dark"] .gh { background: radial-gradient(70% 50% at 50% 26%, color-mix(in srgb, var(--c3) 60%, transparent), transparent 72%), linear-gradient(180deg, var(--c2) 0%, var(--c1) 100%); color: #fff; }
+  .gh-wrap[data-v="dark"] .gh { background: radial-gradient(55% 38% at 50% 20%, color-mix(in srgb, var(--c3) 60%, transparent), transparent 72%), linear-gradient(180deg, var(--c2) 0%, var(--c1) 100%); color: #fff; }
   .gh-wrap[data-v="dark"] .gh::after { border-color: rgba(255,255,255,.14); }
   .gh-wrap[data-v="dark"] .gh-cap { color: rgba(255,255,255,.78); }
   .gh-wrap[data-v="dark"] .gh-btn { background: #fff; color: var(--tint-primary); }
