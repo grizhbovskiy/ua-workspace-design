@@ -494,13 +494,29 @@
   .cell .val { font-size: 16px; line-height: 24px; font-weight: 500; letter-spacing: .64px; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .w-btn { width: 100%; height: 48px; display: flex; align-items: center; justify-content: center; font-size: 16px; line-height: 16px; font-weight: 500; letter-spacing: .16px; color: var(--tint-action); }
 
-  /* Offer banner */
-  .offer { position: relative; margin: 8px 16px; min-height: 102px; padding: 16px; border: 1px solid #C3AAFF; border-radius: 16px; display: flex; align-items: center; gap: 16px;
-           background: linear-gradient(-66.9deg, #F2EDFF 5.69%, #FCF5FF 95.16%); }
-  .offer .ot { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-  .offer .title { font-size: 16px; line-height: 20px; font-weight: 500; }
-  .offer .lnk { display: inline-flex; align-items: center; gap: 1px; font-size: 12px; line-height: 20px; font-weight: 700; color: var(--tint-action); text-decoration: none; }
-  .offer .close { position: absolute; right: 2px; top: -3px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
+  /* Offer banners: dark gradient in the app's header tones (concept 1490:92807), whole card tappable, no CTA */
+  .bn-wrap { overflow: hidden; transition: height .4s var(--ease), opacity .3s; }
+  .bn-rail { overflow: hidden; padding: 8px 0 4px; touch-action: pan-y; cursor: grab; }
+  .bn-rail.drag { cursor: grabbing; }
+  .bn-track { display: flex; gap: 12px; padding: 0 16px; transition: transform .45s var(--ease); will-change: transform; }
+  .bn-rail.drag .bn-track { transition: none; }
+  .bn { position: relative; flex: none; width: calc(100vw - 32px); max-width: 358px; height: 124px; border-radius: 16px; overflow: hidden;
+        display: flex; align-items: center; gap: 12px; padding: 16px 0 16px 16px; color: #F9F9F9; text-align: left; -webkit-user-select: none; user-select: none;
+        box-shadow: 0 1px 1px rgba(43,45,52,.2); transition: transform .2s var(--ease), opacity .3s, width .35s var(--ease), margin .35s var(--ease), padding .35s var(--ease); }
+  .bn:active { transform: scale(.98); }
+  .bn::after { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 1px solid rgba(255,255,255,.16); pointer-events: none; }
+  .bn-t { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .bn-pill { padding: 4px 8px; border-radius: 100px; background: linear-gradient(90deg, #F8ED81, #FFF05C); color: var(--tint-primary); font-size: 10px; line-height: 11px; font-weight: 500; white-space: nowrap; }
+  .bn-ttl { font-size: 16px; line-height: 20px; font-weight: 500; }
+  .bn-cap { font-size: 12px; line-height: 18px; color: #D5D5D6; margin-top: -2px; }
+  .bn-art { flex: 0 0 96px; height: 96px; margin: -6px 8px -14px 0; }
+  .bn-art img { width: 100%; height: 100%; -webkit-user-drag: none; }
+  .bn-x { position: absolute; top: 2px; right: 2px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
+  .bn-x img { filter: brightness(0) invert(1); opacity: .7; }
+  .bn.gone { opacity: 0; transform: scale(.94); }
+  .bn-dots { display: flex; justify-content: center; gap: 6px; padding: 6px 0 4px; }
+  .bn-dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(43,45,52,.2); transition: width .3s var(--ease), background .3s; }
+  .bn-dots i.on { width: 16px; background: var(--tint-primary); }
 
   /* Table cell (rates) */
   .trow { display: flex; align-items: center; min-height: 56px; }
@@ -660,14 +676,10 @@
         <button class="w-btn">Всі операції</button>
       </div></div>
 
-      <div class="sec-head"><h2>Пропозиції для вас</h2><a href="#" onclick="return false">Показати всі</a></div>
-      <div class="offer">
-        <div class="ot">
-          <div class="title">До 100 днів без %<br>з новою кредиткою</div>
-          <a class="lnk" href="#" onclick="return false">Оформити картку <img src="assets/go-right.svg" width="12" height="12" alt=""></a>
-        </div>
-        <img src="assets/offer-illustration.png" width="70" height="70" alt="">
-        <button class="close" aria-label="Закрити пропозицію"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button>
+      <div class="bn-wrap" id="bnWrap">
+        <div class="sec-head"><h2>Пропозиції для вас</h2><a href="#" onclick="return false">Показати всі</a></div>
+        <div class="bn-rail" id="bnRail"></div>
+        <div class="bn-dots" id="bnDots" aria-hidden="true"></div>
       </div>
 
       <div class="widget"><div class="w-wrap">
@@ -1389,6 +1401,76 @@
   };
   utRail.addEventListener('pointerup', utEnd);
   utRail.addEventListener('pointercancel', utEnd);
+  // ---------- Offer banners carousel (same swipe mechanics as utilities) ----------
+  const BANNERS = [
+    { pill: 'Підвищений кешбек', t: 'Відкрити ФОП-рахунок', c: 'Отримайте до 400 ₴ кешбеку', ill: 'bn-briefcase.svg',
+      bg: 'radial-gradient(110px 110px at 84% 55%, rgba(255,255,255,.20), transparent 70%), linear-gradient(74.4deg, #2D3F51 0%, #5D6B82 55%, #7E97B8 100%)' },
+    { pill: '0% до 100 днів', t: 'До 100 днів без %<br>з новою кредиткою', c: 'Оформіть онлайн за 5 хвилин', ill: 'bn-credit-cards.svg',
+      bg: 'radial-gradient(110px 110px at 84% 55%, rgba(255,255,255,.18), transparent 70%), linear-gradient(74.4deg, #2E2A40 0%, #534E6B 55%, #8B84A8 100%)' },
+    { pill: 'Новинка', t: 'Депозит до 15% річних', c: 'Відкривається за хвилину', ill: 'bn-piggy.svg',
+      bg: 'radial-gradient(110px 110px at 84% 55%, rgba(255,255,255,.18), transparent 70%), linear-gradient(74.4deg, #1E3D33 0%, #3E7F64 55%, #7DBFA2 100%)' }
+  ];
+  const bn = { idx: 0, n: 0 };
+  const bnRail = document.getElementById('bnRail');
+  const bnStep = () => { const f = bnRail.querySelector('.bn'); return f ? f.offsetWidth + 12 : 0; };
+  function bnGo(i) {
+    bn.idx = Math.max(0, Math.min(bn.n - 1, i));
+    bnRail.querySelector('.bn-track').style.transform = 'translateX(' + (-bn.idx * bnStep()) + 'px)';
+    document.querySelectorAll('#bnDots i').forEach((d, k) => d.classList.toggle('on', k === bn.idx));
+  }
+  function renderBanners() {
+    bnRail.innerHTML = '<div class="bn-track">' + BANNERS.map((b, k) =>
+      '<div class="bn" data-k="' + k + '" style="background:' + b.bg + '"><div class="bn-t"><span class="bn-pill">' + b.pill + '</span>' +
+      '<div class="bn-ttl">' + b.t + '</div><div class="bn-cap">' + b.c + '</div></div>' +
+      '<div class="bn-art"><img src="assets/' + b.ill + '" alt="" draggable="false"></div>' +
+      '<button class="bn-x" aria-label="Закрити пропозицію"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>').join('') + '</div>';
+    bn.n = BANNERS.length;
+    document.getElementById('bnDots').innerHTML = bn.n > 1 ? BANNERS.map(() => '<i></i>').join('') : '';
+    bnGo(0);
+  }
+  renderBanners();
+  window.addEventListener('resize', () => bnGo(bn.idx));
+  bnRail.addEventListener('click', (e) => {
+    if (bnMoved) return;
+    const card = e.target.closest('.bn'); if (!card) return;
+    if (e.target.closest('.bn-x')) {
+      // Collapse the dismissed banner; hide the whole section when nothing is left
+      card.style.width = card.offsetWidth + 'px'; card.offsetWidth;
+      card.classList.add('gone'); card.style.width = '0px'; card.style.padding = '0'; card.style.marginRight = '-12px';
+      setTimeout(() => {
+        card.remove(); bn.n--;
+        const dots = document.getElementById('bnDots'); if (dots.lastElementChild) dots.lastElementChild.remove();
+        if (bn.n < 2) dots.innerHTML = '';
+        if (!bn.n) { const w = document.getElementById('bnWrap'); w.style.height = w.offsetHeight + 'px'; w.offsetHeight; w.style.height = '0px'; w.style.opacity = '0'; }
+        else bnGo(Math.min(bn.idx, bn.n - 1));
+      }, 360);
+      return;
+    }
+    toast(card.querySelector('.bn-ttl').textContent + ' — наступний крок прототипу');
+  });
+  let bnStart = null, bnDX = 0, bnMoved = false;
+  bnRail.addEventListener('pointerdown', (e) => { if (bn.n < 2 || e.target.closest('.bn-x')) return; bnStart = [e.clientX, e.clientY]; bnDX = 0; bnMoved = false; });
+  bnRail.addEventListener('pointermove', (e) => {
+    if (!bnStart) return;
+    const dx = e.clientX - bnStart[0], dy = e.clientY - bnStart[1];
+    if (!bnMoved) {
+      if (Math.abs(dx) < 6) return;
+      if (Math.abs(dy) > Math.abs(dx)) { bnStart = null; return; }
+      bnMoved = true; bnRail.classList.add('drag'); bnRail.setPointerCapture(e.pointerId);
+    }
+    bnDX = dx;
+    const edge = (bn.idx === 0 && dx > 0) || (bn.idx === bn.n - 1 && dx < 0);
+    bnRail.querySelector('.bn-track').style.transform = 'translateX(' + (-bn.idx * bnStep() + (edge ? dx * .35 : dx)) + 'px)';
+  });
+  const bnEnd = () => {
+    if (!bnStart && !bnMoved) return;
+    bnStart = null; bnRail.classList.remove('drag');
+    if (bnMoved) bnGo(bn.idx + (bnDX < -50 ? 1 : bnDX > 50 ? -1 : 0));
+    setTimeout(() => { bnMoved = false; }, 0);
+  };
+  bnRail.addEventListener('pointerup', bnEnd);
+  bnRail.addEventListener('pointercancel', bnEnd);
+
   const tabInd = document.getElementById('tabInd');
   let tabIdx = 0;
   function placeInd(i, animate) {
