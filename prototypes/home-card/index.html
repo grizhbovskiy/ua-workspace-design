@@ -520,6 +520,33 @@
   .bn-x { position: absolute; top: 2px; right: 2px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
   .bn-x img { filter: brightness(0) invert(1); opacity: .7; }
   .bn.gone { opacity: 0; transform: scale(.94); }
+  /* ===== Ghost product (pre-approved 100-days card) ===== */
+  .is-ghost .balance .amount { color: var(--tint-tertiary); }
+  .is-ghost .balance .label { color: var(--tint-secondary); }
+  .is-ghost .quick, .is-ghost .tx-widget, .is-ghost #bnWrap { display: none; }
+  .gh-wrap { display: none; overflow: hidden; transition: height .4s var(--ease), opacity .3s; }
+  .is-ghost .gh-wrap { display: block; }
+  .gh { position: relative; margin: 8px 16px; border-radius: 16px; overflow: hidden; padding: 14px 20px 20px; display: flex; flex-direction: column; align-items: center; text-align: center;
+        box-shadow: 0 1px 1px rgba(43,45,52,.2); cursor: pointer; transition: transform .2s var(--ease); -webkit-user-select: none; user-select: none; }
+  .gh:active { transform: scale(.98); }
+  .gh::after { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 1px solid var(--br); pointer-events: none; }
+  .gh-card { width: 196px; height: auto; margin: 0 0 6px; -webkit-user-drag: none; }
+  .gh-pill { padding: 4px 8px; border-radius: 100px; background: linear-gradient(90deg, #F8ED81, #FFF05C); color: var(--tint-primary); font-size: 11px; line-height: 12px; font-weight: 500; }
+  .gh-ttl { margin-top: 8px; font-size: 22px; line-height: 26px; font-weight: 700; letter-spacing: -.2px; }
+  .gh-cap { margin-top: 6px; max-width: 290px; font-size: 14px; line-height: 20px; color: var(--tint-secondary); }
+  .gh-btn { margin-top: 14px; height: 40px; padding: 0 22px; border-radius: 100px; font-size: 16px; line-height: 40px; font-weight: 500; background: var(--surface-inverted); color: #fff; }
+  .gh-x { top: 6px; right: 6px; }
+  .gh-wrap[data-v="dark"] .gh { background: radial-gradient(70% 50% at 50% 26%, color-mix(in srgb, var(--c3) 60%, transparent), transparent 72%), linear-gradient(180deg, var(--c2) 0%, var(--c1) 100%); color: #fff; }
+  .gh-wrap[data-v="dark"] .gh::after { border-color: rgba(255,255,255,.14); }
+  .gh-wrap[data-v="dark"] .gh-cap { color: rgba(255,255,255,.78); }
+  .gh-wrap[data-v="dark"] .gh-btn { background: #fff; color: var(--tint-primary); }
+  .gh-wrap[data-v="dark"] .gh-x img { filter: brightness(0) invert(1); opacity: .7; }
+  .gh-wrap[data-v="l1"] .gh { background: linear-gradient(180deg, var(--t1) 0%, var(--t2) 100%); }
+  .gh-wrap[data-v="l2"] .gh { background: radial-gradient(65% 50% at 50% 28%, color-mix(in srgb, var(--c3) 65%, white), transparent 75%), #FFFFFF; }
+  .gh-wrap[data-v="l3"] .gh { background: linear-gradient(180deg, color-mix(in srgb, var(--c3) 75%, white) 0%, var(--t1) 55%, var(--t2) 100%); }
+  .gh-wrap[data-v="l4"] .gh { background: linear-gradient(180deg, #FFFFFF 0%, var(--t2) 100%); box-shadow: 0 8px 20px -10px var(--glow), 0 1px 1px rgba(43,45,52,.12); }
+  .gh-wrap[data-v="l4"] .gh::after { border: 1.5px solid color-mix(in srgb, var(--c3) 75%, white); }
+
   /* Banner styles, switched from the prototype controls panel */
   .bn-rail[data-v="dark"] .bn { background: var(--dark); }
   .bn-rail:not([data-v="dark"]) .bn { color: var(--tint-primary); }
@@ -701,7 +728,7 @@
         <button><span class="qa-dark"><img src="assets/qa-wallet-icon.svg" width="24" height="24" alt=""></span><span class="lbl">Усі<br>Платежі</span></button>
       </div>
 
-      <div class="widget"><div class="w-wrap">
+      <div class="widget tx-widget"><div class="w-wrap">
         <div style="height:8px"></div>
         <a class="cell" href="#" onclick="return false">
           <span class="lead merchant" id="txLogoWrap"><img id="txLogo" src="" alt=""><span class="mono" id="txMono" aria-hidden="true"></span></span>
@@ -709,6 +736,18 @@
         </a>
         <button class="w-btn">Всі операції</button>
       </div></div>
+
+      <div class="gh-wrap" id="ghostWrap" data-v="dark">
+        <div class="sec-head"><h2>Пропозиція для вас</h2></div>
+        <div class="gh" id="ghost" role="button" tabindex="0">
+          <img class="gh-card" src="assets/ghost-card-100.png" alt="Кредитна картка «100 днів»">
+          <span class="gh-pill">Схвалено для вас</span>
+          <div class="gh-ttl">До 100 днів без відсотків</div>
+          <div class="gh-cap">Користуйтесь коштами під 0% до 100 днів, якщо вноситимете мінімальний щомісячний платіж</div>
+          <span class="gh-btn">Відкрити картку</span>
+          <button class="bn-x gh-x" aria-label="Приховати пропозицію"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button>
+        </div>
+      </div>
 
       <div class="bn-wrap" id="bnWrap">
         <div class="sec-head"><h2>Пропозиції для вас</h2><a href="#" onclick="return false">Показати всі</a></div>
@@ -954,6 +993,9 @@
   <div class="c-ttl">Банери в інших розділах <small>(Усі рахунки)</small></div>
   <div class="bn-colors" id="bnColors"></div>
   <div class="bn-styles" data-target="other"></div>
+  <div class="c-ttl">Гост-продукт <small>(«100 днів», останній слайд)</small></div>
+  <div class="bn-colors" id="ghColors"></div>
+  <div class="bn-styles" data-target="ghost"></div>
   <p>Свайп або точки — гортати картки. Тап по картці — відкрити; у «Райфкарти» до рахунку є ще «Фішка». Аватар — профіль і перемикання на ФОП. «CVV» — перевернути. Утримуйте номер — скопіювати. Esc — назад.</p>
 </div>
 
@@ -986,7 +1028,11 @@
         pan: ['UA58', '3808', '0500', '0000', '0026', '2058', '7221', '4'],
         bg: '#6C8FBF', label: 'Залишок на рахунку', value: 23870.15,
         tx: { name: 'Переказ на рахунок', cat: 'Поповнення', amount: '+5 000,00 ₴', logo: 'ic-bank.svg', bg: '#EEE8CD' },
-        title: 'UA58 **** 72214', iban: 'UA58 3808 0500 0000 0026 2058 7221 4' }
+        title: 'UA58 **** 72214', iban: 'UA58 3808 0500 0000 0026 2058 7221 4' },
+      // Ghost product: pre-approved "100 днів" credit card, not opened yet (darkened card, approved limit, open-card CTA)
+      { key: 'ghost', ghost: true, skin: 'by light', img: 'card-100.png', shade: true, name: '100 днів', pan: ['4149', '4997', '2210', '5731'], date: '11/29', cvv: '000',
+        bg: '#5A72AA', label: 'Пільговий період до 100 днів', value: 200000,
+        title: 'Кредитна картка «100 днів»', iban: '' }
     ],
     business: [
       { key: 'fop', kind: 'account', skin: 'acct light', img: 'card-fop-account.png', name: 'ФОП рахунок', mask: 'UA12 •••• •••• 33556',
@@ -1102,7 +1148,8 @@
     phone.classList.toggle('open', state.open);
     phone.classList.toggle('flipped', state.flipped);
     phone.classList.toggle('multi', multi());
-    phone.classList.toggle('needs-activation', !!c.activate && !state.activated[c.key]);
+    phone.classList.toggle('needs-activation', (!!c.activate && !state.activated[c.key]) || !!c.ghost);
+    phone.classList.toggle('is-ghost', !!c.ghost);
     phone.classList.toggle('is-credit', !!c.credit);
     phone.classList.toggle('is-account', c.kind === 'account');
     phone.classList.toggle('business', state.profile === 'business');
@@ -1144,7 +1191,7 @@
       document.getElementById('txAmount').textContent = c.tx.amount;
     }
     if (c.credit) document.getElementById('credLimit').textContent = 'Поточний ліміт ' + c.credit;
-    document.getElementById('activateText').textContent = 'Активувати картку';
+    document.getElementById('activateText').textContent = c.ghost ? 'Відкрити кредитну картку' : 'Активувати картку';
     setBalance();
   }
   function toast(text) {
@@ -1165,6 +1212,7 @@
     render();
   }
   function setOpen(v) {
+    if (v && cur().ghost) { ghostFlow(); return; }
     scroller.scrollTop = 0;
     phone.classList.remove('scrolled');
     state.open = v;
@@ -1217,8 +1265,10 @@
     state.flipped = !state.flipped;
     render();
   }
+  const ghostFlow = () => toast('Оформлення кредитної картки «100 днів» — наступний крок');
   function activate() {
     const c = cur();
+    if (c.ghost) { ghostFlow(); return; }
     state.activated[c.key] = true;
     render();
     toast('Картку •• ' + c.pan[3] + ' активовано');
@@ -1472,6 +1522,17 @@
     bnGo(0);
   }
   renderBanners();
+  // Ghost product banner: tap / button start the opening flow, × hides the offer
+  const ghostWrap = document.getElementById('ghostWrap');
+  ghostWrap.addEventListener('click', (e) => {
+    if (e.target.closest('.gh-x')) {
+      ghostWrap.style.height = ghostWrap.offsetHeight + 'px'; ghostWrap.offsetHeight;
+      ghostWrap.style.height = '0px'; ghostWrap.style.opacity = '0';
+      toast('Пропозицію приховано');
+      return;
+    }
+    if (e.target.closest('.gh')) ghostFlow();
+  });
   // All accounts: the FOP banner (first offer) sits above all content
   const aaBn = document.getElementById('aaBn');
   aaBn.innerHTML = bnRail.querySelector('.bn').outerHTML;
@@ -1615,8 +1676,26 @@
   }
   const BN_TARGETS = {
     home:  { rails: () => [bnRail], key: 'rbua-banner-style', param: 'banner', def: 'l1' },
-    other: { rails: () => [aaBn], key: 'rbua-banner-style-other', param: 'banner2', def: 'dark' }
+    other: { rails: () => [aaBn], key: 'rbua-banner-style-other', param: 'banner2', def: 'dark' },
+    ghost: { rails: () => [ghostWrap], key: 'rbua-ghost-style', param: 'ghost', def: 'dark' }
   };
+  // Colour sets for the ghost product banner
+  const GH_COLORS = [
+    { id: 'violet', n: 'Фіолетовий', d: ['#241D3A', '#4B3F78', '#8B7FC0'], k: { c3: '#8B7FC0', t1: '#EAE5F7', t2: '#F7F5FC', br: '#D5CDEB', glow: 'rgba(139,127,192,.5)' } },
+    { id: 'blue',   n: 'Синій',      d: ['#1F2F57', '#3D5A99', '#7F9AD6'], k: { c3: '#7F9AD6', t1: '#E2E9F7', t2: '#F4F7FC', br: '#C6D3EE', glow: 'rgba(127,154,214,.5)' } },
+    { id: 'graphite', n: 'Графітовий', d: ['#17181C', '#2B2D34', '#6A6C74'], k: { c3: '#9A9CA3', t1: '#ECECEE', t2: '#F7F7F8', br: '#D8D8DC', glow: 'rgba(43,45,52,.35)' } },
+    { id: 'slate',  n: 'Сланцевий',  d: ['#2D3F51', '#5D6B82', '#7E97B8'], k: { c3: '#7E97B8', t1: '#E3E9F2', t2: '#F4F7FB', br: '#C9D5E6', glow: 'rgba(126,151,184,.55)' } }
+  ];
+  function setGhostColor(id) {
+    const c = GH_COLORS.find((x) => x.id === id); if (!c) return;
+    const el = document.getElementById('ghost');
+    el.style.setProperty('--c1', c.d[0]); el.style.setProperty('--c2', c.d[1]);
+    Object.entries(c.k).forEach(([n, v]) => el.style.setProperty('--' + n, v));
+    document.querySelectorAll('#ghColors button').forEach((b) => b.classList.toggle('on', b.dataset.c === id));
+    document.querySelector('#ghColors span').textContent = c.n;
+    drawStyleButtons(document.querySelector('.bn-styles[data-target="ghost"]'), c);
+    try { localStorage.setItem('rbua-ghost-color', id); } catch (e) {}
+  }
   function setBannerStyle(target, v) {
     const st = BN_STYLES.find((x) => x.v === v); if (!st) return;
     BN_TARGETS[target].rails().forEach((r) => { r.dataset.v = v; });
@@ -1637,6 +1716,12 @@
   let bnC = bnQS.get('color2');
   if (!bnC) { try { bnC = localStorage.getItem('rbua-banner-color-other'); } catch (e) {} }
   setBannerColor(BN_COLORS.some((x) => x.id === bnC) ? bnC : 'slate');
+  const ghColors = document.getElementById('ghColors');
+  ghColors.innerHTML = GH_COLORS.map((c) => '<button data-c="' + c.id + '" title="' + c.n + '" aria-label="' + c.n + '" style="background:linear-gradient(135deg,' + c.d[0] + ',' + c.d[2] + ')"></button>').join('') + '<span></span>';
+  ghColors.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setGhostColor(b.dataset.c); });
+  let ghC = bnQS.get('gcolor');
+  if (!ghC) { try { ghC = localStorage.getItem('rbua-ghost-color'); } catch (e) {} }
+  setGhostColor(GH_COLORS.some((x) => x.id === ghC) ? ghC : 'violet');
   Object.entries(BN_TARGETS).forEach(([t, c]) => {
     let v = bnQS.get(c.param);
     if (!v) { try { v = localStorage.getItem(c.key); } catch (e) {} }
