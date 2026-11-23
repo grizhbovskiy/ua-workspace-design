@@ -254,6 +254,69 @@
   .psheet .row .ck { width: 24px; height: 24px; flex: none; opacity: 0; transition: opacity .2s; }
   .psheet .row.on .ck { opacity: 1; }
 
+
+  /* ===== Services tab (Figma 1489:94363) ===== */
+  .svc { position: absolute; inset: 0; z-index: 5; background: var(--surface-background); opacity: 0; visibility: hidden; pointer-events: none;
+         transform: translateX(16px); transition: opacity .25s ease, transform .35s var(--ease), visibility 0s .35s; }
+  .on-svc .svc { opacity: 1; visibility: visible; pointer-events: auto; transform: none; transition: opacity .25s ease, transform .35s var(--ease); }
+  .on-svc .status { filter: brightness(0); opacity: .85; }
+  .svc-scroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; overscroll-behavior: contain; padding-bottom: 110px; }
+  .svc-scroll::-webkit-scrollbar { display: none; }
+  .svc-nav { position: sticky; top: 0; z-index: 2; height: calc(var(--sb) + 44px); padding-top: var(--sb); display: flex; align-items: center; justify-content: center;
+             background: color-mix(in srgb, var(--surface-background) 78%, transparent); -webkit-backdrop-filter: blur(20px) saturate(170%); backdrop-filter: blur(20px) saturate(170%); transition: box-shadow .2s; }
+  .svc.scrolled .svc-nav { box-shadow: 0 .5px 0 rgba(156,150,127,.3); }
+  .svc-nav h1 { margin: 0; font-size: 17px; line-height: 22px; font-weight: 500; }
+  .svc-nav .srch { position: absolute; right: 8px; bottom: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+  .w-hdr { display: flex; align-items: center; gap: 16px; padding: 11px 16px; }
+  .w-hdr h2 { flex: 1; margin: 0; font-size: 20px; line-height: 26px; font-weight: 700; letter-spacing: -.1px; }
+  .w-hdr a { font-size: 16px; line-height: 20px; color: var(--tint-action); text-decoration: none; cursor: pointer; }
+  .wcard { position: relative; background: var(--surface-baseline); border-radius: 16px; box-shadow: var(--elevation-1); overflow: hidden; }
+  .wpad { padding: 8px 16px; }
+  .sqs { width: 32px; height: 32px; flex: none; display: flex; align-items: center; justify-content: center; background: center / 100% 100% no-repeat; }
+  .sqs img { width: 16px; height: 16px; }
+  .tiles { display: grid; gap: 16px; padding: 8px 16px; }
+  .tiles.t2 { grid-template-columns: 1fr 1fr; }
+  .tiles.t3 { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .tile-s { height: 104px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; text-align: left; width: 100%; }
+  .tile-s .tl2 { font-size: 14px; line-height: 18px; font-weight: 500; color: var(--tint-primary); }
+  .t3 .tile-s .tl2 { font-size: 12px; }
+  .lcell { position: relative; display: flex; align-items: center; gap: 16px; width: 100%; min-height: 60px; padding: 8px 8px 8px 16px; text-align: left; }
+  .lcell + .lcell::before { content: ''; position: absolute; left: 64px; right: 0; top: 0; height: 1px; background: rgba(156,150,127,.24); }
+  .lcell .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .lcell .tx b { font-size: 16px; line-height: 24px; font-weight: 500; }
+  .lcell .tx span { font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
+  .lcell .chev { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex: none; }
+  /* Utilities carousel */
+  .ut-rail { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 8px 16px; scroll-padding: 16px; scrollbar-width: none; }
+  .ut-rail::-webkit-scrollbar { display: none; }
+  .ut-card { flex: none; width: 320px; height: 178px; display: flex; flex-direction: column; scroll-snap-align: start; }
+  .ut-card.solo { width: 100%; }
+  .ut-card::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+     background: linear-gradient(180deg, rgba(43,45,52,.08) 0%, rgba(43,45,52,.08) 15%, rgba(43,45,52,.1) 90%, rgba(43,45,52,.2) 100%);
+     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+  .ut-top { display: flex; align-items: center; gap: 16px; padding: 14px 16px 6px; }
+  .ut-top .nm { font-size: 16px; line-height: 24px; font-weight: 500; }
+  .ut-top .ad, .ut-mid .cp { font-size: 12px; line-height: 20px; color: var(--tint-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ut-mid { flex: 1; padding: 6px 16px 0; }
+  .ut-mid .am { font-size: 20px; line-height: 26px; font-weight: 700; letter-spacing: -.1px; }
+  .ut-mid .am small { font-size: 20px; font-weight: 400; }
+  .ut-act { padding: 0 10px 10px; }
+  .btn-info { width: 100%; height: 40px; border-radius: 8px; background: #E2F4FC; color: var(--tint-action); font-size: 14px; line-height: 24px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-info:active { background: #CDEBF8; }
+  .ut-ill { flex: 1; display: flex; align-items: center; gap: 16px; padding: 14px 16px 8px; }
+  .ut-ill img { width: 72px; height: 72px; flex: none; }
+  .ut-ghost { flex: none; width: 160px; height: 178px; border-radius: 16px; border: 1.5px dashed rgba(156,150,127,.55); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; scroll-snap-align: start; color: var(--tint-action); font-size: 16px; line-height: 24px; font-weight: 500; }
+  .ut-ghost img { width: 56px; height: 56px; }
+  /* Rates table */
+  .rates .rh { padding: 16px; font-size: 16px; line-height: 20px; font-weight: 500; }
+  .rrow { display: flex; align-items: center; min-height: 58px; }
+  .rrow .fl { width: 56px; display: flex; justify-content: center; }
+  .rrow .main { flex: 1; display: flex; align-items: center; align-self: stretch; font-size: 16px; line-height: 20px; font-weight: 500; }
+  .rrow + .rrow .main, .rrow + .rrow .ic { border-top: 1px solid rgba(156,150,127,.24); }
+  .rrow .main span { flex: 1; }
+  .rrow .main span.v { text-align: right; padding-right: 16px; }
+  .rrow .ic { width: 52px; align-self: stretch; display: flex; align-items: center; justify-content: center; }
+
   /* Sheet */
   /* Full-screen scroll: header, cards and content scroll together */
   .scroller { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; overscroll-behavior: contain; }
@@ -599,6 +662,45 @@
   </div>
   </div></div>
 
+  <section class="svc" id="svc" aria-label="Послуги" aria-hidden="true">
+    <div class="svc-scroll" id="svcScroll">
+      <div class="svc-nav"><h1>Послуги</h1><button class="srch" aria-label="Пошук"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0077A4" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></svg></button></div>
+
+      <div class="w-hdr"><h2>Платежі</h2></div>
+      <div class="tiles t2">
+          <button class="wcard tile-s"><span class="sqs" style="background-image:url(assets/sv-sq-green.svg)"><img src="assets/sv-card-out.svg" alt=""></span><span class="tl2">Переказати<br>на картку</span></button>
+          <button class="wcard tile-s"><span class="sqs" style="background-image:url(assets/sv-sq-purple.svg)"><img src="assets/sv-invoice.svg" alt=""></span><span class="tl2">Оплатити<br>за IBAN</span></button>
+      </div>
+      <div class="wpad"><div class="wcard">
+          <button class="lcell"><span class="sqs" style="background-image:url(assets/sv-sq-brown.svg)"><img src="assets/sv-mobile.svg" alt=""></span><span class="tx"><b>Поповнити мобільний</b><span>Поповнюйте мобільний</span></span><span class="chev"><img src="assets/sv-go-right.svg" width="20" height="20" alt=""></span></button>
+          <button class="lcell"><span class="sqs" style="background-image:url(assets/sv-sq-orange.svg)"><img src="assets/sv-cur-transfer.svg" alt=""></span><span class="tx"><b>Міжнародні платежі</b><span>MoneyGram</span></span><span class="chev"><img src="assets/sv-go-right.svg" width="20" height="20" alt=""></span></button>
+      </div></div>
+
+      <div class="w-hdr"><h2>Комунальні послуги</h2><a id="utAll">Показати всі</a></div>
+      <div class="ut-rail" id="utRail"></div>
+
+      <div class="w-hdr"><h2>Валютні послуги</h2></div>
+      <div class="wpad"><div class="wcard rates">
+        <div class="rh">Курс обміну валют</div>
+          <div class="rrow"><span class="fl"><img src="assets/sv-flag-us.svg" width="20" height="15" alt=""></span><span class="main"><span>USD</span><span class="v">41,0223</span><span class="v">41,1865</span></span><button class="ic" aria-label="Графік USD"><img src="assets/sv-chart.svg" width="20" height="20" alt=""></button></div>
+          <div class="rrow"><span class="fl"><img src="assets/sv-flag-eu.svg" width="20" height="15" alt=""></span><span class="main"><span>EUR</span><span class="v">41,0223</span><span class="v">41,1865</span></span><button class="ic" aria-label="Графік EUR"><img src="assets/sv-chart.svg" width="20" height="20" alt=""></button></div>
+        <div style="height:4px"></div>
+      </div></div>
+      <div class="tiles t3">
+          <button class="wcard tile-s"><span class="sqs" style="background-image:url(assets/sv-sq-green.svg)"><img src="assets/sv-exchange.svg" alt=""></span><span class="tl2">Обміняти<br>валюту</span></button>
+          <button class="wcard tile-s"><span class="sqs" style="background-image:url(assets/sv-sq-blue.svg)"><img src="assets/sv-money.svg" alt=""></span><span class="tl2">Замовити<br>валюту</span></button>
+          <button class="wcard tile-s"><span class="sqs" style="background-image:url(assets/sv-sq-grey.svg)"><img src="assets/sv-deposit.svg" alt=""></span><span class="tl2">Валютний<br>депозит</span></button>
+      </div>
+
+      <div class="w-hdr"><h2>Додаткові послуги</h2></div>
+      <div class="wpad"><div class="wcard">
+          <button class="lcell"><span class="sqs" style="background-image:url(assets/sv-sq-red.svg)"><img src="assets/sv-insurance.svg" alt=""></span><span class="tx"><b>Страхування</b><span>Медицина, авто, захист від шахраїв</span></span><span class="chev"><img src="assets/sv-go-right.svg" width="20" height="20" alt=""></span></button>
+          <button class="lcell"><span class="sqs" style="background-image:url(assets/sv-sq-purple.svg)"><img src="assets/sv-bank.svg" alt=""></span><span class="tx"><b>Комісії та послуги банку</b><span>Оплата комісій і послуг</span></span><span class="chev"><img src="assets/sv-go-right.svg" width="20" height="20" alt=""></span></button>
+          <button class="lcell"><span class="sqs" style="background-image:url(assets/sv-sq-lime.svg)"><img src="assets/sv-heart.svg" alt=""></span><span class="tx"><b>Благодійність</b><span>Донати на благодійність</span></span><span class="chev"><img src="assets/sv-go-right.svg" width="20" height="20" alt=""></span></button>
+      </div></div>
+    </div>
+  </section>
+
   <nav class="tabbar" aria-label="Основна навігація">
     <button class="on" aria-current="page">
       <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 16V20C11 20.5523 10.5523 21 10 21H4C3.44772 21 3 20.5523 3 20V12C3 11.7348 3.10536 11.4804 3.29289 11.2929L11.2929 3.29289C11.6834 2.90237 12.3166 2.90237 12.7071 3.29289L20.7071 11.2929C20.8946 11.4804 21 11.7348 21 12V20C21 20.5523 20.5523 21 20 21H14C13.4477 21 13 20.5523 13 20V16H11Z" fill="currentColor"/></svg>
@@ -851,7 +953,7 @@
     track.style.transform = 'translateX(' + (-STEP * slot) + 'px)';
     phone.style.background = c.bg;
     document.documentElement.style.setProperty('--header', c.bg);
-    document.getElementById('themeColor').setAttribute('content', c.bg);
+    if (!phone.classList.contains('on-svc')) document.getElementById('themeColor').setAttribute('content', c.bg);
     cards.concat(extraEl ? [extraEl] : []).forEach((el) => {
       const isCur = el === currentEl();
       el.classList.toggle('current', isCur);
@@ -1050,6 +1152,7 @@
     build();
     renderProfile();
     render();
+    renderServices();
   }
   const switchedMsg = () => (state.profile === 'business' ? 'Ви в профілі ФОП Шевченко Т. Г.' : 'Ви в особистому профілі');
   document.getElementById('closeProfile').addEventListener('click', () => showProfile(false));
@@ -1105,6 +1208,50 @@
     const d = e.clientY - dragY; dragY = null; psBody.style.transition = '';
     if (d > 60) showSwitcher(false); else psBody.style.transform = '';
   });
+
+
+  // ===== Tabs: Головна <-> Послуги =====
+  const svc = document.getElementById('svc');
+  const svcScroll = document.getElementById('svcScroll');
+  const tabs = Array.from(document.querySelectorAll('.tabbar button'));
+  const UTIL = {
+    personal: [
+      { name: 'Батьки', addr: 'вул. Нижній Вал, буд. 22, кв. 12', sum: ['3 897', '23'], cap: '4 рахунки · найближчий до 20 жовтня' },
+      { name: 'Мій дім', addr: 'просп. Берестейський, 47, кв. 88', sum: ['2 114', '60'], cap: '3 рахунки · найближчий до 25 жовтня' }
+    ],
+    business: []
+  };
+  function renderServices() {
+    const list = UTIL[state.profile];
+    const rail = document.getElementById('utRail');
+    document.getElementById('utAll').style.display = list.length ? '' : 'none';
+    if (!list.length) {
+      rail.innerHTML = '<div class="wcard ut-card solo"><div class="ut-ill"><img src="assets/sv-house-ill.svg" alt="">' +
+        '<div><div class="ut-top" style="padding:0"><span class="nm">Комуналка в одному місці</span></div><div class="ut-mid" style="padding:0"><div class="cp" style="white-space:normal">Додайте адресу — рахунки знайдемо самі й нагадаємо про оплату</div></div></div></div>' +
+        '<div class="ut-act"><button class="btn-info js-addr"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8.67 3.33a.67.67 0 1 0-1.34 0v4H3.33a.67.67 0 1 0 0 1.34h4v4a.67.67 0 1 0 1.34 0v-4h4a.67.67 0 1 0 0-1.34h-4v-4Z"/></svg>Додати адресу</button></div></div>';
+    } else {
+      rail.innerHTML = list.map((u) => '<div class="wcard ut-card">' +
+        '<div class="ut-top"><span class="sqs" style="background-image:url(assets/sv-sq-yellow.svg)"><img src="assets/sv-house.svg" alt=""></span><div style="min-width:0"><div class="nm">' + u.name + '</div><div class="ad">' + u.addr + '</div></div></div>' +
+        '<div class="ut-mid"><div class="am">' + u.sum[0] + ',' + u.sum[1] + ' <small>₴</small></div><div class="cp">' + u.cap + '</div></div>' +
+        '<div class="ut-act"><button class="btn-info js-pay" data-name="' + u.name + '">Сплатити</button></div></div>').join('') +
+        '<button class="ut-ghost js-addr"><img src="assets/sv-house-ill.svg" alt="">Додати адресу</button>';
+    }
+    rail.scrollLeft = 0;
+    rail.querySelectorAll('.js-pay').forEach((b) => b.addEventListener('click', () => toast('Оплата комуналки: ' + b.dataset.name)));
+    rail.querySelectorAll('.js-addr').forEach((b) => b.addEventListener('click', () => toast('Додавання адреси — наступний крок прототипу')));
+  }
+  function setTab(i) {
+    const toSvc = i === 3;
+    if (i !== 0 && !toSvc) { toast('Розділ ще не зібрано в прототипі'); return; }
+    if (toSvc && state.open) setOpen(false);
+    tabs.forEach((t, k) => { t.classList.toggle('on', k === i); if (k === i) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); });
+    phone.classList.toggle('on-svc', toSvc);
+    svc.setAttribute('aria-hidden', String(!toSvc));
+    document.getElementById('themeColor').setAttribute('content', toSvc ? '#F8F6F2' : cur().bg);
+    if (toSvc) { renderServices(); svcScroll.scrollTop = 0; svc.classList.remove('scrolled'); }
+  }
+  tabs.forEach((t, i) => t.addEventListener('click', () => setTab(i)));
+  svcScroll.addEventListener('scroll', () => svc.classList.toggle('scrolled', svcScroll.scrollTop > 4), { passive: true });
 
   document.getElementById('peek').addEventListener('input', (e) => {
     document.documentElement.style.setProperty('--peek', e.target.value + 'px');
