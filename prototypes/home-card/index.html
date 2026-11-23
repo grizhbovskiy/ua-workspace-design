@@ -96,7 +96,18 @@
   .avatar { position: relative; width: 44px; height: 44px; }
   .avatar .ph { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
   /* Avatar / Badge / Small / Top — top-right corner (Figma 1538:115526) */
-  .avatar .badge-biz { position: absolute; left: calc(50% + 25.7px); top: calc(50% - 18px); transform: translate(-50%, -50%) scale(.6); opacity: 0; padding: 0 4px 1px; border-radius: 100px; background: var(--surface-accent); color: var(--tint-primary); font-size: 10px; line-height: 12px; font-weight: 500; box-shadow: 0 0 0 2px var(--surface-background); white-space: nowrap; transition: opacity .2s, transform .3s var(--spring); }
+  .avatar .badge-biz { position: absolute; left: calc(50% + 25.7px); top: calc(50% - 18px); transform: translate(-50%, -50%) scale(.6); opacity: 0; padding: 0 4px 1px; border-radius: 100px; background: var(--surface-accent); color: var(--tint-primary); font-size: 10px; line-height: 12px; font-weight: 500; white-space: nowrap; transition: opacity .2s, transform .3s var(--spring); }
+  .avatar .badge-biz::after { content: ''; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none;
+    background: linear-gradient(180deg, rgba(43,45,52,.08) 0%, rgba(43,45,52,.08) 15%, rgba(43,45,52,.1) 90%, rgba(43,45,52,.2) 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+  /* FOP avatar: Light/Solid/Info circle with the case icon instead of a photo */
+  .av-biz { display: none; border-radius: 50%; background: #118DB8; align-items: center; justify-content: center; }
+  .avatar .av-biz { width: 44px; height: 44px; }
+  .business .avatar .ph, .business .pr-avatar .ph { display: none; }
+  .business .av-biz { display: flex; }
+  .avatar { transition: transform .2s var(--ease); -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
+  .avatar.pressing { transform: scale(.9); }
   .business .avatar .badge-biz { opacity: 1; transform: translate(-50%, -50%); }
   .nav-right { display: flex; gap: 10px; align-items: center; }
   .icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
@@ -108,9 +119,9 @@
   .balance { position: absolute; left: 0; right: 0; top: calc(131px + var(--shift)); text-align: center; color: #fff; transition: opacity .22s, transform .4s var(--ease); }
   .balance .label { font-size: 14px; line-height: 24px; transition: opacity .15s, transform .25s var(--ease); }
   .balance .label.swap { opacity: 0; transform: translateY(4px); }
-  .amount { margin-top: 4px; height: 44px; display: flex; justify-content: center; align-items: baseline; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .amount { margin-top: 4px; height: 44px; display: flex; justify-content: center; align-items: baseline; font-weight: 700; white-space: nowrap; }
   .amount .int, .amount .comma { font-size: 40px; line-height: 44px; letter-spacing: -.2px; }
-  .amount .dec { font-size: 24px; line-height: 28px; letter-spacing: -.12px; margin-left: 4px; }
+  .amount .dec { font-size: 24px; line-height: 28px; letter-spacing: -.12px; margin-left: 1px; }
   .amount .cur { font-size: 24px; line-height: 28px; margin-left: 8px; }
   .open .balance { opacity: 0; transform: translateY(-18px) scale(.96); }
 
@@ -150,12 +161,12 @@
   /* Card header: Caption 1/Default-Tight + Body 2/Bold, Visa 44.6×16.7 (Figma "card") */
   .c-head { position: absolute; left: 11px; right: 11px; top: 10px; display: flex; justify-content: space-between; align-items: center; }
   .c-name { font-size: 14px; line-height: 18px; }
-  .c-mask { font-size: 16px; line-height: 24px; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; transition: opacity .2s, transform .3s var(--ease); }
+  .c-mask { font-size: 16px; line-height: 24px; font-weight: 700; white-space: nowrap; transition: opacity .2s, transform .3s var(--ease); }
   .open .current .c-mask { opacity: 0; transform: translateY(-4px); }
   .visa { width: 44.6px; height: 16.7px; flex: none; }
   .dark .visa { filter: brightness(0) invert(1); }
 
-  .big { font-size: 22px; line-height: 28px; font-weight: 700; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
+  .big { font-size: 22px; line-height: 28px; font-weight: 700; letter-spacing: 1px; }
   /* Full number spans the card width so it sits centered and even */
   .pan { position: absolute; left: 14px; right: 14px; top: 84px; display: flex; justify-content: space-between; padding: 2px 6px; border-radius: 10px; transition: background .2s; }
   .acct .pan { display: none; }
@@ -169,7 +180,7 @@
   .dark .pan.pressing { background: rgba(255,255,255,.12); }
 
   .c-bottom { position: absolute; left: 12px; bottom: 14px; display: flex; gap: 10px; align-items: center; height: 28px; }
-  .c-bottom .date { font-size: 16px; line-height: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .c-bottom .date { font-size: 16px; line-height: 24px; font-weight: 700; }
   .front .c-bottom { opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity .25s, transform .35s var(--ease); }
   .open .current .front .c-bottom { opacity: 1; transform: none; pointer-events: auto; transition-delay: .5s; }
   .pill { position: relative; display: inline-flex; align-items: center; justify-content: center; height: 28px; min-width: 44px; padding: 0 12px; border-radius: 14px; background: rgba(255,255,255,.5); font-size: 13px; font-weight: 700; letter-spacing: .5px; }
@@ -204,6 +215,8 @@
   .by .back-side .pill { background: rgba(43,45,52,.12); color: var(--tint-primary); }
   .acct .side, .biz .side { background: #141518; }
   .acct .c-bottom .lbl { font-size: 14px; line-height: 20px; }
+  .acct.blue .side { background: #DCE7F8; color: var(--tint-primary); }
+  .acct.blue .sub { color: var(--tint-secondary); }
   .yellow .side { background: var(--surface-accent); color: var(--tint-primary); }
   .yellow .graphic { position: absolute; left: -6px; top: -37px; width: 196px; height: 233px; }
   .yellow .sub { color: #4A4200; }
@@ -214,6 +227,28 @@
   .pearl .sub { color: var(--tint-secondary); }
   .pearl .stripes { position: absolute; inset: 0; background: repeating-linear-gradient(135deg, rgba(43,45,52,.06) 0 8px, rgba(43,45,52,0) 8px 16px); transition: opacity .4s; }
   .activated .pearl .stripes { opacity: 0; }
+
+
+  /* Quick profile switcher: long press on the avatar (Figma 1568:64160) */
+  .psheet { position: absolute; inset: 0; z-index: 40; visibility: hidden; pointer-events: none; }
+  .psheet.show { visibility: visible; pointer-events: auto; }
+  .psheet .bd { position: absolute; inset: 0; background: rgba(0,0,0,.5); opacity: 0; transition: opacity .3s ease; }
+  .psheet.show .bd { opacity: 1; }
+  .psheet .sh { position: absolute; left: 0; right: 0; bottom: 0; background: #fff; border-radius: 16px 16px 0 0; padding: 4px 0 calc(32px + env(safe-area-inset-bottom, 0px));
+                transform: translateY(100%); transition: transform .45s var(--lift); touch-action: none; }
+  .psheet.show .sh { transform: none; }
+  .psheet .notch { width: 36px; height: 4px; border-radius: 7px; background: rgba(156,150,127,.32); margin: 0 auto 16px; }
+  .psheet .row { position: relative; display: flex; align-items: center; gap: 16px; width: 100%; min-height: 72px; padding: 4px 32px; text-align: left; }
+  .psheet .row::before { content: ''; position: absolute; inset: 4px 16px; border-radius: 12px; background: rgba(156,150,127,.1); transition: background .15s; }
+  .psheet .row:active::before { background: rgba(156,150,127,.2); }
+  .psheet .row > * { position: relative; }
+  .psheet .row .av { width: 44px; height: 44px; border-radius: 50%; flex: none; object-fit: cover; }
+  .psheet .row .av-biz { display: flex; }
+  .psheet .row .tt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .psheet .row b { font-size: 16px; line-height: 24px; font-weight: 400; color: var(--tint-primary); }
+  .psheet .row span.c { font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
+  .psheet .row .ck { width: 24px; height: 24px; flex: none; opacity: 0; transition: opacity .2s; }
+  .psheet .row.on .ck { opacity: 1; }
 
   /* Sheet */
   /* Full-screen scroll: header, cards and content scroll together */
@@ -245,6 +280,7 @@
   .pr-nav button { width: 56px; height: 44px; display: flex; align-items: center; justify-content: center; }
   .pr-avatar { position: relative; width: 84px; height: 84px; margin: 0 auto; }
   .pr-avatar .ph { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; }
+  .business .pr-avatar .cam { display: none; }
   .pr-avatar .cam { position: absolute; left: calc(50% + 32.7px); top: calc(50% + 32px); transform: translate(-50%, -50%); width: 28px; height: 24px; border-radius: 100px; background: #118DB8; box-shadow: 0 0 0 2px var(--surface-baseline); display: flex; align-items: center; justify-content: center; }
   .pr-head { padding: 16px; text-align: center; }
   .pr-head h1 { margin: 0; padding: 4px 16px; font-size: 24px; line-height: 28px; font-weight: 700; letter-spacing: -.12px; }
@@ -414,7 +450,8 @@
   <div class="navbar">
     <div class="nav-home">
       <button class="avatar" id="openProfile" aria-label="Профіль">
-        <img class="ph" src="assets/pr-photo.png" width="44" height="44" alt="">
+        <img class="ph" src="assets/pr-photo.png" width="44" height="44" alt="" draggable="false">
+        <span class="av-biz" aria-hidden="true"><img src="assets/av-case-white.svg" width="20" height="20" alt="" draggable="false"></span>
         <span class="badge-biz">Бізнес</span>
       </button>
       <div class="nav-right">
@@ -589,6 +626,7 @@
       </div>
       <div class="pr-avatar">
         <img class="ph" src="assets/pr-photo.png" width="84" height="84" alt="Фото профілю">
+        <span class="av-biz" style="width:84px;height:84px" aria-hidden="true"><img src="assets/av-case-white.svg" width="36" height="36" alt=""></span>
         <button class="cam" aria-label="Змінити фото"><img src="assets/pr-camera.svg" width="24" height="18" alt=""></button>
       </div>
       <div class="pr-head"><h1 id="prName">Шевченко Тарас</h1><p id="prCaption">+380 (63) 213 18 21</p></div>
@@ -632,6 +670,22 @@
     </div>
   </div>
 
+  <div class="psheet" id="psheet" role="dialog" aria-modal="true" aria-label="Перемкнути профіль" aria-hidden="true">
+    <div class="bd" data-close></div>
+    <div class="sh" id="psheetBody">
+      <div class="notch" aria-hidden="true"></div>
+      <button class="row" data-to="personal">
+        <img class="av" src="assets/pr-photo.png" alt="" draggable="false">
+        <span class="tt"><b>Шевченко Тарас Григорович</b><span class="c">Особисті рахунки</span></span>
+        <svg class="ck" viewBox="0 0 24 24" fill="none" stroke="#0077A4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l4.5 4.5L19 7"/></svg>
+      </button>
+      <button class="row" data-to="business">
+        <span class="av av-biz"><img src="assets/av-case-white.svg" width="20" height="20" alt=""></span>
+        <span class="tt"><b>ФОП Шевченко Тарас Григорович</b><span class="c">Управляйте своїм бізнес рахунком</span></span>
+        <svg class="ck" viewBox="0 0 24 24" fill="none" stroke="#0077A4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l4.5 4.5L19 7"/></svg>
+      </button>
+    </div>
+  </div>
   <div class="toast" id="toast" role="status" aria-live="polite"><span class="ok"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" aria-hidden="true"><path d="M5 12l4.5 4.5L19 7"/></svg></span><span id="toastText"></span></div>
 </div>
 
@@ -656,7 +710,7 @@
         bg: '#7E97B8', label: 'Власні кошти', value: 8412.50,
         tx: { name: 'Glovo', cat: 'Доставка їжі', amount: '-385,00 ₴', bg: '#FFC244', mark: 'glovo', fg: '#00A082', fs: 13 },
         title: 'UA67 **** 04519', iban: 'UA67 3808 0500 0000 0026 2049 0451 9',
-        extra: { key: 'fishka', skin: 'red light', img: 'card-fishka.png', name: 'Фішка', pan: ['4149', '6093', '5520', '1736'], date: '02/30', cvv: '315' } },
+        extra: { key: 'fishka', skin: 'red light', img: 'card-fishka.png', shade: true, name: 'Фішка', pan: ['4149', '6093', '5520', '1736'], date: '02/30', cvv: '315' } },
       { key: 'd100', skin: 'by light', img: 'card-100.png', name: '100 днів', pan: ['4149', '4997', '1062', '8835'], date: '10/28', cvv: '907',
         bg: '#534E6B', label: 'Використано 12 750,00 з 50 000,00 ₴', value: 37250.00, credit: '50 000 ₴',
         tx: { name: 'Decathlon', cat: 'Спорттовари', amount: '-3 299,00 ₴', bg: '#0082C3', mark: 'DECATHLON', fg: '#FFFFFF', fs: 6.5 },
@@ -664,7 +718,12 @@
       { key: 'atb', skin: 'atb light', img: 'card-atb.png', shade: true, name: 'Картка АТБ', pan: ['4149', '3105', '7744', '6012'], date: '12/30', cvv: '238',
         bg: '#4FA07E', label: 'Власні кошти', value: 0, activate: true,
         tx: { name: 'Bolt', cat: 'Таксі', amount: '-214,00 ₴', bg: '#34D186', mark: 'Bolt', fg: '#FFFFFF', fs: 14 },
-        title: 'UA94 **** 60127', iban: 'UA94 3808 0500 0000 0026 2733 6012 7' }
+        title: 'UA94 **** 60127', iban: 'UA94 3808 0500 0000 0026 2733 6012 7' },
+      { key: 'cur', kind: 'account', skin: 'acct blue', img: 'card-current-blue.png', name: 'Поточний рахунок', faceLabel: 'Особистий рахунок · UAH', mask: 'UA58 •••• •••• 72214',
+        pan: ['UA58', '3808', '0500', '0000', '0026', '2058', '7221', '4'],
+        bg: '#6C8FBF', label: 'Залишок на рахунку', value: 23870.15,
+        tx: { name: 'Переказ на рахунок', cat: 'Поповнення', amount: '+5 000,00 ₴', logo: 'ic-bank.svg', bg: '#EEE8CD' },
+        title: 'UA58 **** 72214', iban: 'UA58 3808 0500 0000 0026 2058 7221 4' }
     ],
     business: [
       { key: 'fop', kind: 'account', skin: 'acct light', img: 'card-fop-account.png', name: 'ФОП рахунок', mask: 'UA12 •••• •••• 33556',
@@ -673,9 +732,9 @@
         tx: { name: 'Нова пошта', cat: 'Доставка відправлень', amount: '-1 120,00 ₴', logo: 'm-novaposhta.png', bg: '#FFFFFF' },
         title: 'UA12 **** 33556', iban: 'UA12 3808 0500 0000 0026 0071 3355 6' },
       { key: 'biz', skin: 'biz light', img: 'card-business.png', name: 'Бізнес картка', pan: ['4149', '8820', '6417', '9530'], date: '05/29', cvv: '661',
-        bg: '#7B7466', label: 'Власні кошти ФОП', value: 126540.80,
+        bg: '#7B7466', label: 'Власні кошти', value: 48215.30,
         tx: { name: 'Uber', cat: 'Таксі', amount: '-486,00 ₴', bg: '#000000', mark: 'Uber', fg: '#FFFFFF', fs: 13 },
-        title: 'UA12 **** 33556', iban: 'UA12 3808 0500 0000 0026 0071 3355 6' }
+        title: 'UA35 **** 71904', iban: 'UA35 3808 0500 0000 0026 0094 7190 4' }
     ]
   };
 
@@ -707,7 +766,7 @@
       '<div class="c-head"><div><div class="c-name sub">' + c.name + '</div><div class="c-mask">' + mask + '</div></div>' + (isAcct ? '' : visa) + '</div>' +
       '<div class="pan big" title="Утримуйте, щоб скопіювати">' + groups + '</div>' +
       (isAcct
-        ? '<div class="c-bottom"><span class="lbl sub">Поточний рахунок · UAH</span></div>'
+        ? '<div class="c-bottom"><span class="lbl sub">' + (c.faceLabel || 'Поточний рахунок · UAH') + '</span></div>'
         : '<div class="c-bottom"><span class="date">' + c.date + '</span><span class="pill js-flip" role="button" tabindex="0" aria-label="Показати CVV-код">CVV</span></div>') +
       '</div>';
     const back = isAcct ? '' : '<div class="side back-side">' + decor(c) + (c.shade ? '<div class="shade"></div>' : '') +
@@ -959,6 +1018,7 @@
   document.getElementById('collapse').addEventListener('click', () => setOpen(false));
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
+    if (psheet.classList.contains('show')) { showSwitcher(false); return; }
     if (profile.classList.contains('show')) { showProfile(false); return; }
     if (!state.open) return;
     if (state.flipped) flip(); else setOpen(false);
@@ -979,20 +1039,68 @@
     document.getElementById('prName').textContent = biz ? 'ФОП Шевченко Тарас' : 'Шевченко Тарас';
     document.getElementById('prCaption').textContent = biz ? 'Бізнес-профіль · +380 (63) 213 18 21' : '+380 (63) 213 18 21';
   }
-  document.getElementById('openProfile').addEventListener('click', () => showProfile(true));
-  document.getElementById('closeProfile').addEventListener('click', () => showProfile(false));
-  document.querySelectorAll('.js-switch').forEach((b) => b.addEventListener('click', () => {
-    state.profile = b.dataset.to;
+  function switchProfile(to) {
+    state.profile = to;
     state.idx = 0; state.sub = 0; state.open = false; state.flipped = false;
     scroller.scrollTop = 0;
     build();
     renderProfile();
     render();
-    setTimeout(() => {
-      showProfile(false);
-      toast(state.profile === 'business' ? 'Ви в профілі ФОП Шевченко Т. Г.' : 'Ви в особистому профілі');
-    }, 200);
+  }
+  const switchedMsg = () => (state.profile === 'business' ? 'Ви в профілі ФОП Шевченко Т. Г.' : 'Ви в особистому профілі');
+  document.getElementById('closeProfile').addEventListener('click', () => showProfile(false));
+  document.querySelectorAll('.js-switch').forEach((b) => b.addEventListener('click', () => {
+    switchProfile(b.dataset.to);
+    setTimeout(() => { showProfile(false); toast(switchedMsg()); }, 200);
   }));
+
+  // Avatar: short tap opens the profile, long press opens the quick switcher (touch and mouse)
+  const avatar = document.getElementById('openProfile');
+  const psheet = document.getElementById('psheet');
+  const psBody = document.getElementById('psheetBody');
+  let lpTimer = null, lpFired = false, lpStart = null;
+  function showSwitcher(v) {
+    psheet.querySelectorAll('.row').forEach((r) => r.classList.toggle('on', r.dataset.to === state.profile));
+    psheet.classList.toggle('show', v);
+    psheet.setAttribute('aria-hidden', String(!v));
+    psBody.style.transform = '';
+    if (v) setTimeout(() => psheet.querySelector('.row.on').focus({ preventScroll: true }), 350);
+  }
+  const lpCancel = () => { clearTimeout(lpTimer); lpTimer = null; avatar.classList.remove('pressing'); };
+  avatar.addEventListener('pointerdown', (e) => {
+    if (e.button > 0) return;
+    lpFired = false; lpStart = [e.clientX, e.clientY];
+    avatar.classList.add('pressing');
+    lpTimer = setTimeout(() => {
+      lpFired = true; lpCancel();
+      if (navigator.vibrate) navigator.vibrate(12);
+      showSwitcher(true);
+    }, 450);
+  });
+  avatar.addEventListener('pointermove', (e) => {
+    if (lpTimer && lpStart && Math.hypot(e.clientX - lpStart[0], e.clientY - lpStart[1]) > 10) lpCancel();
+  });
+  ['pointerup', 'pointerleave', 'pointercancel'].forEach((t) => avatar.addEventListener(t, lpCancel));
+  avatar.addEventListener('contextmenu', (e) => e.preventDefault());
+  avatar.addEventListener('click', (e) => {
+    if (lpFired) { lpFired = false; e.preventDefault(); return; }
+    showProfile(true);
+  });
+  psheet.querySelector('[data-close]').addEventListener('click', () => showSwitcher(false));
+  psheet.querySelectorAll('.row').forEach((r) => r.addEventListener('click', () => {
+    if (r.dataset.to === state.profile) { showSwitcher(false); return; }
+    psheet.querySelectorAll('.row').forEach((x) => x.classList.toggle('on', x === r));
+    setTimeout(() => { switchProfile(r.dataset.to); showSwitcher(false); toast(switchedMsg()); }, 180);
+  }));
+  // Drag the sheet down to dismiss
+  let dragY = null;
+  psBody.addEventListener('pointerdown', (e) => { if (!e.target.closest('.row')) { dragY = e.clientY; psBody.style.transition = 'none'; psBody.setPointerCapture(e.pointerId); } });
+  psBody.addEventListener('pointermove', (e) => { if (dragY !== null) psBody.style.transform = 'translateY(' + Math.max(0, e.clientY - dragY) + 'px)'; });
+  psBody.addEventListener('pointerup', (e) => {
+    if (dragY === null) return;
+    const d = e.clientY - dragY; dragY = null; psBody.style.transition = '';
+    if (d > 60) showSwitcher(false); else psBody.style.transform = '';
+  });
 
   document.getElementById('peek').addEventListener('input', (e) => {
     document.documentElement.style.setProperty('--peek', e.target.value + 'px');
