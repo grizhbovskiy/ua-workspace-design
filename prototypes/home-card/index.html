@@ -245,7 +245,7 @@
   .psheet .row .av { width: 44px; height: 44px; border-radius: 50%; flex: none; object-fit: cover; }
   .psheet .row .av-biz { display: flex; }
   .psheet .row .tt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-  .psheet .row b { font-size: 16px; line-height: 24px; font-weight: 400; color: var(--tint-primary); }
+  .psheet .row b { font-size: 16px; line-height: 24px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--tint-primary); }
   .psheet .row span.c { font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
   .psheet .row .ck { width: 24px; height: 24px; flex: none; opacity: 0; transition: opacity .2s; }
   .psheet .row.on .ck { opacity: 1; }
@@ -681,7 +681,7 @@
       </button>
       <button class="row" data-to="business">
         <span class="av av-biz"><img src="assets/av-case-white.svg" width="20" height="20" alt=""></span>
-        <span class="tt"><b>ФОП Шевченко Тарас Григорович</b><span class="c">Управляйте своїм бізнес рахунком</span></span>
+        <span class="tt"><b>ФОП Шевченко Т. Г.</b><span class="c">Управляйте своїм бізнес рахунком</span></span>
         <svg class="ck" viewBox="0 0 24 24" fill="none" stroke="#0077A4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l4.5 4.5L19 7"/></svg>
       </button>
     </div>
