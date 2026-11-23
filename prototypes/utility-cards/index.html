@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Комунальні картки</title>
+<style>
+  @font-face { font-family: 'Amalia'; src: url('../home-card/fonts/Amalia-Regular.ttf') format('truetype'); font-weight: 400; }
+  @font-face { font-family: 'Amalia'; src: url('../home-card/fonts/Amalia-Medium.ttf') format('truetype'); font-weight: 500; }
+  @font-face { font-family: 'Amalia'; src: url('../home-card/fonts/Amalia-Bold.ttf') format('truetype'); font-weight: 700; }
+  :root {
+    --bg: #F8F6F2; --base: #FFFFFF; --accent: #FEE600; --t1: #2B2D34; --t2: #505258; --t3: #808185;
+    --action: #0077A4; --info: #E2F4FC; --border: rgba(156,150,127,.24);
+    --err: #D8333E; --err-bg: #FDE8E8; --ok: #1E8A55; --ok-bg: #E3F4EA;
+    --i09-100: #EEE8CD; --i09-500: #8F8574; --i06-100: #CDEEFA; --i06-500: #1DA1C9;
+    --shadow: 0 1px 1px rgba(43,45,52,.2);
+    --ring: linear-gradient(180deg, rgba(43,45,52,.08) 0%, rgba(43,45,52,.08) 15%, rgba(43,45,52,.1) 90%, rgba(43,45,52,.2) 100%);
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: #ECE9E2; color: var(--t1); font-family: 'Amalia', -apple-system, 'Segoe UI', Roboto, sans-serif; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 40px 24px 80px; }
+  h1 { font-size: 32px; line-height: 40px; margin: 0 0 8px; }
+  .lead { color: var(--t2); font-size: 16px; line-height: 24px; margin: 0 0 32px; max-width: 760px; }
+  h2.group { font-size: 22px; margin: 48px 0 16px; padding-top: 24px; border-top: 1px solid var(--border); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(390px, 1fr)); gap: 32px 24px; }
+  .variant { min-width: 0; }
+  .screen { width: 100%; max-width: 390px; background: var(--bg); border-radius: 24px; padding: 16px 0 20px; overflow: hidden; }
+  .vh { display: flex; align-items: center; gap: 10px; margin: 16px 0 6px; max-width: 390px; }
+  .vh b { font-size: 18px; }
+  .tag { font-size: 12px; font-weight: 700; background: var(--t1); color: var(--accent); border-radius: 10px; padding: 3px 8px; }
+  .notes { font-size: 14px; line-height: 21px; color: var(--t2); max-width: 390px; }
+  .notes p { margin: 4px 0; }
+  .notes .pro::before { content: '+ '; color: var(--ok); font-weight: 700; }
+  .notes .con::before { content: '− '; color: var(--err); font-weight: 700; }
+
+  /* section header like in DS widgets */
+  .sec { display: flex; align-items: baseline; justify-content: space-between; padding: 0 16px 8px; }
+  .sec h3 { margin: 0; font-size: 20px; line-height: 26px; font-weight: 700; }
+  .sec a { color: var(--action); font-size: 14px; text-decoration: none; }
+
+  /* carousel */
+  .rail { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px 16px 8px; scroll-padding: 16px; scrollbar-width: none; }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail > * { scroll-snap-align: start; flex: none; }
+
+  /* DS card surface + Border Gradient Primary */
+  .card { position: relative; background: var(--base); border-radius: 16px; box-shadow: var(--shadow); }
+  .card::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; background: var(--ring);
+                 -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+                 mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+
+  .sq { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border-radius: 10px; background: var(--accent); }
+  .sq.lg { width: 44px; height: 44px; border-radius: 14px; }
+  .sq.soft { background: var(--i09-100); }
+  .sq.soft svg path { fill: var(--i09-500); }
+  .sq.blue { background: var(--i06-100); }
+  .sq img, .sq svg { width: 16px; height: 16px; display: block; }
+  .sq.lg img, .sq.lg svg { width: 20px; height: 20px; }
+
+  .name { font-size: 16px; line-height: 24px; font-weight: 500; }
+  .cap { font-size: 12px; line-height: 20px; color: var(--t2); }
+  .cap.t3 { color: var(--t3); }
+  .ell { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .amt { font-size: 20px; line-height: 26px; font-weight: 700; letter-spacing: -.1px; white-space: nowrap; }
+  .amt small { font-size: 20px; font-weight: 400; }
+  .amt.big { font-size: 24px; line-height: 30px; }
+  .btn { display: flex; align-items: center; justify-content: center; gap: 8px; height: 40px; border-radius: 8px; border: 0; width: 100%;
+         font: inherit; font-size: 14px; line-height: 24px; background: var(--info); color: var(--action); cursor: pointer; }
+  .btn.primary { background: var(--accent); color: var(--t1); font-weight: 500; }
+  .btn.ghost { background: transparent; color: var(--action); }
+  .btn.dark { background: var(--t1); color: #fff; }
+  .chip { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px; border-radius: 12px; font-size: 12px; line-height: 20px; white-space: nowrap; }
+  .chip.err { background: var(--err-bg); color: var(--err); }
+  .chip.ok { background: var(--ok-bg); color: var(--ok); }
+  .chip.due { background: var(--i09-100); color: #6B624F; }
+  .row { display: flex; align-items: center; gap: 12px; }
+  .grow { flex: 1; min-width: 0; }
+
+  /* ---------- A: DS widget as in Figma ---------- */
+  .a { width: 300px; padding: 0 0 10px; overflow: hidden; }
+  .a .top { padding: 14px 16px 6px; }
+  .a .mid { padding: 6px 16px 10px; }
+  .a .act { padding: 0 10px; }
+
+  /* ---------- B: status-first ---------- */
+  .b { width: 300px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .svc { display: flex; gap: 4px; }
+  .svc .sq { width: 28px; height: 28px; border-radius: 9px; }
+  .svc .sq.off { opacity: .35; }
+  .b .foot { display: flex; align-items: center; gap: 12px; }
+  .b .foot .btn { width: auto; padding: 0 16px; flex: none; }
+
+  /* ---------- C: compact tiles + one CTA ---------- */
+  .c { width: 152px; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-height: 148px; }
+  .c .amt { font-size: 18px; line-height: 24px; }
+  .total { margin: 8px 16px 0; padding: 12px 12px 12px 16px; display: flex; align-items: center; gap: 12px; }
+  .total .btn { width: auto; padding: 0 16px; }
+
+  /* ---------- D: services breakdown ---------- */
+  .d { width: 310px; overflow: hidden; }
+  .d .hd { padding: 14px 16px 10px; }
+  .d ul { list-style: none; margin: 0; padding: 0 16px; }
+  .d li { display: flex; align-items: center; gap: 10px; height: 36px; font-size: 14px; border-top: 1px solid rgba(156,150,127,.16); }
+  .d li .v { margin-left: auto; font-weight: 500; }
+  .d li .ico { width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; }
+  .d li .ico svg { width: 14px; height: 14px; }
+  .d .ft { padding: 10px 16px 12px; display: flex; align-items: center; gap: 12px; border-top: 1px solid rgba(156,150,127,.16); }
+  .d .ft .btn { width: auto; padding: 0 16px; }
+
+  /* ---------- Empty states ---------- */
+  .add-tile { width: 152px; min-height: 148px; border-radius: 16px; border: 1.5px dashed rgba(156,150,127,.6); background: transparent;
+              display: flex; flex-direction: column; justify-content: space-between; padding: 12px; color: var(--t1); font: inherit; text-align: left; cursor: pointer; }
+  .add-tile.wide { width: 300px; min-height: 0; flex-direction: row; align-items: center; gap: 12px; justify-content: flex-start; padding: 16px; }
+  .plus { width: 32px; height: 32px; border-radius: 10px; background: var(--base); box-shadow: var(--shadow); display: grid; place-items: center; }
+  .plus svg { width: 16px; height: 16px; }
+
+  .e2 { margin: 0 16px; padding: 20px 16px 16px; overflow: hidden; }
+  .e2 .art { position: relative; height: 112px; margin: -4px -4px 12px; border-radius: 12px; background: linear-gradient(180deg, #FFF8C2 0%, #FFFBE0 100%); overflow: hidden; }
+  .e2 .art { display: grid; place-items: center; }
+  .e2 .art .ill { width: 104px; height: 104px; }
+  .e2 h4 { margin: 0 0 4px; font-size: 20px; line-height: 26px; }
+  .e2 p { margin: 0 0 16px; font-size: 14px; line-height: 20px; color: var(--t2); }
+  .steps { display: flex; gap: 8px; margin: 0 0 16px; }
+  .steps div { flex: 1; font-size: 12px; line-height: 16px; color: var(--t2); }
+  .steps b { display: block; width: 20px; height: 20px; border-radius: 10px; background: var(--i09-100); color: #6B624F; font-size: 12px; line-height: 20px; text-align: center; margin-bottom: 4px; }
+
+  .e3 { margin: 0 16px; padding: 16px; }
+  .e3 .addr { margin: 12px 0; padding: 10px 12px; border-radius: 12px; background: var(--bg); display: flex; gap: 10px; align-items: center; }
+  .e3 .two { display: flex; gap: 8px; }
+
+  .e4 { margin: 0 16px; padding: 4px 0; }
+  .e4 .li { display: flex; align-items: center; gap: 16px; padding: 12px 16px; }
+  .e4 .li + .li { border-top: 1px solid rgba(156,150,127,.16); }
+  .chev { width: 16px; height: 16px; flex: none; }
+
+  @media (max-width: 500px) {
+    .wrap { padding: 24px 0 60px; }
+    h1, .lead, h2.group, .vh, .notes { padding-left: 16px; padding-right: 16px; }
+    .grid { grid-template-columns: 1fr; }
+    .screen { border-radius: 0; max-width: none; }
+  }
+</style>
+</head>
+<body>
+<!-- Inline icon sprites (16px, DS-like outline style) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-house" viewBox="0 0 16 16"><path d="M7.33333 9.33333H6V11.3333H7.33333V9.33333Z"/><path fill-rule="evenodd" d="M7.5473 1.51059C7.80282 1.27425 8.19718 1.27425 8.4527 1.51059L13.786 6.44392C13.9224 6.5701 14 6.74751 14 6.93332V7.99999C14 8.36818 13.7015 8.66666 13.3333 8.66666H12.6667V13.3333C12.6667 13.7015 12.3682 14 12 14H4C3.63182 14 3.33333 13.7015 3.33333 13.3333V8.66666H2.66667C2.48985 8.66666 2.32029 8.59643 2.19527 8.47139C2.07023 8.34637 2 8.17681 2 7.99999V6.93332C2 6.74751 2.07756 6.5701 2.21397 6.44392L7.5473 1.51059ZM3.33333 7.33333H4.66667V12.6667H8.66667V8.66666H10V12.6667H11.3333V7.33333H12.6667V7.22481L8 2.90814L3.33333 7.22481V7.33333Z"/></symbol>
+  <symbol id="i-water" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 1.5c.2 0 .4.1.5.25C9.9 3.6 12.5 7 12.5 9.5a4.5 4.5 0 0 1-9 0C3.5 7 6.1 3.6 7.5 1.75A.6.6 0 0 1 8 1.5Zm0 1.9C6.7 5.2 4.83 7.9 4.83 9.5a3.17 3.17 0 0 0 6.34 0C11.17 7.9 9.3 5.2 8 3.4Z"/></symbol>
+  <symbol id="i-gas" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8.4 1.3a.67.67 0 0 0-1 .3C6.8 3.4 5.8 4.6 4.9 5.7 4 6.8 3.3 7.9 3.3 9.6a4.7 4.7 0 0 0 9.4 0c0-1.9-.9-3.5-1.9-4.6a.67.67 0 0 0-1.1.3c-.2.6-.5 1.1-.9 1.4-.2-2-1-3.8-2.4-5.4ZM4.67 9.6c0-1.2.5-2 1.27-3 .6-.7 1.3-1.6 1.9-2.6.7 1.1 1.1 2.4 1.1 3.9 0 .5.4.8.8.7.8-.2 1.4-.7 1.8-1.3.5.7.8 1.5.8 2.3a3.33 3.33 0 0 1-6.67 0Z"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M9.6 1.4a.67.67 0 0 1 .4.7l-.5 4.2h3.2a.67.67 0 0 1 .5 1.1l-6 7a.67.67 0 0 1-1.2-.5l.5-4.2H3.3a.67.67 0 0 1-.5-1.1l6-7a.67.67 0 0 1 .8-.2Zm-4.9 7h2.6c.4 0 .7.4.7.8l-.3 2.3 3.6-4.2H8.7a.67.67 0 0 1-.7-.8l.3-2.3-3.6 4.2Z"/></symbol>
+  <symbol id="i-heat" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M3 3.33C3 2.6 3.6 2 4.33 2h.34C5.4 2 6 2.6 6 3.33v.34h1V3.33C7 2.6 7.6 2 8.33 2h.34C9.4 2 10 2.6 10 3.33v.34h1V3.33C11 2.6 11.6 2 12.33 2h.34c.73 0 1.33.6 1.33 1.33v9.34c0 .73-.6 1.33-1.33 1.33h-.34c-.73 0-1.33-.6-1.33-1.33v-.34h-1v.34c0 .73-.6 1.33-1.33 1.33h-.34C7.6 14 7 13.4 7 12.67v-.34H6v.34C6 13.4 5.4 14 4.67 14h-.34C3.6 14 3 13.4 3 12.67V3.33ZM6 5v6h1V5H6Zm4 0v6h1V5h-1ZM4.33 3.33v9.34h.34V3.33h-.34Zm4 0v9.34h.34V3.33h-.34Zm4 0v9.34h.34V3.33h-.34Z"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M6 1.33h4c.37 0 .67.3.67.67v1.33h2.66a.67.67 0 1 1 0 1.34h-.66v8.66c0 .74-.6 1.34-1.34 1.34H4.67c-.74 0-1.34-.6-1.34-1.34V4.67h-.66a.67.67 0 1 1 0-1.34h2.66V2c0-.37.3-.67.67-.67Zm.67 2h2.66v-.66H6.67v.66Zm-2 1.34v8.66h6.66V4.67H4.67ZM6.67 6c.36 0 .66.3.66.67v4.66a.67.67 0 1 1-1.33 0V6.67c0-.37.3-.67.67-.67Zm2.66 0c.37 0 .67.3.67.67v4.66a.67.67 0 1 1-1.33 0V6.67c0-.37.3-.67.66-.67Z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 16 16"><path d="M8.67 3.33a.67.67 0 1 0-1.34 0v4H3.33a.67.67 0 1 0 0 1.34h4v4a.67.67 0 1 0 1.34 0v-4h4a.67.67 0 1 0 0-1.34h-4v-4Z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 16 16"><path d="M13.14 4.2c.26.26.26.68 0 .94l-6.67 6.67a.67.67 0 0 1-.94 0L2.86 9.14a.67.67 0 1 1 .94-.94L6 10.39l6.2-6.2c.26-.26.68-.26.94 0Z"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 16 16"><path d="M5.53 3.53c.26-.26.68-.26.94 0l4 4c.26.26.26.68 0 .94l-4 4a.67.67 0 1 1-.94-.94L9.06 8 5.53 4.47a.67.67 0 0 1 0-.94Z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 1.33a5.33 5.33 0 0 0-5.33 5.34c0 2.2 1.4 4.2 2.7 5.6.66.7 1.3 1.25 1.8 1.64.28.22.47.35.6.44h.46c.13-.09.32-.22.6-.44.5-.39 1.14-.95 1.8-1.64 1.3-1.4 2.7-3.4 2.7-5.6A5.33 5.33 0 0 0 8 1.33ZM4 6.67a4 4 0 0 1 8 0c0 1.7-1.1 3.4-2.34 4.7A15 15 0 0 1 8 12.9a15 15 0 0 1-1.66-1.53C5.1 10.07 4 8.37 4 6.67ZM8 5.33a1.33 1.33 0 1 0 0 2.67 1.33 1.33 0 0 0 0-2.67Z"/></symbol>
+</svg>
+
+<div class="wrap">
+  <h1>Комунальні послуги — варіанти карток</h1>
+  <p class="lead">Окрема сторінка для вибору, у прототип не вставлена. Чотири варіанти заповненої каруселі й чотири варіанти порожнього стану «Додати адресу». Усі картки на токенах UDS: Surface Baseline, Elevation 1, Border Gradient Primary, Button Small Info, сквірклі 32. Каруселі гортаються.</p>
+
+  <h2 class="group">1. Заповнена карусель</h2>
+  <div class="grid">
+
+    <!-- A -->
+    <div class="variant">
+      <div class="screen">
+        <div class="sec"><h3>Комунальні послуги</h3><a href="#">Усі</a></div>
+        <div class="rail">
+          <div class="card a">
+            <div class="top row"><div class="sq"><img src="assets/house.svg" alt=""></div><div class="grow"><div class="name">Батьки</div><div class="cap ell">вул. Нижній Вал, буд. 22, кв. 12</div></div></div>
+            <div class="mid"><div class="amt">3 897,23 <small>₴</small></div><div class="cap">4 рахунки · найближчий до 20 жовтня</div></div>
+            <div class="act"><button class="btn">Сплатити</button></div>
+          </div>
+          <div class="card a">
+            <div class="top row"><div class="sq"><img src="assets/house.svg" alt=""></div><div class="grow"><div class="name">Мій дім</div><div class="cap ell">просп. Берестейський, 47, кв. 88</div></div></div>
+            <div class="mid"><div class="amt">2 114,60 <small>₴</small></div><div class="cap">3 рахунки · найближчий до 25 жовтня</div></div>
+            <div class="act"><button class="btn">Сплатити</button></div>
+          </div>
+          <div class="card a">
+            <div class="top row"><div class="sq"><img src="assets/house.svg" alt=""></div><div class="grow"><div class="name">Дача</div><div class="cap ell">Ірпінь, вул. Садова, 5</div></div></div>
+            <div class="mid"><div class="amt">412,00 <small>₴</small></div><div class="cap">1 рахунок · до 30 жовтня</div></div>
+            <div class="act"><button class="btn">Сплатити</button></div>
+          </div>
+          <button class="add-tile" style="min-height:auto;width:120px"><span class="plus"><svg fill="#2B2D34"><use href="#i-plus"/></svg></span><span class="cap" style="color:var(--t1)">Додати<br>адресу</span></button>
+        </div>
+      </div>
+      <div class="vh"><b>A. Віджет з Figma</b><span class="tag">Базовий</span></div>
+      <div class="notes">
+        <p class="pro">1:1 з концептом 1489:134170, жодних нових компонентів.</p>
+        <p class="pro">Сума й дедлайн читаються одразу, кнопка в кожній картці.</p>
+        <p class="con">Усі картки однакові: борг і «вже сплачено» виглядають однаково.</p>
+        <p class="con">Три жовті будиночки поспіль: адреси розрізняються лише текстом.</p>
+      </div>
+    </div>
+
+    <!-- B -->
+    <div class="variant">
+      <div class="screen">
+        <div class="sec"><h3>Комунальні послуги</h3><a href="#">Усі</a></div>
+        <div class="rail">
+          <div class="card b">
+            <div class="row"><div class="sq"><img src="assets/house.svg" alt=""></div><div class="grow"><div class="name">Батьки</div><div class="cap ell">вул. Нижній Вал, 22, кв. 12</div></div></div>
+            <div class="row" style="justify-content:space-between"><div class="amt">3 897,23 <small>₴</small></div><span class="chip err">Борг з вересня</span></div>
+            <div class="foot">
+              <div class="svc grow">
+                <span class="sq blue" title="Вода"><svg fill="#1DA1C9"><use href="#i-water"/></svg></span>
+                <span class="sq soft" title="Газ"><svg><use href="#i-gas"/></svg></span>
+                <span class="sq soft" title="Світло"><svg><use href="#i-bolt"/></svg></span>
+                <span class="sq soft" title="Тепло"><svg><use href="#i-heat"/></svg></span>
+              </div>
+              <button class="btn">Сплатити</button>
+            </div>
+          </div>
+          <div class="card b">
+            <div class="row"><div class="sq"><img src="assets/house.svg" alt=""></div><div class="grow"><div class="name">Мій дім</div><div class="cap ell">просп. Берестейський, 47, кв. 88</div></div></div>
+            <div class="row" style="justify-content:space-between"><div class="amt">2 114,60 <small>₴</small></div><span class="chip due">До 25 жовтня</span></div>
+            <div class="foot">
+              <div class="svc grow">
+                <span class="sq soft"><svg><use href="#i-water"/></svg></span>
+                <span class="sq soft"><svg><use href="#i-bolt"/></svg></span>
+                <span class="sq soft"><svg><use href="#i-heat"/></svg></span>
+                <span class="sq soft off"><svg><use href="#i-gas"/></svg></span>
+              </div>
+              <button class="btn">Сплатити</button>
+            </div>
+          </div>
+          <div class="card b">
+            <div class="row"><div class="sq soft"><svg><use href="#i-house"/></svg></div><div class="grow"><div class="name">Дача</div><div class="cap ell">Ірпінь, вул. Садова, 5</div></div></div>
+            <div class="row" style="justify-content:space-between"><div class="amt" style="color:var(--t3)">0,00 <small>₴</small></div><span class="chip ok"><svg width="12" height="12" fill="currentColor"><use href="#i-check"/></svg>Сплачено</span></div>
+            <div class="foot">
+              <div class="cap grow">Наступні рахунки — з 1 листопада</div>
+              <button class="btn ghost">Деталі</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="vh"><b>B. Статус + послуги</b><span class="tag">Рекомендую</span></div>
+      <div class="notes">
+        <p class="pro">Статус-чип (борг / дедлайн / сплачено) показує, куди дивитися першим.</p>
+        <p class="pro">Ряд сквірклів — які послуги підключені; блакитний = є борг саме за неї.</p>
+        <p class="pro">Сплачена адреса «гасне» (сірий будинок, без яскравої кнопки).</p>
+        <p class="con">Потрібні 4 іконки послуг у DS та правила кольорів статусів.</p>
+      </div>
+    </div>
+
+    <!-- C -->
+    <div class="variant">
+      <div class="screen">
+        <div class="sec"><h3>Комунальні послуги</h3><a href="#">Усі</a></div>
+        <div class="rail">
+          <div class="card c">
+            <div class="row" style="justify-content:space-between"><div class="sq"><img src="assets/house.svg" alt=""></div><span class="chip err">Борг</span></div>
+            <div><div class="name ell">Батьки</div><div class="amt">3 897,23 ₴</div><div class="cap">4 рахунки</div></div>
+          </div>
+          <div class="card c">
+            <div class="row" style="justify-content:space-between"><div class="sq"><img src="assets/house.svg" alt=""></div><span class="chip due">25.10</span></div>
+            <div><div class="name ell">Мій дім</div><div class="amt">2 114,60 ₴</div><div class="cap">3 рахунки</div></div>
+          </div>
+          <div class="card c">
+            <div class="row" style="justify-content:space-between"><div class="sq soft"><svg><use href="#i-house"/></svg></div><span class="chip ok">Сплачено</span></div>
+            <div><div class="name ell">Дача</div><div class="amt" style="color:var(--t3)">0,00 ₴</div><div class="cap">До 1 листопада</div></div>
+          </div>
+          <button class="add-tile"><span class="plus"><svg fill="#2B2D34"><use href="#i-plus"/></svg></span><span><span class="name" style="display:block">Додати адресу</span><span class="cap">Квартира, дача, офіс</span></span></button>
+        </div>
+        <div class="card total">
+          <div class="grow"><div class="cap">Разом до сплати · 2 адреси</div><div class="amt">6 011,83 <small>₴</small></div></div>
+          <button class="btn primary">Сплатити все</button>
+        </div>
+      </div>
+      <div class="vh"><b>C. Плитки + «Сплатити все»</b></div>
+      <div class="notes">
+        <p class="pro">У видимій зоні 2,5 адреси замість 1,3 — краще для 3+ адрес.</p>
+        <p class="pro">Одна головна дія для всіх адрес; тап на плитку — сплата однієї адреси.</p>
+        <p class="con">Адреси не видно, лише назва — треба, щоб користувач давав назви.</p>
+        <p class="con">Пакетна оплата різних адрес — питання до бекенду.</p>
+      </div>
+    </div>
+
+    <!-- D -->
+    <div class="variant">
+      <div class="screen">
+        <div class="sec"><h3>Комунальні послуги</h3><a href="#">Усі</a></div>
+        <div class="rail">
+          <div class="card d">
+            <div class="hd row"><div class="sq"><img src="assets/house.svg" alt=""></div><div class="grow"><div class="name">Батьки</div><div class="cap ell">вул. Нижній Вал, 22, кв. 12</div></div></div>
+            <ul>
+              <li><span class="ico" style="background:var(--i06-100)"><svg fill="#1DA1C9"><use href="#i-heat"/></svg></span>Тепло · Київтеплоенерго<span class="v">2 140,50 ₴</span></li>
+              <li><span class="ico" style="background:var(--i09-100)"><svg fill="#8F8574"><use href="#i-bolt"/></svg></span>Світло · Yasno<span class="v">1 012,00 ₴</span></li>
+              <li><span class="ico" style="background:var(--i09-100)"><svg fill="#8F8574"><use href="#i-water"/></svg></span>Вода + ще 1<span class="v">744,73 ₴</span></li>
+            </ul>
+            <div class="ft"><div class="grow"><div class="amt">3 897,23 <small>₴</small></div><div class="cap">до 20 жовтня</div></div><button class="btn">Сплатити</button></div>
+          </div>
+          <div class="card d">
+            <div class="hd row"><div class="sq"><img src="assets/house.svg" alt=""></div><div class="grow"><div class="name">Мій дім</div><div class="cap ell">просп. Берестейський, 47, кв. 88</div></div></div>
+            <ul>
+              <li><span class="ico" style="background:var(--i09-100)"><svg fill="#8F8574"><use href="#i-heat"/></svg></span>Тепло<span class="v">1 230,00 ₴</span></li>
+              <li><span class="ico" style="background:var(--i09-100)"><svg fill="#8F8574"><use href="#i-bolt"/></svg></span>Світло<span class="v">640,10 ₴</span></li>
+              <li><span class="ico" style="background:var(--i09-100)"><svg fill="#8F8574"><use href="#i-water"/></svg></span>Вода<span class="v">244,50 ₴</span></li>
+            </ul>
+            <div class="ft"><div class="grow"><div class="amt">2 114,60 <small>₴</small></div><div class="cap">до 25 жовтня</div></div><button class="btn">Сплатити</button></div>
+          </div>
+        </div>
+      </div>
+      <div class="vh"><b>D. З розбивкою по рахунках</b></div>
+      <div class="notes">
+        <p class="pro">Видно, за що саме платиш, ще до відкриття — менше «а що це за 3 897?».</p>
+        <p class="pro">Найбільший рахунок / борг підсвічено Infographic 06.</p>
+        <p class="con">Найвища картка (≈230 px) — займає багато місця на головній «Послуг».</p>
+        <p class="con">Висота залежить від кількості рахунків — треба фіксувати «топ‑3 + ще N».</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="group">2. Порожній стан — «Додати адресу»</h2>
+  <div class="grid">
+
+    <!-- E1 -->
+    <div class="variant">
+      <div class="screen">
+        <div class="sec"><h3>Комунальні послуги</h3></div>
+        <div class="rail">
+          <button class="add-tile wide"><img src="assets/house-illustration.svg" alt="" style="width:56px;height:56px;flex:none">
+            <span class="grow"><span class="name" style="display:block">Додати адресу</span><span class="cap" style="display:block">Усі рахунки за квартиру — в одній картці</span></span></button>
+          <div class="card a" style="opacity:.5;filter:grayscale(1);width:140px;padding:14px 16px">
+            <div class="sq soft"><svg><use href="#i-house"/></svg></div><div class="name" style="margin-top:10px">Батьки?</div><div class="cap">Додайте ще одну</div>
+          </div>
+        </div>
+      </div>
+      <div class="vh"><b>E1. Пунктирна картка в каруселі</b></div>
+      <div class="notes">
+        <p class="pro">Та сама геометрія, що й у заповненій каруселі — немає стрибка висоти після додавання.</p>
+        <p class="pro">Цей самий тайл живе в кінці каруселі, коли адреси вже є.</p>
+        <p class="con">Мало пояснює, навіщо це — ок для тих, хто вже платив комуналку в банку.</p>
+      </div>
+    </div>
+
+    <!-- E2 -->
+    <div class="variant">
+      <div class="screen">
+        <div class="sec"><h3>Комунальні послуги</h3></div>
+        <div class="card e2">
+          <div class="art">
+            <img class="ill" src="assets/house-illustration.svg" alt="">
+          </div>
+          <h4>Комуналка без квитанцій</h4>
+          <p>Додайте адресу — ми підтягнемо рахунки за воду, світло, газ і тепло та нагадаємо про оплату.</p>
+          <div class="steps"><div><b>1</b>Вкажіть адресу</div><div><b>2</b>Оберіть постачальників</div><div><b>3</b>Сплачуйте в 1 тап</div></div>
+          <button class="btn primary">Додати адресу</button>
+        </div>
+      </div>
+      <div class="vh"><b>E2. Онбординг-картка</b><span class="tag">Для першого входу</span></div>
+      <div class="notes">
+        <p class="pro">Пояснює цінність і процес; ілюстрація будинку з концепту (1566:225610).</p>
+        <p class="pro">Жовта Primary кнопка — єдиний акцент на екрані «Послуги».</p>
+        <p class="con">Висока (≈330 px) — показуємо лише поки немає жодної адреси, далі → E1.</p>
+      </div>
+    </div>
+
+    <!-- E3 -->
+    <div class="variant">
+      <div class="screen">
+        <div class="sec"><h3>Комунальні послуги</h3></div>
+        <div class="card e3">
+          <div class="row"><div class="sq lg"><svg fill="#2B2D34"><use href="#i-house"/></svg></div><div class="grow"><div class="name">Знайшли вашу адресу</div><div class="cap">За місцем реєстрації в банку</div></div></div>
+          <div class="addr"><svg width="16" height="16" fill="#8F8574"><use href="#i-pin"/></svg><div class="grow"><div style="font-size:14px;line-height:20px">просп. Берестейський, 47, кв. 88</div><div class="cap t3">Київ · 3 постачальники знайдено</div></div></div>
+          <div class="two"><button class="btn">Інша адреса</button><button class="btn primary">Додати цю</button></div>
+        </div>
+      </div>
+      <div class="vh"><b>E3. Розумна підказка</b></div>
+      <div class="notes">
+        <p class="pro">Додавання в один тап: адреса вже є в профілі клієнта.</p>
+        <p class="pro">Відчуття «банк мене знає», вища конверсія, ніж у порожнього стану.</p>
+        <p class="con">Залежить від даних (адреса реєстрації може бути неактуальною); потрібен fallback → E2.</p>
+      </div>
+    </div>
+
+    <!-- E4 -->
+    <div class="variant">
+      <div class="screen">
+        <div class="sec"><h3>Комунальні послуги</h3></div>
+        <div class="card e4">
+          <div class="li"><div class="sq"><svg fill="#2B2D34"><use href="#i-plus"/></svg></div><div class="grow"><div class="name">Додати адресу</div><div class="cap">Рахунки підтягнуться автоматично</div></div><svg class="chev" fill="#808185"><use href="#i-chev"/></svg></div>
+          <div class="li"><div class="sq soft"><svg><use href="#i-bolt"/></svg></div><div class="grow"><div class="name">Оплатити за реквізитами</div><div class="cap">Разовий платіж без збереження</div></div><svg class="chev" fill="#808185"><use href="#i-chev"/></svg></div>
+        </div>
+      </div>
+      <div class="vh"><b>E4. Список-cell (мінімальний)</b></div>
+      <div class="notes">
+        <p class="pro">Чистий DS List Cell, найнижча висота; дає й альтернативу — разовий платіж.</p>
+        <p class="con">Візуально «губиться» серед інших списків на екрані «Послуги».</p>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="group">Моя пропозиція</h2>
+  <p class="lead" style="margin:0">Перший вхід — <b>E2</b> (або <b>E3</b>, якщо адреса є в профілі). Після першої адреси — карусель <b>B</b> з тайлом <b>E1</b> «Додати адресу» в кінці. <b>D</b> використати як розгорнутий стан на екрані адреси, а не на головній «Послуг».</p>
+</div>
+</body>
+</html>
