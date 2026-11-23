@@ -446,6 +446,24 @@
   .offer .close { position: absolute; right: 2px; top: -3px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
 
 
+
+  /* E: dark banner from concept 1490:92807 */
+  .bd { position: relative; margin: 8px 16px; min-height: 112px; border-radius: 16px; overflow: hidden; display: flex; align-items: center; gap: 12px; padding: 16px 0 16px 16px;
+        color: #F9F9F9; box-shadow: 0 1px 1px rgba(43,45,52,.2); cursor: pointer; transition: transform .2s var(--ease); }
+  .bd:active { transform: scale(.98); }
+  .bd::after { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 1px solid var(--br); pointer-events: none; }
+  .bd-t { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+  .bd-t .title { font-size: 16px; line-height: 20px; font-weight: 500; }
+  .bd-t .cap { font-size: 12px; line-height: 18px; color: #D5D5D6; margin-top: -2px; }
+  .bd-pill { padding: 4px 8px; border-radius: 100px; background: linear-gradient(90deg,#F8ED81,#FFF05C); color: #2B2D34; font-size: 10px; line-height: 11px; font-weight: 500; white-space: nowrap; }
+  .bd-art { flex: 0 0 96px; height: 96px; margin: -6px 8px -14px 0; }
+  .bd-art img { width: 100%; height: 100%; }
+  .bd-xb { background: none !important; top: 6px; right: 6px; }
+  .bd-xb img { filter: brightness(0) invert(1); opacity: .7; }
+  .bd-go { margin-top: 2px; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; color: #fff; background: rgba(255,255,255,.16); box-shadow: 0 0 0 1px rgba(255,255,255,.22) inset; }
+  .bd-lnk { display: inline-flex; align-items: center; gap: 2px; font-size: 12px; line-height: 20px; font-weight: 700; color: #fff; }
+  .bd-btn { margin-top: 4px; height: 32px; padding: 0 14px; border-radius: 100px; background: #fff; color: #2B2D34; font-size: 14px; line-height: 32px; font-weight: 500; }
+  .bx-sep { margin: 28px 16px 0; padding-top: 16px; border-top: 1px dashed rgba(43,45,52,.2); font-size: 12px; line-height: 16px; color: var(--tint-tertiary); }
   /* ---------- Banner concepts in context ---------- */
   .bx-lab { margin: 20px 16px 0; font-size: 12px; line-height: 16px; font-weight: 700; letter-spacing: .02em; color: #0077A4; }
   .bx { position: relative; margin: 8px 16px; min-height: 112px; border-radius: 16px; overflow: hidden; display: flex; align-items: stretch; background: #fff;
@@ -645,6 +663,21 @@
       </div></div>
 
       <div class="sec-head"><h2>Пропозиції для вас</h2><a href="#" onclick="return false">Показати всі</a></div>
+      <div class="bx-lab">E1 · Темний, як у концепті 1490:92807 — без кнопки, тапається вся картка</div>
+      <div class="bd" style="background:linear-gradient(74.4deg,#2D3F51 0%,#BCC2C6 97.4%);--br:#BCC2C6"><div class="bd-t"><span class="bd-pill">Підвищений кешбек</span><div class="title">Відкрити ФОП-рахунок</div><div class="cap">Отримайте до 400 ₴ кешбеку</div></div><div class="bd-art"><img src="../banners/assets/ill/briefcase.svg" alt=""></div><button class="bx-x bd-xb" aria-label="Закрити"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>
+      <div class="bx-lab">E2 · Той самий, кольори з шапки прототипу (#2D3F51 → #5D6B82 → #7E97B8)</div>
+      <div class="bd" style="background:radial-gradient(110px 110px at 84% 55%,rgba(255,255,255,.20),transparent 70%),linear-gradient(74.4deg,#2D3F51 0%,#5D6B82 55%,#7E97B8 100%);--br:rgba(255,255,255,.16)"><div class="bd-t"><span class="bd-pill">Підвищений кешбек</span><div class="title">Відкрити ФОП-рахунок</div><div class="cap">Отримайте до 400 ₴ кешбеку</div></div><div class="bd-art"><img src="../banners/assets/ill/briefcase.svg" alt=""></div><button class="bx-x bd-xb" aria-label="Закрити"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>
+      <div class="bx-lab">E3 · + стрілка-підказка (без тексту кнопки)</div>
+      <div class="bd" style="background:radial-gradient(110px 110px at 84% 55%,rgba(255,255,255,.20),transparent 70%),linear-gradient(74.4deg,#2D3F51 0%,#5D6B82 55%,#7E97B8 100%);--br:rgba(255,255,255,.16)"><div class="bd-t"><span class="bd-pill">Підвищений кешбек</span><div class="title">Відкрити ФОП-рахунок</div><div class="cap">Отримайте до 400 ₴ кешбеку</div><span class="bd-go"><svg width="12" height="12" viewBox="0 0 12 12"><path fill="currentColor" d="M7.22 5.93 3.57 9.57l.71.71 4-4a.5.5 0 0 0 0-.71l-4-4-.71.71 3.65 3.65Z"/></svg></span></div><div class="bd-art"><img src="../banners/assets/ill/briefcase.svg" alt=""></div><button class="bx-x bd-xb" aria-label="Закрити"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>
+      <div class="bx-lab">E4 · + посилання</div>
+      <div class="bd" style="background:radial-gradient(110px 110px at 84% 55%,rgba(255,255,255,.20),transparent 70%),linear-gradient(74.4deg,#2D3F51 0%,#5D6B82 55%,#7E97B8 100%);--br:rgba(255,255,255,.16)"><div class="bd-t"><span class="bd-pill">Підвищений кешбек</span><div class="title">Відкрити ФОП-рахунок</div><div class="cap">Отримайте до 400 ₴ кешбеку</div><span class="bd-lnk">Відкрити рахунок <svg width="12" height="12" viewBox="0 0 12 12"><path fill="currentColor" d="M7.22 5.93 3.57 9.57l.71.71 4-4a.5.5 0 0 0 0-.71l-4-4-.71.71 3.65 3.65Z"/></svg></span></div><div class="bd-art"><img src="../banners/assets/ill/briefcase.svg" alt=""></div><button class="bx-x bd-xb" aria-label="Закрити"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>
+      <div class="bx-lab">E5 · + кнопка-пілюля</div>
+      <div class="bd" style="background:radial-gradient(110px 110px at 84% 55%,rgba(255,255,255,.20),transparent 70%),linear-gradient(74.4deg,#2D3F51 0%,#5D6B82 55%,#7E97B8 100%);--br:rgba(255,255,255,.16)"><div class="bd-t"><span class="bd-pill">Підвищений кешбек</span><div class="title">Відкрити ФОП-рахунок</div><div class="cap">Отримайте до 400 ₴ кешбеку</div><span class="bd-btn">Відкрити рахунок</span></div><div class="bd-art"><img src="../banners/assets/ill/briefcase.svg" alt=""></div><button class="bx-x bd-xb" aria-label="Закрити"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>
+      <div class="bx-lab">E6 · Той самий формат у кольорах категорій (тони шапок інших карток)</div>
+      <div class="bd" style="background:radial-gradient(110px 110px at 84% 55%,rgba(255,255,255,.18),transparent 70%),linear-gradient(74.4deg,#2E2A40 0%,#534E6B 55%,#8B84A8 100%);--br:rgba(255,255,255,.16)"><div class="bd-t"><span class="bd-pill">0% до 100 днів</span><div class="title">До 100 днів без %<br>з новою кредиткою</div><div class="cap">Оформіть онлайн за 5 хвилин</div></div><div class="bd-art"><img src="../banners/assets/ill/credit-cards.svg" alt=""></div><button class="bx-x bd-xb" aria-label="Закрити"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>
+      <div class="bd" style="background:radial-gradient(110px 110px at 84% 55%,rgba(255,255,255,.18),transparent 70%),linear-gradient(74.4deg,#1E3D33 0%,#3E7F64 55%,#7DBFA2 100%);--br:rgba(255,255,255,.16)"><div class="bd-t"><span class="bd-pill">Новинка</span><div class="title">Депозит до 15% річних</div><div class="cap">Відкривається за хвилину</div></div><div class="bd-art"><img src="../banners/assets/ill/piggy.svg" alt=""></div><button class="bx-x bd-xb" aria-label="Закрити"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>
+      <div class="bd" style="background:radial-gradient(110px 110px at 84% 55%,rgba(255,255,255,.18),transparent 70%),linear-gradient(74.4deg,#3B362D 0%,#7B7466 55%,#B3AA97 100%);--br:rgba(255,255,255,.16)"><div class="bd-t"><span class="bd-pill">Без комісії</span><div class="title">Комуналка в один тап</div><div class="cap">Додайте адресу — рахунки з’являться самі</div></div><div class="bd-art"><img src="../banners/assets/ill/lightbulb.svg" alt=""></div><button class="bx-x bd-xb" aria-label="Закрити"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>
+      <div class="bx-sep">Попередні підходи A–D ↓</div>
       <div class="bx-lab">A · Медіа-слот: білий банер, ілюстрація на брендовому жовтому</div>
       <div class="bx bx-media"><div class="bx-t"><div class="title">До 100 днів без %<br>з новою кредиткою</div><div class="cap">Оформіть онлайн за 5 хвилин</div><a class="lnk" href="#" onclick="return false">Оформити картку <img src="assets/go-right.svg" width="12" height="12" alt=""></a></div><div class="bx-sq" style="background:#FEE600"><img src="../banners/assets/ill/credit-cards.svg" alt=""></div><button class="bx-x" aria-label="Закрити"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>
       <div class="bx bx-media"><div class="bx-t"><div class="title">Відкрийте ФОП-рахунок</div><div class="cap">Кешбек до 400 ₴ на старті</div><a class="lnk" href="#" onclick="return false">Відкрити рахунок <img src="assets/go-right.svg" width="12" height="12" alt=""></a></div><div class="bx-sq" style="background:#FEE600"><img src="../banners/assets/ill/briefcase.svg" alt=""></div><button class="bx-x" aria-label="Закрити"><img src="assets/clear-ring.svg" width="16" height="16" alt=""></button></div>
