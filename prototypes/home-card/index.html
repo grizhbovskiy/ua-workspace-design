@@ -256,14 +256,13 @@
 
 
   /* ===== Services tab (Figma 1489:94363) ===== */
-  .svc { position: absolute; inset: 0; z-index: 5; background: var(--surface-background); opacity: 0; visibility: hidden; pointer-events: none;
-         transform: translateX(16px); transition: opacity .25s ease, transform .35s var(--ease), visibility 0s .35s; }
-  .on-svc .svc { opacity: 1; visibility: visible; pointer-events: auto; transform: none; transition: opacity .25s ease, transform .35s var(--ease); }
+  .svc { position: absolute; inset: 0; z-index: 5; background: var(--surface-background); visibility: hidden; pointer-events: none; }
+  .on-svc .svc { visibility: visible; pointer-events: auto; }
   .on-svc .status { filter: brightness(0); opacity: .85; }
   .svc-scroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; overscroll-behavior: contain; padding-bottom: 110px; }
   .svc-scroll::-webkit-scrollbar { display: none; }
   .svc-nav { position: sticky; top: 0; z-index: 2; height: calc(var(--sb) + 44px); padding-top: var(--sb); display: flex; align-items: center; justify-content: center;
-             background: color-mix(in srgb, var(--surface-background) 78%, transparent); -webkit-backdrop-filter: blur(20px) saturate(170%); backdrop-filter: blur(20px) saturate(170%); transition: box-shadow .2s; }
+             background: color-mix(in srgb, var(--surface-background) 62%, transparent); -webkit-backdrop-filter: blur(24px) saturate(185%); backdrop-filter: blur(24px) saturate(185%); transition: box-shadow .2s; }
   .svc.scrolled .svc-nav { box-shadow: 0 .5px 0 rgba(156,150,127,.3); }
   .svc-nav h1 { margin: 0; font-size: 17px; line-height: 22px; font-weight: 500; }
   .svc-nav .srch { position: absolute; right: 8px; bottom: 0; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
@@ -287,9 +286,15 @@
   .lcell .tx span { font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
   .lcell .chev { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex: none; }
   /* Utilities carousel */
-  .ut-rail { display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 8px 16px; scroll-padding: 16px; scrollbar-width: none; }
-  .ut-rail::-webkit-scrollbar { display: none; }
-  .ut-card { flex: none; width: 320px; height: 178px; display: flex; flex-direction: column; scroll-snap-align: start; }
+  .ut-rail { overflow: hidden; padding: 8px 0 4px; touch-action: pan-y; cursor: grab; }
+  .ut-rail.drag { cursor: grabbing; }
+  .ut-track { display: flex; gap: 12px; padding: 0 16px; transition: transform .45s var(--ease); will-change: transform; }
+  .ut-rail.drag .ut-track { transition: none; }
+  .ut-card { flex: none; width: 320px; height: 178px; display: flex; flex-direction: column; -webkit-user-select: none; user-select: none; }
+  .ut-card img { -webkit-user-drag: none; }
+  .ut-dots { display: flex; justify-content: center; gap: 6px; padding: 6px 0 4px; }
+  .ut-dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(43,45,52,.2); transition: width .3s var(--ease), background .3s; }
+  .ut-dots i.on { width: 16px; background: var(--tint-primary); }
   .ut-card.solo { width: 100%; }
   .ut-card::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
      background: linear-gradient(180deg, rgba(43,45,52,.08) 0%, rgba(43,45,52,.08) 15%, rgba(43,45,52,.1) 90%, rgba(43,45,52,.2) 100%);
@@ -324,8 +329,8 @@
   .page { position: relative; min-height: 100%; display: flow-root; }
   /* Glass navigation surface: keeps the card colour, blurs content scrolling under it */
   .navbg { position: absolute; left: 0; right: 0; top: 0; height: calc(var(--sb) + 60px); z-index: 4; pointer-events: none;
-           background: color-mix(in srgb, var(--header) 78%, transparent);
-           -webkit-backdrop-filter: blur(20px) saturate(170%); backdrop-filter: blur(20px) saturate(170%);
+           background: color-mix(in srgb, var(--header) 64%, transparent);
+           -webkit-backdrop-filter: blur(24px) saturate(185%); backdrop-filter: blur(24px) saturate(185%);
            transition: background .45s ease, box-shadow .2s; }
   .scrolled .navbg { box-shadow: 0 .5px 0 rgba(255,255,255,.25), 0 1px 0 rgba(0,0,0,.08); }
 
@@ -343,7 +348,7 @@
   .pr-status { position: absolute; left: 0; right: 0; top: 0; height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px 0 52px; font-size: 17px; font-weight: 600; color: var(--tint-primary); z-index: 3; pointer-events: none; }
   .pr-scroll { position: absolute; inset: 0; overflow-y: auto; scrollbar-width: none; padding-bottom: 40px; }
   .pr-scroll::-webkit-scrollbar { display: none; }
-  .pr-nav { position: sticky; top: 0; height: calc(var(--sb) + 56px); padding-top: var(--sb); display: flex; justify-content: space-between; align-items: center; z-index: 2; background: rgba(248,246,242,.72); -webkit-backdrop-filter: blur(20px) saturate(170%); backdrop-filter: blur(20px) saturate(170%); }
+  .pr-nav { position: sticky; top: 0; height: calc(var(--sb) + 56px); padding-top: var(--sb); display: flex; justify-content: space-between; align-items: center; z-index: 2; background: rgba(248,246,242,.6); -webkit-backdrop-filter: blur(24px) saturate(185%); backdrop-filter: blur(24px) saturate(185%); }
   .pr-nav button { width: 56px; height: 44px; display: flex; align-items: center; justify-content: center; }
   .pr-avatar { position: relative; width: 84px; height: 84px; margin: 0 auto; }
   .pr-avatar .ph { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; }
@@ -482,12 +487,17 @@
 
   /* iOS Tab Bar (floating glass) */
   .tabbar { position: absolute; left: 16px; right: 16px; bottom: 26px; height: 62px; padding: 4px; display: flex; border-radius: 31px; z-index: 6;
-            background: rgba(255,255,255,.68); -webkit-backdrop-filter: blur(18px) saturate(180%); backdrop-filter: blur(18px) saturate(180%);
+            background: rgba(255,255,255,.52); -webkit-backdrop-filter: blur(22px) saturate(190%); backdrop-filter: blur(22px) saturate(190%);
             box-shadow: 0 0 0 .5px rgba(0,0,0,.06), inset 0 1px 0 rgba(255,255,255,.75), 0 8px 24px rgba(43,45,52,.12);
             transition: transform .45s var(--ease), opacity .3s; }
-  .tabbar button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 27px; color: var(--tint-secondary); }
+  .tabbar button { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 27px; color: var(--tint-secondary); }
   .tabbar button .tl { font-size: 10px; line-height: 12px; font-weight: 500; }
-  .tabbar button.on { flex: 1.15; background: rgba(43,45,52,.07); color: var(--tint-action); }
+  .tabbar button { transition: color .25s ease; }
+  .tabbar button.on { color: var(--tint-action); }
+  .tab-ind { position: absolute; left: 0; top: 4px; bottom: 4px; width: 0; border-radius: 27px; background: rgba(43,45,52,.07); pointer-events: none;
+             transition: transform .55s cubic-bezier(.3,1.25,.4,1), width .55s cubic-bezier(.3,1.25,.4,1); }
+  .tab-ind.moving { animation: tabSquash .55s ease; }
+  @keyframes tabSquash { 0% { scale: 1 1; } 35% { scale: 1.12 .9; } 100% { scale: 1 1; } }
   .home-ind { position: absolute; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 20px; background: #111; z-index: 7; pointer-events: none; }
   .open .tabbar { transform: translateY(120px); opacity: 0; pointer-events: none; }
 
@@ -678,6 +688,7 @@
 
       <div class="w-hdr"><h2>Комунальні послуги</h2><a id="utAll">Показати всі</a></div>
       <div class="ut-rail" id="utRail"></div>
+      <div class="ut-dots" id="utDots" aria-hidden="true"></div>
 
       <div class="w-hdr"><h2>Валютні послуги</h2></div>
       <div class="wpad"><div class="wcard rates">
@@ -702,6 +713,7 @@
   </section>
 
   <nav class="tabbar" aria-label="Основна навігація">
+    <span class="tab-ind" id="tabInd" aria-hidden="true"></span>
     <button class="on" aria-current="page">
       <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 16V20C11 20.5523 10.5523 21 10 21H4C3.44772 21 3 20.5523 3 20V12C3 11.7348 3.10536 11.4804 3.29289 11.2929L11.2929 3.29289C11.6834 2.90237 12.3166 2.90237 12.7071 3.29289L20.7071 11.2929C20.8946 11.4804 21 11.7348 21 12V20C21 20.5523 20.5523 21 20 21H14C13.4477 21 13 20.5523 13 20V16H11Z" fill="currentColor"/></svg>
       <span class="tl">Головна</span>
@@ -1221,28 +1233,82 @@
     ],
     business: []
   };
+  const EMPTY_UT = (solo) => '<div class="wcard ut-card' + (solo ? ' solo' : '') + '"><div class="ut-ill"><img src="assets/sv-house-ill.svg" alt="" draggable="false">' +
+    '<div><div class="nm" style="font-size:16px;line-height:24px;font-weight:500">Комуналка в одному місці</div><div class="cp" style="font-size:12px;line-height:20px;color:var(--tint-secondary)">Додайте адресу — рахунки знайдемо самі й нагадаємо про оплату</div></div></div>' +
+    '<div class="ut-act"><button class="btn-info js-addr"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8.67 3.33a.67.67 0 1 0-1.34 0v4H3.33a.67.67 0 1 0 0 1.34h4v4a.67.67 0 1 0 1.34 0v-4h4a.67.67 0 1 0 0-1.34h-4v-4Z"/></svg>Додати адресу</button></div></div>';
+  const ut = { idx: 0, n: 0 };
+  const UT_STEP = 332;
+  function utGo(i) {
+    ut.idx = Math.max(0, Math.min(ut.n - 1, i));
+    const rail = document.getElementById('utRail');
+    const max = Math.max(0, rail.querySelector('.ut-track').scrollWidth - rail.clientWidth);
+    const x = Math.min(ut.idx * UT_STEP, max);
+    rail.querySelector('.ut-track').style.transform = 'translateX(' + (-x) + 'px)';
+    document.querySelectorAll('#utDots i').forEach((d, k) => d.classList.toggle('on', k === ut.idx));
+  }
   function renderServices() {
     const list = UTIL[state.profile];
     const rail = document.getElementById('utRail');
     document.getElementById('utAll').style.display = list.length ? '' : 'none';
-    if (!list.length) {
-      rail.innerHTML = '<div class="wcard ut-card solo"><div class="ut-ill"><img src="assets/sv-house-ill.svg" alt="">' +
-        '<div><div class="ut-top" style="padding:0"><span class="nm">Комуналка в одному місці</span></div><div class="ut-mid" style="padding:0"><div class="cp" style="white-space:normal">Додайте адресу — рахунки знайдемо самі й нагадаємо про оплату</div></div></div></div>' +
-        '<div class="ut-act"><button class="btn-info js-addr"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8.67 3.33a.67.67 0 1 0-1.34 0v4H3.33a.67.67 0 1 0 0 1.34h4v4a.67.67 0 1 0 1.34 0v-4h4a.67.67 0 1 0 0-1.34h-4v-4Z"/></svg>Додати адресу</button></div></div>';
-    } else {
-      rail.innerHTML = list.map((u) => '<div class="wcard ut-card">' +
-        '<div class="ut-top"><span class="sqs" style="background-image:url(assets/sv-sq-yellow.svg)"><img src="assets/sv-house.svg" alt=""></span><div style="min-width:0"><div class="nm">' + u.name + '</div><div class="ad">' + u.addr + '</div></div></div>' +
+    const slides = list.map((u) => '<div class="wcard ut-card">' +
+        '<div class="ut-top"><span class="sqs" style="background-image:url(assets/sv-sq-yellow.svg)"><img src="assets/sv-house.svg" alt="" draggable="false"></span><div style="min-width:0"><div class="nm">' + u.name + '</div><div class="ad">' + u.addr + '</div></div></div>' +
         '<div class="ut-mid"><div class="am">' + u.sum[0] + ',' + u.sum[1] + ' <small>₴</small></div><div class="cp">' + u.cap + '</div></div>' +
-        '<div class="ut-act"><button class="btn-info js-pay" data-name="' + u.name + '">Сплатити</button></div></div>').join('') +
-        '<button class="ut-ghost js-addr"><img src="assets/sv-house-ill.svg" alt="">Додати адресу</button>';
-    }
-    rail.scrollLeft = 0;
-    rail.querySelectorAll('.js-pay').forEach((b) => b.addEventListener('click', () => toast('Оплата комуналки: ' + b.dataset.name)));
-    rail.querySelectorAll('.js-addr').forEach((b) => b.addEventListener('click', () => toast('Додавання адреси — наступний крок прототипу')));
+        '<div class="ut-act"><button class="btn-info js-pay" data-name="' + u.name + '">Сплатити</button></div></div>');
+    slides.push(EMPTY_UT(!list.length));
+    ut.n = slides.length;
+    rail.innerHTML = '<div class="ut-track">' + slides.join('') + '</div>';
+    document.getElementById('utDots').innerHTML = ut.n > 1 ? slides.map(() => '<i></i>').join('') : '';
+    utGo(0);
+    rail.querySelectorAll('.js-pay').forEach((b) => b.addEventListener('click', () => { if (!utMoved) toast('Оплата комуналки: ' + b.dataset.name); }));
+    rail.querySelectorAll('.js-addr').forEach((b) => b.addEventListener('click', () => { if (!utMoved) toast('Додавання адреси — наступний крок прототипу'); }));
   }
+  // Drag / swipe the utilities carousel (touch and mouse)
+  let utStart = null, utDX = 0, utMoved = false;
+  const utRail = document.getElementById('utRail');
+  utRail.addEventListener('pointerdown', (e) => {
+    if (ut.n < 2) return;
+    utStart = [e.clientX, e.clientY]; utDX = 0; utMoved = false;
+  });
+  utRail.addEventListener('pointermove', (e) => {
+    if (!utStart) return;
+    const dx = e.clientX - utStart[0], dy = e.clientY - utStart[1];
+    if (!utMoved) {
+      if (Math.abs(dx) < 6) return;
+      if (Math.abs(dy) > Math.abs(dx)) { utStart = null; return; }
+      utMoved = true; utRail.classList.add('drag'); utRail.setPointerCapture(e.pointerId);
+    }
+    utDX = dx;
+    const track = utRail.querySelector('.ut-track');
+    const base = -Math.min(ut.idx * UT_STEP, track.scrollWidth - utRail.clientWidth);
+    const edge = (ut.idx === 0 && dx > 0) || (ut.idx === ut.n - 1 && dx < 0);
+    track.style.transform = 'translateX(' + (base + (edge ? dx * .35 : dx)) + 'px)';
+  });
+  const utEnd = () => {
+    if (!utStart && !utMoved) return;
+    utStart = null; utRail.classList.remove('drag');
+    if (utMoved) utGo(ut.idx + (utDX < -50 ? 1 : utDX > 50 ? -1 : 0));
+    setTimeout(() => { utMoved = false; }, 0);
+  };
+  utRail.addEventListener('pointerup', utEnd);
+  utRail.addEventListener('pointercancel', utEnd);
+  const tabInd = document.getElementById('tabInd');
+  let tabIdx = 0;
+  function placeInd(i, animate) {
+    const t = tabs[i];
+    if (!animate) tabInd.style.transition = 'none';
+    tabInd.style.width = t.offsetWidth + 'px';
+    tabInd.style.transform = 'translateX(' + t.offsetLeft + 'px)';
+    if (!animate) { tabInd.offsetWidth; tabInd.style.transition = ''; }
+    else { tabInd.classList.remove('moving'); tabInd.offsetWidth; tabInd.classList.add('moving'); }
+  }
+  requestAnimationFrame(() => placeInd(0, false));
+  window.addEventListener('resize', () => placeInd(tabIdx, false));
   function setTab(i) {
     const toSvc = i === 3;
+    if (i === tabIdx) return;
     if (i !== 0 && !toSvc) { toast('Розділ ще не зібрано в прототипі'); return; }
+    tabIdx = i;
+    placeInd(i, true);
     if (toSvc && state.open) setOpen(false);
     tabs.forEach((t, k) => { t.classList.toggle('on', k === i); if (k === i) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); });
     phone.classList.toggle('on-svc', toSvc);
