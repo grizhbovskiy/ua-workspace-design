@@ -3,6 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RBUA">
+<meta name="theme-color" id="themeColor" content="#7E97B8">
 <title>Головна — картка в кишені</title>
 <style>
   /* Amalia (brand font). Files live in ./fonts; falls back to system UI if absent. */
@@ -26,9 +31,11 @@
     /* Geometry */
     --card-w: 320px;
     --card-h: 202px;
-    --top-closed: 279px;
+    --sb: 54px;                       /* status bar height (mock on desktop) */
+    --shift: calc(var(--sb) - 54px);
+    --top-closed: calc(279px + var(--shift));
     --peek: 81px;
-    --top-open: 118px;
+    --top-open: calc(118px + var(--shift));
     --spring: cubic-bezier(.32, 1.28, .52, 1);
     --lift: cubic-bezier(.22, 1, .36, 1);
     --ease: cubic-bezier(.2, .8, .2, 1);
@@ -53,9 +60,16 @@
     box-shadow: 0 30px 80px rgba(0,0,0,.25), 0 0 0 10px #111;
     transition: background .45s ease;
   }
+  /* Phones: full screen, real iOS status bar and safe areas, no rubber-band */
+  html { -webkit-text-size-adjust: 100%; }
   @media (max-width: 500px) {
-    body { display: block; background: var(--header); }
-    .phone { width: 100%; height: 100dvh; border-radius: 0; box-shadow: none; }
+    :root { --sb: max(env(safe-area-inset-top, 0px), 8px); }
+    html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+    body { display: block; background: var(--header); touch-action: manipulation; }
+    .phone { width: 100%; height: 100vh; height: 100dvh; border-radius: 0; box-shadow: none; }
+    .status, .pr-status, .home-ind { display: none !important; }
+    .tabbar { bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important; }
+    .scroller, .pr-scroll { -webkit-overflow-scrolling: touch; }
   }
 
   /* iOS glass (approximation of the Figma "Glass Effect" button background) */
@@ -69,11 +83,11 @@
   }
 
   /* Status bar */
-  .status { position: absolute; left: 0; right: 0; top: 0; height: 54px; z-index: 6; display: flex; align-items: center; justify-content: space-between; padding: 0 30px 0 52px; color: #fff; font-size: 17px; font-weight: 600; z-index: 6; pointer-events: none; }
+  .status { position: absolute; left: 0; right: 0; top: 0; height: var(--sb); z-index: 6; display: flex; align-items: center; justify-content: space-between; padding: 0 30px 0 52px; color: #fff; font-size: 17px; font-weight: 600; z-index: 6; pointer-events: none; }
   .status .sys { display: flex; gap: 6px; align-items: center; }
 
   /* Navigation bar (Toolbar: top 54, padding 8 16) */
-  .navbar { position: absolute; left: 0; right: 0; top: 54px; height: 60px; z-index: 5; }
+  .navbar { position: absolute; left: 0; right: 0; top: var(--sb); height: 60px; z-index: 5; }
   .scroller { z-index: 1; }
   .nav-home, .nav-detail { position: absolute; left: 16px; right: 16px; top: 8px; height: 44px; display: flex; align-items: center; justify-content: space-between; transition: opacity .25s, transform .35s var(--ease); }
   .nav-detail { opacity: 0; transform: translateY(-6px); pointer-events: none; }
@@ -91,7 +105,7 @@
   .nav-title { position: absolute; left: 60px; right: 60px; text-align: center; font-size: 17px; line-height: 22px; font-weight: 500; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   /* Balance (Caption 1 + Headline 1 / Headline 3) */
-  .balance { position: absolute; left: 0; right: 0; top: 131px; text-align: center; color: #fff; transition: opacity .22s, transform .4s var(--ease); }
+  .balance { position: absolute; left: 0; right: 0; top: calc(131px + var(--shift)); text-align: center; color: #fff; transition: opacity .22s, transform .4s var(--ease); }
   .balance .label { font-size: 14px; line-height: 24px; transition: opacity .15s, transform .25s var(--ease); }
   .balance .label.swap { opacity: 0; transform: translateY(4px); }
   .amount { margin-top: 4px; height: 44px; display: flex; justify-content: center; align-items: baseline; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
@@ -102,7 +116,7 @@
 
   /* Activate card pill (shown for a card that needs activation) */
   /* UDS Pill: Size=Large, Intent=Accent, Style=Subtle (3.6.0, 25005:12958) */
-  .activate-pill { position: absolute; left: 50%; top: 211px; transform: translateX(-50%); display: flex; align-items: center; padding: 8px 12px; border-radius: 100px; background: var(--surface-accent); border: 1px solid rgba(156,150,127,.32); color: var(--tint-primary); white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .25s; }
+  .activate-pill { position: absolute; left: 50%; top: calc(211px + var(--shift)); transform: translateX(-50%); display: flex; align-items: center; padding: 8px 12px; border-radius: 100px; background: var(--surface-accent); border: 1px solid rgba(156,150,127,.32); color: var(--tint-primary); white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .25s; }
   .activate-pill svg { flex: none; }
   .activate-pill .pl-label { padding: 0 4px; font-size: 14px; line-height: 24px; font-weight: 400; }
   .needs-activation:not(.open) .activate-pill { opacity: 1; pointer-events: auto; }
@@ -124,9 +138,14 @@
 
   .flipper { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .7s cubic-bezier(.3, .7, .2, 1.05); }
   .flipped .card.current .flipper { transform: rotateY(180deg); }
-  .side { position: absolute; inset: 0; border-radius: 16px; overflow: hidden; border: 1px solid rgba(19,20,22,.08); backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  .side { position: absolute; inset: 0; border-radius: 16px; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden;
           box-shadow: 0 1.35px 4.05px rgba(43,45,52,.15), 0 .68px .68px rgba(43,45,52,.15); }
   .back-side { transform: rotateY(180deg); }
+  /* UDS Theme: Light.Utility.Border.Gradient Primary (1px gradient stroke) */
+  .side::after { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: 5;
+                 background: linear-gradient(180deg, rgba(43,45,52,.08) 0%, rgba(43,45,52,.08) 15%, rgba(43,45,52,.1) 90%, rgba(43,45,52,.2) 100%);
+                 -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+                 mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
 
   /* Card header: Caption 1/Default-Tight + Body 2/Bold, Visa 44.6×16.7 (Figma "card") */
   .c-head { position: absolute; left: 11px; right: 11px; top: 10px; display: flex; justify-content: space-between; align-items: center; }
@@ -202,7 +221,7 @@
   .scroller::-webkit-scrollbar { display: none; }
   .page { position: relative; min-height: 100%; display: flow-root; }
   /* Glass navigation surface: keeps the card colour, blurs content scrolling under it */
-  .navbg { position: absolute; left: 0; right: 0; top: 0; height: 114px; z-index: 4; pointer-events: none;
+  .navbg { position: absolute; left: 0; right: 0; top: 0; height: calc(var(--sb) + 60px); z-index: 4; pointer-events: none;
            background: color-mix(in srgb, var(--header) 78%, transparent);
            -webkit-backdrop-filter: blur(20px) saturate(170%); backdrop-filter: blur(20px) saturate(170%);
            transition: background .45s ease, box-shadow .2s; }
@@ -222,7 +241,7 @@
   .pr-status { position: absolute; left: 0; right: 0; top: 0; height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px 0 52px; font-size: 17px; font-weight: 600; color: var(--tint-primary); z-index: 3; pointer-events: none; }
   .pr-scroll { position: absolute; inset: 0; overflow-y: auto; scrollbar-width: none; padding-bottom: 40px; }
   .pr-scroll::-webkit-scrollbar { display: none; }
-  .pr-nav { position: sticky; top: 0; height: 110px; padding-top: 54px; display: flex; justify-content: space-between; align-items: center; z-index: 2; background: rgba(248,246,242,.72); -webkit-backdrop-filter: blur(20px) saturate(170%); backdrop-filter: blur(20px) saturate(170%); }
+  .pr-nav { position: sticky; top: 0; height: calc(var(--sb) + 56px); padding-top: var(--sb); display: flex; justify-content: space-between; align-items: center; z-index: 2; background: rgba(248,246,242,.72); -webkit-backdrop-filter: blur(20px) saturate(170%); backdrop-filter: blur(20px) saturate(170%); }
   .pr-nav button { width: 56px; height: 44px; display: flex; align-items: center; justify-content: center; }
   .pr-avatar { position: relative; width: 84px; height: 84px; margin: 0 auto; }
   .pr-avatar .ph { width: 84px; height: 84px; border-radius: 50%; object-fit: cover; }
@@ -369,7 +388,7 @@
   .home-ind { position: absolute; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 20px; background: #111; z-index: 7; pointer-events: none; }
   .open .tabbar { transform: translateY(120px); opacity: 0; pointer-events: none; }
 
-  .toast { position: absolute; left: 16px; right: 16px; top: 62px; z-index: 30; background: var(--tint-primary); color: #fff; border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 24px rgba(0,0,0,.25); z-index: 10; opacity: 0; transform: translateY(-12px); pointer-events: none; transition: opacity .25s, transform .35s var(--ease); font-size: 15px; }
+  .toast { position: absolute; left: 16px; right: 16px; top: calc(var(--sb) + 8px); z-index: 30; background: var(--tint-primary); color: #fff; border-radius: 16px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 10px 24px rgba(0,0,0,.25); z-index: 10; opacity: 0; transform: translateY(-12px); pointer-events: none; transition: opacity .25s, transform .35s var(--ease); font-size: 15px; }
   .toast.show { opacity: 1; transform: none; }
   .toast .ok { width: 26px; height: 26px; border-radius: 13px; background: #3DBE6E; display: flex; align-items: center; justify-content: center; flex: none; }
 
@@ -769,6 +788,7 @@
     track.style.transform = 'translateX(' + (-STEP * slot) + 'px)';
     phone.style.background = c.bg;
     document.documentElement.style.setProperty('--header', c.bg);
+    document.getElementById('themeColor').setAttribute('content', c.bg);
     cards.concat(extraEl ? [extraEl] : []).forEach((el) => {
       const isCur = el === currentEl();
       el.classList.toggle('current', isCur);
