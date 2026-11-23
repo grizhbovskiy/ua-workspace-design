@@ -215,7 +215,11 @@
   .by .back-side .pill { background: rgba(43,45,52,.12); color: var(--tint-primary); }
   .acct .side, .biz .side { background: #141518; }
   .acct .c-bottom .lbl { font-size: 14px; line-height: 20px; }
-  .acct.blue .side { background: #DCE7F8; color: var(--tint-primary); }
+  /* Account art has a cut (transparent) corner: no fill, ring or box shadow behind it; shadow follows the PNG alpha */
+  .card.acct .side { background: transparent; box-shadow: none; overflow: visible; filter: drop-shadow(0 .68px .68px rgba(43,45,52,.15)) drop-shadow(0 1.35px 2px rgba(43,45,52,.12)); }
+  .card.acct .side::after { display: none; }
+  .card.acct .bgimg { border-radius: 16px; }
+  .acct.blue .side { color: var(--tint-primary); }
   .acct.blue .sub { color: var(--tint-secondary); }
   .yellow .side { background: var(--surface-accent); color: var(--tint-primary); }
   .yellow .graphic { position: absolute; left: -6px; top: -37px; width: 196px; height: 233px; }
