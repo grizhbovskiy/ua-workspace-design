@@ -619,6 +619,11 @@
   .bn-styles button:hover { background: rgba(43,45,52,.05); }
   .bn-styles button.on { background: rgba(43,45,52,.08); box-shadow: inset 0 0 0 1.5px var(--tint-primary); color: var(--tint-primary); font-weight: 500; }
   .bn-styles + .bn-note, .bn-note { margin: -2px 0 2px; font-size: 12px; color: var(--tint-tertiary); }
+  .bn-colors { display: flex; align-items: center; gap: 8px; }
+  .bn-colors button { width: 24px; height: 24px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(43,45,52,.12) inset; transition: transform .2s var(--spring); }
+  .bn-colors button:hover { transform: scale(1.1); }
+  .bn-colors button.on { box-shadow: 0 0 0 2px #fff, 0 0 0 3.5px var(--tint-primary); }
+  .bn-colors span { margin-left: 4px; font-size: 12px; color: var(--tint-tertiary); }
   .bn-sw { width: 38px; height: 24px; border-radius: 7px; position: relative; overflow: hidden; }
   .bn-sw::after { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 1px solid var(--br, transparent); }
   .bn-sw::before { content: ''; position: absolute; left: 4px; top: 5px; width: 13px; height: 4px; border-radius: 3px; background: #FFF05C; }
@@ -947,6 +952,7 @@
   <div class="c-ttl">Банери на головній</div>
   <div class="bn-styles" data-target="home"></div>
   <div class="c-ttl">Банери в інших розділах <small>(Усі рахунки)</small></div>
+  <div class="bn-colors" id="bnColors"></div>
   <div class="bn-styles" data-target="other"></div>
   <p>Свайп або точки — гортати картки. Тап по картці — відкрити; у «Райфкарти» до рахунку є ще «Фішка». Аватар — профіль і перемикання на ФОП. «CVV» — перевернути. Утримуйте номер — скопіювати. Esc — назад.</p>
 </div>
@@ -1578,13 +1584,35 @@
 
   // Banner style switcher (controls panel): home and other sections are set independently.
   // URL params ?banner=… (home) and ?banner2=… (other sections) also work on phones, where the panel is hidden.
-  const BN_STYLES = [
-    { v: 'l1', n: 'L1', d: 'Світла пастель', sw: '--br:#C9D5E6;background:linear-gradient(74.4deg,#E3E9F2,#F4F7FB)' },
-    { v: 'l2', n: 'L2', d: 'Пляма за ілюстрацією', sw: '--br:#C9D5E6;background:radial-gradient(26px 22px at 80% 55%,#A9BAD0,transparent 75%),#fff' },
-    { v: 'l3', n: 'L3', d: 'Колір до ілюстрації', sw: '--br:#C9D5E6;background:linear-gradient(90deg,#F4F7FB 0%,#F4F7FB 38%,#98ACC6 100%)' },
-    { v: 'l4', n: 'L4', d: 'Кольоровий контур', sw: 'background:linear-gradient(74.4deg,#fff,#F4F7FB);box-shadow:inset 0 0 0 1.5px #A3B7D0' },
-    { v: 'dark', n: 'Темний', d: 'Темний градієнт', sw: 'background:linear-gradient(74.4deg,#2D3F51,#5D6B82 55%,#7E97B8)' }
+  // Colour sets for banners outside home: dark gradient + light tokens (same structure as BANNERS[].k)
+  const BN_COLORS = [
+    { id: 'slate',  n: 'Сланцевий', d: ['#2D3F51', '#5D6B82', '#7E97B8'], k: { c3: '#7E97B8', t1: '#E3E9F2', t2: '#F4F7FB', br: '#C9D5E6', glow: 'rgba(126,151,184,.55)' } },
+    { id: 'violet', n: 'Фіолетовий', d: ['#2E2A40', '#534E6B', '#8B84A8'], k: { c3: '#8B84A8', t1: '#E9E5F5', t2: '#F7F5FC', br: '#D5CEEA', glow: 'rgba(139,132,168,.5)' } },
+    { id: 'green',  n: 'Зелений',    d: ['#1E3D33', '#3E7F64', '#7DBFA2'], k: { c3: '#7DBFA2', t1: '#DEF0E7', t2: '#F2F9F5', br: '#BFDFCF', glow: 'rgba(125,191,162,.55)' } },
+    { id: 'teal',   n: 'Бірюзовий',  d: ['#173F4E', '#2E6F86', '#6FB3C9'], k: { c3: '#6FB3C9', t1: '#DDEFF5', t2: '#F2F9FB', br: '#BFE0EA', glow: 'rgba(111,179,201,.5)' } }
   ];
+  const bnDark = (c) => 'radial-gradient(110px 110px at 84% 55%, rgba(255,255,255,.20), transparent 70%), linear-gradient(74.4deg, ' + c.d[0] + ' 0%, ' + c.d[1] + ' 55%, ' + c.d[2] + ' 100%)';
+  // Mini previews of each style, drawn in the given colour
+  const BN_STYLES = [
+    { v: 'l1', n: 'L1', d: 'Світла пастель', sw: (c) => '--br:' + c.k.br + ';background:linear-gradient(74.4deg,' + c.k.t1 + ',' + c.k.t2 + ')' },
+    { v: 'l2', n: 'L2', d: 'Пляма за ілюстрацією', sw: (c) => '--br:' + c.k.br + ';background:radial-gradient(26px 22px at 80% 55%,' + c.k.c3 + ',transparent 75%),#fff' },
+    { v: 'l3', n: 'L3', d: 'Колір до ілюстрації', sw: (c) => '--br:' + c.k.br + ';background:linear-gradient(90deg,' + c.k.t2 + ' 0%,' + c.k.t2 + ' 38%,' + c.k.c3 + ' 100%)' },
+    { v: 'l4', n: 'L4', d: 'Кольоровий контур', sw: (c) => 'background:linear-gradient(74.4deg,#fff,' + c.k.t2 + ');box-shadow:inset 0 0 0 1.5px ' + c.k.c3 },
+    { v: 'dark', n: 'Темний', d: 'Темний градієнт', sw: (c) => 'background:linear-gradient(74.4deg,' + c.d.join(',') + ')' }
+  ];
+  function drawStyleButtons(box, color) {
+    const cur = box.querySelector('button.on'); const v = cur ? cur.dataset.v : null;
+    box.innerHTML = BN_STYLES.map((x) => '<button data-v="' + x.v + '" title="' + x.d + '" class="' + (x.v === v ? 'on' : '') + '"><span class="bn-sw" style="' + x.sw(color) + '"></span>' + x.n + '</button>').join('');
+  }
+  function setBannerColor(id) {
+    const c = BN_COLORS.find((x) => x.id === id); if (!c) return;
+    const el = aaBn.querySelector('.bn');
+    if (el) { el.style.setProperty('--dark', bnDark(c)); Object.entries(c.k).forEach(([n, v]) => el.style.setProperty('--' + n, v)); }
+    document.querySelectorAll('#bnColors button').forEach((b) => b.classList.toggle('on', b.dataset.c === id));
+    document.querySelector('#bnColors span').textContent = c.n;
+    drawStyleButtons(document.querySelector('.bn-styles[data-target="other"]'), c);
+    try { localStorage.setItem('rbua-banner-color-other', id); } catch (e) {}
+  }
   const BN_TARGETS = {
     home:  { rails: () => [bnRail], key: 'rbua-banner-style', param: 'banner', def: 'l1' },
     other: { rails: () => [aaBn], key: 'rbua-banner-style-other', param: 'banner2', def: 'dark' }
@@ -1598,11 +1626,17 @@
     try { localStorage.setItem(BN_TARGETS[target].key, v); } catch (e) {}
   }
   document.querySelectorAll('.bn-styles').forEach((box) => {
-    box.innerHTML = BN_STYLES.map((x) => '<button data-v="' + x.v + '" title="' + x.d + '"><span class="bn-sw" style="' + x.sw + '"></span>' + x.n + '</button>').join('');
+    drawStyleButtons(box, BN_COLORS[0]);
     box.insertAdjacentHTML('afterend', '<p class="bn-note"></p>');
     box.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setBannerStyle(box.dataset.target, b.dataset.v); });
   });
+  const bnColors = document.getElementById('bnColors');
+  bnColors.innerHTML = BN_COLORS.map((c) => '<button data-c="' + c.id + '" title="' + c.n + '" aria-label="' + c.n + '" style="background:linear-gradient(135deg,' + c.d[0] + ',' + c.d[2] + ')"></button>').join('') + '<span></span>';
+  bnColors.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setBannerColor(b.dataset.c); });
   const bnQS = new URLSearchParams(location.search);
+  let bnC = bnQS.get('color2');
+  if (!bnC) { try { bnC = localStorage.getItem('rbua-banner-color-other'); } catch (e) {} }
+  setBannerColor(BN_COLORS.some((x) => x.id === bnC) ? bnC : 'slate');
   Object.entries(BN_TARGETS).forEach(([t, c]) => {
     let v = bnQS.get(c.param);
     if (!v) { try { v = localStorage.getItem(c.key); } catch (e) {} }
