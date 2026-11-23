@@ -88,7 +88,7 @@
   .car::-webkit-scrollbar { display: none; }
   .car::after { content: ''; flex: 0 0 4px; }
   .car > .bn { flex: 0 0 100%; scroll-snap-align: start; }
-  .car > .tiles-row { flex: 0 0 100%; }
+  .car > .tiles-row, .car > .qw { flex: 0 0 100%; scroll-snap-align: start; }
   .dots { display: flex; justify-content: center; gap: 6px; padding: 4px 0 8px; }
   .dots i { width: 6px; height: 6px; border-radius: 3px; background: rgba(43,45,52,.2); transition: width .3s var(--ease), background .3s; }
   .dots i.on { width: 16px; background: var(--tint-primary); }
@@ -238,11 +238,73 @@
   .st b { position: relative; font-size: 14px; line-height: 18px; font-weight: 500; }
   .st .bn-x { top: 4px; right: 4px; width: 28px; height: 28px; color: rgba(43,45,52,.55); }
 
+  /* Meta row: calendar + deadline (Playground 2026 refs 4013:26381, 6133:76801) */
+  .meta { display: flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 12px; line-height: 18px; color: var(--tint-secondary); white-space: nowrap; }
+  .meta svg { width: 14px; height: 14px; flex: none; }
+  .meta.hot { color: #B3261E; }
+
+  /* 11 — Deadline meta (ref 6133:76801): multi-stop pastel, bold title, no CTA, whole card tappable */
+  .bn.v11 { cursor: pointer; padding-right: 8px; background: linear-gradient(var(--ang, 235deg), var(--a) 7%, var(--b) 50%, var(--c) 94%); }
+  .bn.v11 .bn-t { font-weight: 700; }
+  .bn.v11 .bn-c { line-height: 16px; }
+  .bn.v11 .bn-art { flex: 0 0 92px; height: 98px; margin: -8px 0 -8px 0; }
+  .bn-art img.r3d { object-fit: contain; filter: drop-shadow(0 6px 10px rgba(43,45,52,.18)); }
+
+  /* 12 — Personal reason (ref 4013:26381): image left, holographic lavender→cyan */
+  .bn.v12 { cursor: pointer; padding: 16px 16px 16px 12px; gap: 12px; background: linear-gradient(-71.3deg, var(--a) 5.7%, var(--b) 95.2%); }
+  .bn.v12 .bn-art { order: -1; flex: 0 0 76px; height: 84px; margin: 0; }
+  .bn.v12 .bn-t { font-weight: 500; }
+
+  /* 13 — Hybrid: pill + deadline meta + bleeding illustration, category palette */
+  .bn.v13 { cursor: pointer; min-height: 124px; background: linear-gradient(var(--ang, 235deg), var(--a) 7%, var(--b) 52%, var(--c) 94%); }
+  .bn.v13 .bn-art { flex: 0 0 100px; height: 100px; margin: -10px 6px -22px 0; }
+  .bn.v13 .bn-art img.r3d { margin-top: 6px; }
+
+  /* 14 — Quest widget (ref 6133:76771 «Вітальний кешбек») */
+  .qw { position: relative; width: 100%; max-width: 358px; background: var(--surface); border-radius: 16px; box-shadow: var(--elev1); overflow: hidden; cursor: pointer; text-align: left; }
+  .qw-top { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 8px; }
+  .qw-t { font-size: 16px; line-height: 24px; font-weight: 500; }
+  .qw-c { font-size: 12px; line-height: 16px; color: var(--tint-secondary); margin-top: 2px; }
+  .qw-sum { font-size: 36px; line-height: 40px; font-weight: 700; letter-spacing: -.18px; color: var(--d); margin-top: 2px; white-space: nowrap; }
+  .qw-top img { width: 131px; height: 87px; object-fit: contain; margin-left: -28px; }
+  .qw-steps { display: flex; gap: 4px; padding: 4px 16px; }
+  .qw-steps i { flex: 1; height: 6px; border-radius: 100px; background: var(--off); }
+  .qw-steps i.on { background: linear-gradient(165deg, var(--on1), var(--on2)); }
+  .qw-done { padding: 2px 16px 0; font-size: 12px; line-height: 18px; }
+  .qw-done b { font-size: 14px; font-weight: 700; letter-spacing: -.1px; }
+  .qw-task { margin: 16px; padding: 12px 16px 16px; border-radius: 12px; background: var(--bg); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .qw-task small { display: block; font-size: 12px; line-height: 20px; color: #118DB8; }
+  .qw-task b { display: block; font-size: 14px; line-height: 24px; font-weight: 700; }
+  .qw-task div span { display: block; font-size: 12px; line-height: 16px; color: var(--tint-secondary); }
+  .qw-btn { flex: none; height: 36px; padding: 0 16px; border-radius: 12px; background: var(--accent); font-size: 14px; line-height: 24px; font-weight: 500; display: inline-flex; align-items: center; }
+
+  /* Fit scores */
+  .fit { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .fit div { display: grid; gap: 4px; font-size: 11px; line-height: 14px; color: var(--tint-tertiary); }
+  .fit i { display: flex; gap: 3px; }
+  .fit i b { flex: 1; height: 4px; border-radius: 2px; background: rgba(43,45,52,.1); }
+  .fit i b.on { background: var(--tint-primary); }
+
+  /* Dashboard analysis + new refs */
+  .h2s { font-size: 24px; line-height: 28px; font-weight: 700; letter-spacing: -.2px; margin-top: 12px; }
+  .dash { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .dp { background: var(--surface); border-radius: 16px; box-shadow: var(--elev1); padding: 16px; display: grid; gap: 6px; align-content: start; }
+  .dp small { font-size: 12px; line-height: 16px; color: var(--tint-tertiary); }
+  .dp b { font-size: 15px; line-height: 20px; font-weight: 500; }
+  .dp p { font-size: 13px; line-height: 19px; color: var(--tint-secondary); }
+  .dp p em { font-style: normal; color: var(--tint-primary); font-weight: 500; }
+  .newrefs { display: grid; grid-template-columns: auto 1fr; gap: 20px; background: var(--surface); border-radius: 16px; box-shadow: var(--elev1); padding: 20px; align-items: start; }
+  .newrefs .imgs { display: grid; gap: 8px; }
+  .newrefs .imgs img { width: 360px; max-width: 100%; height: auto; border-radius: 12px; }
+  .newrefs ul { margin: 0; padding-left: 18px; font-size: 14px; line-height: 20px; color: var(--tint-secondary); display: grid; gap: 6px; }
+  .newrefs h3 { font-size: 16px; line-height: 20px; font-weight: 700; margin-bottom: 8px; }
+
   /* ---------- Responsive ---------- */
   @media (max-width: 1100px) {
     .page { grid-template-columns: 1fr; }
     .side { position: static; }
     .refs { grid-template-columns: 1fr 1fr; }
+    .dash { grid-template-columns: 1fr 1fr; }
     .palette-row { grid-template-columns: repeat(3, 1fr); }
   }
   @media (max-width: 760px) {
@@ -250,6 +312,8 @@
     .intro h1 { font-size: 30px; line-height: 34px; }
     .lead { font-size: 16px; line-height: 24px; }
     .refs { grid-template-columns: 1fr; }
+    .dash { grid-template-columns: 1fr; }
+    .newrefs { grid-template-columns: 1fr; padding: 16px; }
     .palette-row { grid-template-columns: repeat(2, 1fr); }
     .vc { grid-template-columns: 1fr; padding: 12px; gap: 16px; }
     .vc-demo { padding: 12px 0; }
@@ -267,6 +331,7 @@
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="i-x" viewBox="0 0 16 16"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M8 1.33333C4.3181 1.33333 1.33333 4.3181 1.33333 8C1.33333 11.6819 4.3181 14.6667 8 14.6667C11.6819 14.6667 14.6667 11.6819 14.6667 8C14.6667 4.3181 11.6819 1.33333 8 1.33333ZM9.8619 10.8047L8 8.94281L6.1381 10.8047L5.19529 9.8619L7.05719 8L5.19523 6.13804L6.13804 5.19523L8 7.05719L9.86196 5.19523L10.8048 6.13804L8.94281 8L10.8047 9.8619L9.8619 10.8047Z"/></symbol>
   <symbol id="i-chev" viewBox="0 0 12 12"><path fill="currentColor" d="M7.21967 5.92678L3.57322 9.57322L4.28033 10.2803L8.28033 6.28033C8.47559 6.08507 8.47559 5.76849 8.28033 5.57322L4.28033 1.57322L3.57322 2.28033L7.21967 5.92678Z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 12 12"><path fill="currentColor" d="M5 1.5V2.5H7V1.5H8V2.5H10C10.2761 2.5 10.5 2.72386 10.5 3V10C10.5 10.2761 10.2761 10.5 10 10.5H2C1.72386 10.5 1.5 10.2761 1.5 10V3C1.5 2.72386 1.72386 2.5 2 2.5H4V1.5H5ZM9.4995 6.5H2.4995L2.5 9.5H9.5L9.4995 6.5ZM8 7.5C8.27614 7.5 8.5 7.72386 8.5 8C8.5 8.27614 8.27614 8.5 8 8.5C7.72386 8.5 7.5 8.27614 7.5 8C7.5 7.72386 7.72386 7.5 8 7.5ZM4 3.5H2.5L2.4995 5.5H9.4995L9.5 3.5H8V4.5H7V3.5H5V4.5H4V3.5Z"/></symbol>
   <symbol id="i-img" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15.5 15.5 10 4 21"/></g></symbol>
 </svg>
 
@@ -274,7 +339,7 @@
   <section class="intro">
     <div class="eyebrow">RBUA Mobile · Банери · варіанти</div>
     <h1>Банери, які помітно виділяються серед віджетів</h1>
-    <p class="lead">Зараз банер білий і зливається з віджетами. Нижче 10 напрямів: від найближчих до UDS до сміливіших за мотивами Revolut і Monzo. Натисніть на варіант, і він з'явиться на екрані телефону в контексті головної. Свайпайте банер, щоб побачити інші кольори, а «×» закриває його. Ілюстрації взято з бібліотеки RBUA, жовтий фон з них прибрано.</p>
+    <p class="lead">Зараз банер білий і зливається з віджетами. Нижче 14 напрямів: від найближчих до UDS до сміливіших за мотивами Revolut і Monzo. Варіанти 11–14 побудовані на референсах із Playground 2026. Біля кожного варіанта є оцінка: наскільки він помітний, наскільки пасує до дашборду і наскільки готовий у DS. Натисніть на варіант, і він з'явиться на екрані телефону в контексті головної. Свайпайте банер, щоб побачити інші кольори, а «×» закриває його. Ілюстрації взято з бібліотеки RBUA, жовтий фон з них прибрано.</p>
 
     <div class="refs">
       <div class="ref">
@@ -309,6 +374,40 @@
     </div>
 
     <p class="refs-src">Джерело: Mobbin (iOS, Revolut і Monzo). Посилання відкривають конкретні екрани.</p>
+
+    <h2 class="h2s">Стилістика дашборду і що з неї випливає для банерів</h2>
+    <div class="dash">
+      <div class="dp"><small>Фон і поверхні</small><b>Теплий бежевий #F8F6F2, білі віджети, Elevation 1</b><p>Усі віджети білі й відрізняються лише тінню. Тому <em>банер має відрізнятися фоном</em>: пастельного градієнта вже достатньо, щоб його помітили. Ще одна біла картка загубиться.</p></div>
+      <div class="dp"><small>Акцент</small><b>Жовтий #FEE600 — одна головна дія на екрані</b><p>Жовтий використовуємо як <em>пілюлю або маркер</em>, а не як кнопку в кожному банері. Інакше банер забере фокус у «Поповнити» і в головних дій картки.</p></div>
+      <div class="dp"><small>Легкість</small><b>Скляні навбар і таб-бар, мінімалізм</b><p>Дашборд світлий і «повітряний». Важкі темні або насичені банери <em>доречні тільки як Hero</em>, один на екран. Решта світлі.</p></div>
+      <div class="dp"><small>Типографіка</small><b>Amalia: 16 Medium або Bold тайтл, 12 Regular підпис</b><p>Референси вже на цій шкалі. Більший кегль (20–24) <em>лише для Hero</em>, щоб банер не перекрикував баланс (40 Bold).</p></div>
+      <div class="dp"><small>Правила з ітерацій</small><b>Без декоративних іконок, нічого не стрибає</b><p>Іконка календаря в мета-рядку <em>несе інформацію</em> (дедлайн), тож вона доречна. Висота банера фіксована (≥ 112), а закриття згортає банер плавно.</p></div>
+      <div class="dp"><small>Ілюстрації</small><b>У дашборді — ізометрія UDS, у нових референсах — 3D-рендери</b><p>Обидва стилі гарні, але <em>в одній каруселі змішувати не варто</em>. Пропоную ізометрію для продуктових банерів, а 3D для кампаній (розіграші, день народження, сезон).</p></div>
+    </div>
+
+    <h2 class="h2s">Нові референси (Playground 2026)</h2>
+    <div class="newrefs">
+      <div class="imgs"><img src="assets/ref-4013.png" alt="Референс: банер «з днем народження»"><img src="assets/ref-6133.png" alt="Референс: банер «квитки в Карпати»"><img src="assets/ref-76771.png" alt="Референс: віджет «Вітальний кешбек»"></div>
+      <div>
+        <h3>Що в них працює</h3>
+        <ul>
+          <li><b>Багатоколірний пастельний градієнт</b> (лаванда → блакитний, лайм у 3 стопи) і тонований бордер у тон. Банер помітний і не «кричить».</li>
+          <li><b>3D-об'єкт</b> без рамки й плашки, з власною тінню.</li>
+          <li><b>Мета-рядок із календарем</b> «Залишилось 2 дні». Терміновість без червоних плашок.</li>
+          <li><b>Немає CTA-посилання</b>, тапається вся картка. Текст займає місце, яке раніше йшло на «Оформити ›».</li>
+          <li><b>Персоналізація</b>: «Оксано, з днем народження!». Банер відчувається як привід, а не як реклама.</li>
+          <li><b>Віджет-квест «Вітальний кешбек»</b> (6133:76771): біла поверхня, але сильний акцент — велика сума 36 Bold у кольорі On Success, 3D-об'єкт, сегментний прогрес «1 із 5» і картка наступного завдання з жовтою кнопкою. Це вже не банер, а механіка онбордингу.</li>
+        </ul>
+        <h3 style="margin-top:14px">Що варто допрацювати</h3>
+        <ul>
+          <li>Немає «×». Потрібне або закриття, або правило показу (наприклад, не довше N днів).</li>
+          <li>Тайтли в референсах різної ваги: Medium у 4013, Bold у 6133. Варто зафіксувати одну.</li>
+          <li>Мета-рядок 10 px у 4013 замалий. Беремо 12/18, як у 6133.</li>
+          <li>У копірайті є описки: «немавірний» → «неймовірний», «Приймайте участь» → «Беріть участь».</li>
+          <li>У квесті кнопка «Поповнити» має текст 10 px і висоту 33. Беремо 14 px і висоту 36–40 (Button Small). Жовта кнопка тут виправдана: це головна дія віджета.</li>
+        </ul>
+      </div>
+    </div>
     <div class="palette">
       <div class="eyebrow">Колір = категорія продукту (Infographic UDS)</div>
       <div class="palette-row" id="palette"></div>
@@ -346,12 +445,15 @@
 
   <section class="summary">
     <div class="eyebrow" style="color:rgba(255,255,255,.55)">Рекомендація</div>
-    <h2>Система з трьох рівнів, а не один шаблон</h2>
+    <h2>Що пропоную для дашборду RBUA</h2>
     <ol>
-      <li><b>Стандарт (02 · Пілюля + пастель)</b> для більшості пропозицій у «Пропозиції для вас». Найближчий до UDS варіант: концепт уже є у Figma, потрібні лише тінти Infographic 100 як токени.</li>
-      <li><b>Hero (04 · Яскравий, 03 · Темний преміум або 09 · Висока Hero)</b>: не більше одного на екрані, для головної кампанії тижня (кредитка, ФОП). Використовуємо його, коли банер має «кричати».</li>
-      <li><b>Добірка (10 · Плитки-історії)</b>, коли пропозицій 3+: замість стрічки з однакових банерів.</li>
-      <li>Варіанти 05 (Monzo-кадрування) і 08 (скло) варто тестувати як сезонні або спецкампанії. Варіант 09 (висока Hero) підходить для головної кампанії або важливого повідомлення про безпеку, не частіше одного разу на сесію.</li>
+      <li><b>Стандарт: 13 · Пілюля + дедлайн</b> (або 02 без мета-рядка, якщо дедлайну немає). Світлий градієнт у кольорі категорії тримає легкість дашборду. Пілюля дає вигоду, мета-рядок дає терміновість. Тапається вся картка, «×» лишається.</li>
+      <li><b>Особливі події: 12 · Персональний привід</b>. День народження, річниця, персональна ставка. Ілюстрація ліворуч одразу відрізняє його від промо.</li>
+      <li><b>Hero: 04 · Яскравий або 09 · Висока Hero</b>, не більше одного на екран і лише для головної кампанії тижня. На світлому бежевому фоні цього достатньо, щоб «кричати».</li>
+      <li><b>Добірка: 10 · Плитки-історії</b>, коли пропозицій 3+.</li>
+      <li><b>Онбординг і багатокрокові акції: 14 · Віджет-квест</b>. Окремий віджет над «Пропозиціями для вас», поки квест не завершено. Це найсильніший формат для нових клієнтів, бо дає мету і наступний крок.</li>
+      <li><b>Ілюстрації:</b> ізометрія UDS для продуктових банерів, 3D-рендери для кампаній і подій. В одній каруселі не змішуємо.</li>
+      <li><b>Не рекомендую для головної:</b> 03 (темний) і 08 (скло). Вони важкі для світлого дашборду, їх краще лишити для Premium-розділу або сезонних спецпроєктів.</li>
     </ol>
   </section>
 </main>
@@ -371,6 +473,9 @@ const O = {
   gift:     { pill: 'Raif+', t: 'Новорічні знижки від партнерів', c: 'До 30% до 31 грудня', cta: 'Обрати подарунок', ill: 'gift' },
   savings:  { pill: 'Скарбничка', t: 'Відкладайте решту з покупок', c: 'Округлюємо до 10 ₴ автоматично', cta: 'Увімкнути', ill: 'wallet' },
   invest:   { pill: 'Новинка', big: '+12%', t: 'середня дохідність ОВДП', c: 'Купуйте від 1 000 ₴', cta: 'Інвестувати', ill: 'rocket' },
+  birthday: { pill: 'Подарунок', t: 'Оксано, з днем народження!', c: 'Ексклюзивний кешбек 10% на кафе та ресторани', meta: 'Залишилось 2 дні', hot: true, img: 'assets/3d-gift.png' },
+  raffle:   { pill: 'Розіграш', t: 'Два квитки в Карпати від Райф', c: 'Беріть участь у розіграші й вигравайте неймовірний подарунок', meta: 'Залишилось 30 днів', img: 'assets/3d-mountain.png' },
+  years:    { pill: '3 роки з Райф', t: 'Тарасе, дякуємо, що ви з нами!', c: 'Тримайте +3% кешбеку на всі покупки', meta: 'Діє до 31 грудня', ill: 'gift' },
 };
 
 /* ---------- Category palette (Infographic UDS) ---------- */
@@ -385,7 +490,8 @@ const P = [
 
 const chev = '<svg><use href="#i-chev"/></svg>';
 const xBtn = '<button class="bn-x" aria-label="Закрити" data-x><svg><use href="#i-x"/></svg></button>';
-const art = (o, cls = '') => `<div class="bn-art ${cls}"><img src="assets/ill/${o.ill}.svg" alt=""></div>`;
+const art = (o, cls = '') => `<div class="bn-art ${cls}"><img src="${o.img || `assets/ill/${o.ill}.svg`}" class="${o.img ? 'r3d' : ''}" alt=""></div>`;
+const meta = (o) => o.meta ? `<div class="meta${o.hot ? ' hot' : ''}"><svg><use href="#i-cal"/></svg>${o.meta}</div>` : '';
 const st = v => Object.entries(v).map(([k, val]) => `--${k}:${val}`).join(';');
 
 /* Each variant: meta + colourways ({ v: css vars, o: offer, pill: pill class }) + render(cw) */
@@ -491,7 +597,47 @@ const V = [
     r: () => `<div class="tiles-row">${[
         [O.credit, '#E1D6FF'], [O.fuel, '#FFE6BF'], [O.travel, '#CDEEFA'], [O.insurance, '#D3F2E5'], [O.gift, '#FFD6DC']
       ].map(([o, c]) => `<div class="st" style="--a:${c}"><img src="assets/ill/${o.ill}.svg" alt=""><span class="pill white">${o.pill}</span><b>${o.t.replace('<br>', ' ')}</b>${xBtn}</div>`).join('')}</div>` },
+  { id: 11, name: 'Дедлайн-мета', src: 'Playground 2026 · 6133:76801 «Два квитки в Карпати»', tags: [['UDS-типографіка', 'ds'], ['мета-рядок з календарем', ''], ['без CTA', 'new']],
+    desc: 'Як у референсі: градієнт у 3 стопи, тонований бордер, Bold-тайтл, підпис і мета-рядок «Залишилось N днів». Тапається вся картка. Перший колір — з 3D-рендером, інші — з ілюстраціями бібліотеки, щоб порівняти.',
+    pros: ['Дедлайн мотивує без агресії', 'Більше місця для тексту (немає CTA)', 'Пасує до світлого дашборду'], cons: ['Не очевидно, що банер клікабельний (немає ›)', 'Немає «×»: потрібне правило показу'],
+    cws: [
+      { v: { a: '#C9FAAB', b: '#EAFFDD', c: '#DFF7D0', br: '#DEF2D1' }, o: O.raffle },
+      { v: { a: '#FFD9B0', b: '#FFF1E0', c: '#FFE7CC', br: '#F7DCBC' }, o: { ...O.fuel, meta: 'Залишилось 8 днів' } },
+      { v: { a: '#BFE9FA', b: '#E8F7FD', c: '#D6F0FA', br: '#CBE8F4' }, o: { ...O.travel, meta: 'До 15 січня' } },
+    ],
+    r: (cw) => `<article class="bn v11" style="${st(cw.v)}"><div class="bn-txt"><h3 class="bn-t">${cw.o.t}</h3><p class="bn-c">${cw.o.c}</p>${meta(cw.o)}</div>${art(cw.o)}</article>` },
+
+  { id: 12, name: 'Персональний привід', src: 'Playground 2026 · 4013:26381 «Оксано, з днем народження!»', tags: [['персоналізація', ''], ['ілюстрація ліворуч', '']],
+    desc: 'Голографічний градієнт (лаванда → блакитний), ілюстрація ліворуч, звертання на ім’я. Для подій клієнта: день народження, річниця з банком, персональна ставка.',
+    pros: ['Відчувається як турбота, а не реклама', 'Ілюстрація ліворуч відрізняє його від промо', 'Дедлайн підкреслює ексклюзивність'], cons: ['Потрібні дані і правила персоналізації', 'Лише для особливих подій, інакше знеціниться'],
+    cws: [
+      { v: { a: '#E9E1FC', b: '#D6FCFF', br: '#C3AAFF' }, o: O.birthday },
+      { v: { a: '#FFE9D6', b: '#FFF8C9', br: '#F5D2A6' }, o: O.years },
+    ],
+    r: (cw) => `<article class="bn v12" style="${st(cw.v)}">${art(cw.o)}<div class="bn-txt"><h3 class="bn-t">${cw.o.t}</h3><p class="bn-c">${cw.o.c}</p>${meta(cw.o)}</div></article>` },
+
+  { id: 13, name: 'Пілюля + дедлайн', src: 'Гібрид: пілюля (концепт 1490) + мета-рядок (Playground 2026) + палітра категорій', rec: true, tags: [['UDS + референси', 'ds'], ['колір = категорія', '']],
+    desc: 'Збирає найкраще: пілюля з вигодою над тайтлом, мета-рядок із дедлайном, градієнт у 3 стопи в кольорі категорії, ілюстрація трохи виходить за край. Тапається вся картка, «×» лишається.',
+    pros: ['Вигода і терміновість видно за секунду', 'Одна система на всі категорії', 'Працює і з ізометрією, і з 3D'], cons: ['Щільніший за 11: стежити, щоб підпис був в 1 рядок', 'Потрібні градієнтні токени для 6 категорій'],
+    cws: [
+      { v: { a: '#E1D6FF', b: '#F4F0FF', c: '#EAE2FF', br: '#D2C3F7' }, o: { ...O.credit, meta: 'Пропозиція до 15 грудня' } },
+      { v: { a: '#C9FAAB', b: '#EFFFE4', c: '#DFF7D0', br: '#CDEBB8' }, o: { ...O.fop, meta: 'Залишилось 12 днів' } },
+      { v: { a: '#FFD9B0', b: '#FFF4E6', c: '#FFE7CC', br: '#F7DCBC' }, o: { ...O.birthday, t: 'З днем народження, Оксано!', c: 'Кешбек 10% на кафе та ресторани' } },
+    ],
+    r: (cw) => `<article class="bn v13" style="${st(cw.v)}"><div class="bn-txt"><span class="pill">${cw.o.pill}</span><h3 class="bn-t">${cw.o.t}</h3><p class="bn-c">${cw.o.c}</p>${meta(cw.o)}</div>${art(cw.o)}${xBtn}</article>` },
+  { id: 14, name: 'Віджет-квест', src: 'Playground 2026 · 6133:76771 «Вітальний кешбек»', rec: true, tags: [['UDS-поверхня', 'ds'], ['On Success #2C7D0E', 'ds'], ['онбординг', '']],
+    desc: 'Не банер, а віджет із метою: сума винагороди великою цифрою, сегментний прогрес і картка наступного кроку з кнопкою. Для онбордингу нових клієнтів і багатокрокових акцій.',
+    pros: ['Зрозуміло, що робити далі і що отримаю', 'Біла поверхня пасує до дашборду, але цифра й 3D дають акцент', 'Утримує: клієнт повертається закінчити кроки'], cons: ['Високий (~280 px), тож тільки один на екран', 'Потрібен бекенд кроків і статусів'],
+    cws: [
+      { v: { d: '#2C7D0E', on1: '#ABED8D', on2: '#79D54F', off: 'rgba(194,215,180,.35)' }, q: { t: 'Вітальний кешбек', c: 'ще 4 кроки до', sum: '500 ₴', n: 1, task: 'Завдання 2', tt: 'Поповніть мобільний', tc: 'на суму від 50 ₴', btn: 'Поповнити', img: 'assets/3d-card-gift.png' } },
+      { v: { d: '#B56E00', on1: '#FFC266', on2: '#ED9100', off: 'rgba(237,145,0,.14)' }, q: { t: 'Новорічний марафон Raif+', c: 'ще 2 кроки до', sum: '+5%', n: 3, task: 'Завдання 4', tt: 'Оплатіть в ресторані', tc: 'карткою від 300 ₴', btn: 'Детальніше', img: 'assets/ill/gift.svg' } },
+    ],
+    r: (cw) => `<article class="qw" style="${st(cw.v)}"><div class="qw-top"><div><div class="qw-t">${cw.q.t}</div><div class="qw-c">${cw.q.c}</div><div class="qw-sum">${cw.q.sum}</div></div><img src="${cw.q.img}" alt=""></div><div class="qw-steps">${[1,2,3,4,5].map(k => `<i class="${k <= cw.q.n ? 'on' : ''}"></i>`).join('')}</div><div class="qw-done"><b>${cw.q.n} із 5</b> виконано</div><div class="qw-task"><div><small>${cw.q.task}</small><b>${cw.q.tt}</b><span>${cw.q.tc}</span></div><span class="qw-btn">${cw.q.btn}</span></div></article>` },
 ];
+
+/* Fit: [noticeability, fits the dashboard, DS readiness] on a 1–5 scale */
+const FIT = { 0:[1,5,5], 1:[2,5,5], 2:[3,5,4], 3:[4,3,3], 4:[5,2,2], 5:[4,3,3], 6:[3,4,4], 7:[4,4,4], 8:[4,3,2], 9:[5,2,3], 10:[4,3,3], 11:[3,5,4], 12:[3,5,3], 13:[4,5,4], 14:[4,5,3] };
+const bars = n => `<i>${[1,2,3,4,5].map(k => `<b class="${k <= n ? 'on' : ''}"></b>`).join('')}</i>`;
 
 /* ---------- Render palette ---------- */
 document.getElementById('palette').innerHTML = P.map(p => `<div class="sw"><div class="sw-c">${p.c.map(c => `<span style="background:${c}" title="${c}"></span>`).join('')}</div><div class="sw-l"><b>${p.n}</b><small>${p.k} · ${p.c[2]}</small></div></div>`).join('');
@@ -506,6 +652,7 @@ list.innerHTML = V.map(v => `
       <div class="vc-src">${v.src}</div>
       <p class="vc-desc">${v.desc}</p>
       <div class="tags">${v.tags.map(([t, c]) => `<span class="tag ${c}">${t}</span>`).join('')}</div>
+      <div class="fit"><div>Помітність${bars(FIT[v.id][0])}</div><div>Пасує до дашборду${bars(FIT[v.id][1])}</div><div>Готовність DS${bars(FIT[v.id][2])}</div></div>
       <div class="pc"><div class="p"><b>Плюси</b><ul>${v.pros.map(x => `<li>${x}</li>`).join('')}</ul></div><div class="c"><b>Мінуси</b><ul>${v.cons.map(x => `<li>${x}</li>`).join('')}</ul></div></div>
       <span class="vc-act">Показати на екрані →</span>
     </div>
@@ -551,7 +698,7 @@ document.addEventListener('click', e => {
 });
 slot.addEventListener('click', e => { if (e.target.closest('[data-restore]')) show(+document.querySelector('.vc.sel').dataset.id); });
 
-show(2);
+show(13);
 </script>
 </body>
 </html>
