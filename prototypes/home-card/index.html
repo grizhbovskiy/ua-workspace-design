@@ -222,6 +222,13 @@
   .acct.blue .side { color: var(--tint-primary); }
   .acct.blue .sub { color: var(--tint-secondary); }
   .yellow .side { background: var(--surface-accent); color: var(--tint-primary); }
+  /* EUR currency card: logo, "EUR" and Visa are part of the art; number sits on a dark chip like in Figma 5742:119118 */
+  .eur .side { background: var(--surface-accent); color: var(--tint-primary); }
+  .eur .c-name, .eur .visa { display: none; }
+  .eur .c-head { top: 46px; }
+  .eur .c-mask { display: inline-block; padding: 2px 8px; border-radius: 4px; background: rgba(0,0,0,.55); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); color: #fff; }
+  .eur .pan, .eur .date, .eur .cvv-big, .eur .warn { color: var(--tint-primary); }
+  .eur .front .pill, .eur .back-side .pill { background: rgba(43,45,52,.12); color: var(--tint-primary); }
   .yellow .graphic { position: absolute; left: -6px; top: -37px; width: 196px; height: 233px; }
   .yellow .sub { color: #4A4200; }
   .dark .side { background: var(--surface-inverted); color: #fff; }
@@ -461,10 +468,12 @@
 
   /* Quick actions (Button / Icon + Text) */
   .quick { display: flex; padding-bottom: 8px; }
-  .quick button { flex: 1 0 0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 8px; min-height: 100px; }
-  .quick .lbl { font-size: 12px; line-height: 16px; font-weight: 500; letter-spacing: .12px; color: #232529; text-align: center; }
-  .qa-dark { position: relative; width: 48px; height: 48px; border-radius: 12px; background: var(--surface-inverted); border: 1px solid rgba(19,20,22,.08); }
-  .qa-dark img { position: absolute; left: 11px; top: 11px; }
+  /* Quick actions: 56×56 buttons, 28px icons (Figma Quick Actions Bar) */
+  .quick button { flex: 1 0 0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 8px; min-height: 108px; }
+  .quick button > img { width: 56px; height: 56px; }
+  .quick .lbl { font-size: 12px; line-height: 14px; font-weight: 500; letter-spacing: .12px; color: #232529; text-align: center; }
+  .qa-dark { position: relative; width: 56px; height: 56px; flex: none; border-radius: 12px; background: var(--surface-inverted); border: 1px solid rgba(19,20,22,.08); }
+  .qa-dark img { position: absolute; left: 13px; top: 13px; width: 28px; height: 28px; }
 
   /* Widget */
   .widget { padding: 8px 16px; }
@@ -521,8 +530,15 @@
   .bn-x img { filter: brightness(0) invert(1); opacity: .7; }
   .bn.gone { opacity: 0; transform: scale(.94); }
   /* ===== Ghost product (pre-approved 100-days card) ===== */
-  .is-ghost .balance .amount { color: var(--tint-tertiary); }
-  .is-ghost .balance .label { color: var(--tint-secondary); }
+  /* Ghost card face: blank card, no name/number/date; Visa treatment is switchable in the controls panel */
+  .ghost-card .c-head > div, .ghost-card .pan, .ghost-card .c-bottom { display: none; }
+  .ghost-card .c-head { justify-content: flex-end; }
+  .ghost-card .side { background: #1E1F24; }
+  .ghost-card .band { background: #8C7A00; }
+  .ghost-card .shade { background: rgba(0,0,0,.25); }
+  [data-gvisa="muted"] .ghost-card .visa { opacity: .35; }
+  [data-gvisa="emboss"] .ghost-card .visa { filter: brightness(0) invert(1) opacity(.16) drop-shadow(0 1px 0 rgba(255,255,255,.25)) drop-shadow(0 -1px 0 rgba(0,0,0,.6)); }
+  [data-gvisa="none"] .ghost-card .visa { display: none; }
   .is-ghost .quick, .is-ghost .tx-widget, .is-ghost #bnWrap { display: none; }
   .gh-wrap { display: none; overflow: hidden; transition: height .4s var(--ease), opacity .3s; }
   .is-ghost .gh-wrap { display: block; }
@@ -640,6 +656,9 @@
   .controls label { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
   .controls p { margin: 0; color: var(--tint-secondary); line-height: 1.4; }
   .controls .c-ttl { font-weight: 500; margin-top: 4px; }
+  .seg { display: flex; gap: 4px; }
+  .seg button { flex: 1; height: 30px; border-radius: 8px; font-size: 12px; color: var(--tint-secondary); box-shadow: inset 0 0 0 1px rgba(156,150,127,.32); }
+  .seg button.on { background: var(--tint-primary); color: #fff; box-shadow: none; }
   .controls .c-ttl small { font-weight: 400; color: var(--tint-tertiary); }
   .bn-styles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
   .bn-styles button { display: grid; justify-items: center; gap: 4px; padding: 6px 2px; border-radius: 10px; font-size: 11px; line-height: 13px; color: var(--tint-secondary); }
@@ -697,7 +716,7 @@
   <div class="scroller" id="scroller"><div class="page">
   <div class="balance" id="balance" aria-label="Власні кошти 8 412,50 гривень">
     <div class="label" id="balLabel" aria-hidden="true">Власні кошти</div>
-    <div class="amount" aria-hidden="true"><span class="int" id="balInt">8 412</span><span class="comma">,</span><span class="dec" id="balDec">50</span><span class="cur">₴</span></div>
+    <div class="amount" aria-hidden="true"><span class="int" id="balInt">8 412</span><span class="comma">,</span><span class="dec" id="balDec">50</span><span class="cur" id="balCur">₴</span></div>
   </div>
 
   <button class="activate-pill js-activate" aria-label="Активувати картку, закінчується на 4410">
@@ -721,11 +740,11 @@
 
       </div></div>
 
-      <div class="quick">
-        <button><img src="assets/qa-transfer.svg" width="48" height="48" alt=""><span class="lbl">Переказ<br>на картку</span></button>
-        <button><img src="assets/qa-iban.svg" width="48" height="48" alt=""><span class="lbl">Платіж<br>за IBAN</span></button>
-        <button><img src="assets/qa-mobile.svg" width="48" height="48" alt=""><span class="lbl">Поповнити мобільний</span></button>
-        <button><span class="qa-dark"><img src="assets/qa-wallet-icon.svg" width="24" height="24" alt=""></span><span class="lbl">Усі<br>Платежі</span></button>
+      <div class="quick" id="quick" data-set="uah">
+        <button><img src="assets/qa-transfer.svg" width="56" height="56" alt=""><span class="lbl">Переказ<br>на картку</span></button>
+        <button><img src="assets/qa-iban.svg" width="56" height="56" alt=""><span class="lbl">Платіж<br>за IBAN</span></button>
+        <button><img src="assets/qa-mobile.svg" width="56" height="56" alt=""><span class="lbl">Поповнити мобільний</span></button>
+        <button><span class="qa-dark"><img src="assets/qa-wallet-icon.svg" width="28" height="28" alt=""></span><span class="lbl">Усі<br>Платежі</span></button>
       </div>
 
       <div class="widget tx-widget"><div class="w-wrap">
@@ -996,6 +1015,8 @@
   <div class="c-ttl">Гост-продукт <small>(«100 днів», останній слайд)</small></div>
   <div class="bn-colors" id="ghColors"></div>
   <div class="bn-styles" data-target="ghost"></div>
+  <div class="c-ttl">Visa на гост-картці</div>
+  <div class="seg" id="gVisa"><button data-v="muted">Приглушена</button><button data-v="emboss">Тиснення</button><button data-v="none">Без Visa</button></div>
   <p>Свайп або точки — гортати картки. Тап по картці — відкрити; у «Райфкарти» до рахунку є ще «Фішка». Аватар — профіль і перемикання на ФОП. «CVV» — перевернути. Утримуйте номер — скопіювати. Esc — назад.</p>
 </div>
 
@@ -1029,8 +1050,13 @@
         bg: '#6C8FBF', label: 'Залишок на рахунку', value: 23870.15,
         tx: { name: 'Переказ на рахунок', cat: 'Поповнення', amount: '+5 000,00 ₴', logo: 'ic-bank.svg', bg: '#EEE8CD' },
         title: 'UA58 **** 72214', iban: 'UA58 3808 0500 0000 0026 2058 7221 4' },
-      // Ghost product: pre-approved "100 днів" credit card, not opened yet (darkened card, approved limit, open-card CTA)
-      { key: 'ghost', ghost: true, skin: 'by light', img: 'card-100.png', shade: true, name: '100 днів', pan: ['4149', '4997', '2210', '5731'], date: '11/29', cvv: '000',
+      // Currency card (Figma App 2026 5742:119115): own quick actions — transfer, exchange, all payments
+      { key: 'eur', skin: 'eur light', img: 'card-eur-bg.png', name: 'Райфкарта EUR', pan: ['6759', '1204', '3318', '9866'], date: '11/28', cvv: '614', cur: '€', qa: 'fx',
+        bg: '#6B86A8', label: 'Власні кошти', value: 1200,
+        tx: { name: 'Westside Market', cat: '12.02.26 Кафе та ресторани', amount: '-50,00 €', logo: 'tx-restaurant.svg', bg: '#E9E1FC' },
+        title: 'UA73 **** 98662', iban: 'UA73 3808 0500 0000 0026 2073 9866 2' },
+      // Ghost product: pre-approved "100 днів" credit card, not opened yet (blank darkened card, approved limit, open-card CTA)
+      { key: 'ghost', ghost: true, skin: 'by light', shade: true, name: '100 днів', pan: ['4149', '4997', '2210', '5731'], date: '11/29', cvv: '000',
         bg: '#5A72AA', label: 'Пільговий період до 100 днів', value: 200000,
         title: 'Кредитна картка «100 днів»', iban: '' }
     ],
@@ -1062,6 +1088,7 @@
     const sk = c.skin.split(' ')[0];
     let h = '';
     if (c.img) h += '<img class="bgimg" src="assets/' + c.img + '" alt="">';
+    if (c.ghost) h += '<div class="band"></div>';
     if (c.shade) h += '<div class="shade"></div>';
     if (sk === 'yellow') h += '<img class="graphic" src="assets/card-graphic.svg" width="196" height="233" alt="">';
     return h;
@@ -1086,7 +1113,7 @@
   }
   function makeCard(c, cls) {
     const el = document.createElement('div');
-    el.className = 'card ' + c.skin + (c.extra ? ' acct-multi' : '') + (cls ? ' ' + cls : '');
+    el.className = 'card ' + c.skin + (c.extra ? ' acct-multi' : '') + (c.ghost ? ' ghost-card' : '') + (cls ? ' ' + cls : '');
     el.setAttribute('role', 'button');
     el.tabIndex = 0;
     el.setAttribute('aria-label', c.kind === 'account' ? c.name : c.name + ', картка закінчується на ' + c.pan[3]);
@@ -1124,7 +1151,7 @@
     if (key === balKey) return;
     balKey = key;
     const f = fmt(c.value);
-    document.getElementById('balance').setAttribute('aria-label', c.label + ' ' + f[0] + ',' + f[1] + ' гривень');
+    document.getElementById('balance').setAttribute('aria-label', c.label + ' ' + f[0] + ',' + f[1] + (c.cur === '€' ? ' євро' : ' гривень'));
     if (shownBal === null) { shownBal = c.value; balLabel.textContent = c.label; paint(c.value); return; }
     if (balLabel.textContent !== c.label) {
       balLabel.classList.add('swap');
@@ -1192,6 +1219,10 @@
     }
     if (c.credit) document.getElementById('credLimit').textContent = 'Поточний ліміт ' + c.credit;
     document.getElementById('activateText').textContent = c.ghost ? 'Відкрити кредитну картку' : 'Активувати картку';
+    document.getElementById('balCur').textContent = c.cur || '₴';
+    // Quick actions depend on the card: currency cards get transfer / exchange / all payments
+    const qaSet = c.qa || 'uah';
+    if (quick.dataset.set !== qaSet) { quick.innerHTML = QA_SETS[qaSet]; quick.dataset.set = qaSet; }
     setBalance();
   }
   function toast(text) {
@@ -1265,6 +1296,13 @@
     state.flipped = !state.flipped;
     render();
   }
+  const quick = document.getElementById('quick');
+  const QA_SETS = {
+    uah: quick.innerHTML,
+    fx: '<button><span class="qa-dark"><img src="assets/qa2-card.svg" width="28" height="28" alt=""></span><span class="lbl">Переказати<br>на картку</span></button>' +
+        '<button><span class="qa-dark"><img src="assets/qa2-exch.svg" width="28" height="28" alt=""></span><span class="lbl">Обміняти<br>валюту</span></button>' +
+        '<button><span class="qa-dark"><img src="assets/qa2-wallet.svg" width="28" height="28" alt=""></span><span class="lbl">Усі<br>платежі</span></button>'
+  };
   const ghostFlow = () => toast('Оформлення кредитної картки «100 днів» — наступний крок');
   function activate() {
     const c = cur();
@@ -1722,6 +1760,17 @@
   let ghC = bnQS.get('gcolor');
   if (!ghC) { try { ghC = localStorage.getItem('rbua-ghost-color'); } catch (e) {} }
   setGhostColor(GH_COLORS.some((x) => x.id === ghC) ? ghC : 'violet');
+  // Visa treatment on the ghost card
+  const gVisa = document.getElementById('gVisa');
+  const setGVisa = (v) => {
+    phone.dataset.gvisa = v;
+    gVisa.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.v === v));
+    try { localStorage.setItem('rbua-ghost-visa', v); } catch (e) {}
+  };
+  gVisa.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setGVisa(b.dataset.v); });
+  let gv = bnQS.get('gvisa');
+  if (!gv) { try { gv = localStorage.getItem('rbua-ghost-visa'); } catch (e) {} }
+  setGVisa(['muted', 'emboss', 'none'].includes(gv) ? gv : 'muted');
   Object.entries(BN_TARGETS).forEach(([t, c]) => {
     let v = bnQS.get(c.param);
     if (!v) { try { v = localStorage.getItem(c.key); } catch (e) {} }
