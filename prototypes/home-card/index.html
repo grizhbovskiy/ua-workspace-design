@@ -613,15 +613,15 @@
   .controls label { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
   .controls p { margin: 0; color: var(--tint-secondary); line-height: 1.4; }
   .controls .c-ttl { font-weight: 500; margin-top: 4px; }
-  .bn-styles { display: grid; gap: 4px; }
-  .bn-styles button { display: grid; grid-template-columns: 44px 1fr; align-items: center; gap: 10px; padding: 6px; border-radius: 10px; text-align: left; font-size: 13px; line-height: 16px; }
+  .controls .c-ttl small { font-weight: 400; color: var(--tint-tertiary); }
+  .bn-styles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+  .bn-styles button { display: grid; justify-items: center; gap: 4px; padding: 6px 2px; border-radius: 10px; font-size: 11px; line-height: 13px; color: var(--tint-secondary); }
   .bn-styles button:hover { background: rgba(43,45,52,.05); }
-  .bn-styles button.on { background: rgba(43,45,52,.08); box-shadow: inset 0 0 0 1.5px var(--tint-primary); }
-  .bn-styles b { font-weight: 500; display: block; }
-  .bn-styles small { color: var(--tint-tertiary); font-size: 11px; line-height: 14px; }
-  .bn-sw { width: 44px; height: 28px; border-radius: 7px; position: relative; overflow: hidden; }
+  .bn-styles button.on { background: rgba(43,45,52,.08); box-shadow: inset 0 0 0 1.5px var(--tint-primary); color: var(--tint-primary); font-weight: 500; }
+  .bn-styles + .bn-note, .bn-note { margin: -2px 0 2px; font-size: 12px; color: var(--tint-tertiary); }
+  .bn-sw { width: 38px; height: 24px; border-radius: 7px; position: relative; overflow: hidden; }
   .bn-sw::after { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 1px solid var(--br, transparent); }
-  .bn-sw::before { content: ''; position: absolute; left: 5px; top: 6px; width: 16px; height: 5px; border-radius: 3px; background: #FFF05C; }
+  .bn-sw::before { content: ''; position: absolute; left: 4px; top: 5px; width: 13px; height: 4px; border-radius: 3px; background: #FFF05C; }
   @media (max-width: 900px) { .controls { display: none; } }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; transition-delay: 0s !important; } }
 </style>
@@ -944,14 +944,10 @@
 
 <div class="controls" aria-label="Налаштування прототипу">
   <label>Видима смуга <input id="peek" type="range" min="64" max="110" step="1" value="81"></label>
-  <div class="c-ttl">Стиль банерів</div>
-  <div class="bn-styles" id="bnStyles">
-    <button data-v="l1"><span class="bn-sw" style="--br:#C9D5E6;background:linear-gradient(74.4deg,#E3E9F2,#F4F7FB)"></span><span><b>L1 · Світла пастель</b><small>Спокійний тон категорії</small></span></button>
-    <button data-v="l2"><span class="bn-sw" style="--br:#C9D5E6;background:radial-gradient(30px 26px at 80% 55%,#A9BAD0,transparent 75%),#fff"></span><span><b>L2 · Пляма за ілюстрацією</b><small>Білий, колір лише справа</small></span></button>
-    <button data-v="l3"><span class="bn-sw" style="--br:#C9D5E6;background:linear-gradient(90deg,#F4F7FB 0%,#F4F7FB 38%,#98ACC6 100%)"></span><span><b>L3 · Колір до ілюстрації</b><small>Найпомітніший зі світлих</small></span></button>
-    <button data-v="l4"><span class="bn-sw" style="--br:#A3B7D0;background:linear-gradient(74.4deg,#fff,#F4F7FB);box-shadow:inset 0 0 0 1.5px #A3B7D0"></span><span><b>L4 · Кольоровий контур</b><small>Рамка і м’яка тінь</small></span></button>
-    <button data-v="dark"><span class="bn-sw" style="background:linear-gradient(74.4deg,#2D3F51,#5D6B82 55%,#7E97B8)"></span><span><b>Темний</b><small>Попередній варіант</small></span></button>
-  </div>
+  <div class="c-ttl">Банери на головній</div>
+  <div class="bn-styles" data-target="home"></div>
+  <div class="c-ttl">Банери в інших розділах <small>(Усі рахунки)</small></div>
+  <div class="bn-styles" data-target="other"></div>
   <p>Свайп або точки — гортати картки. Тап по картці — відкрити; у «Райфкарти» до рахунку є ще «Фішка». Аватар — профіль і перемикання на ФОП. «CVV» — перевернути. Утримуйте номер — скопіювати. Esc — назад.</p>
 </div>
 
@@ -1580,18 +1576,38 @@
   aa.querySelector('.aa-ghost .wr').addEventListener('click', () => toast('Оформлення кредитної картки — наступний крок'));
   aa.querySelector('.btn-acc').addEventListener('click', () => toast('Відкриття картки — наступний крок'));
 
-  // Banner style switcher (controls panel). ?banner=l1|l2|l3|l4|dark also works on phones, where the panel is hidden.
-  const BN_STYLES = ['l1', 'l2', 'l3', 'l4', 'dark'];
-  function setBannerStyle(v) {
-    if (!BN_STYLES.includes(v)) return;
-    bnRail.dataset.v = v; aaBn.dataset.v = v;
-    document.querySelectorAll('#bnStyles button').forEach((b) => b.classList.toggle('on', b.dataset.v === v));
-    try { localStorage.setItem('rbua-banner-style', v); } catch (e) {}
+  // Banner style switcher (controls panel): home and other sections are set independently.
+  // URL params ?banner=… (home) and ?banner2=… (other sections) also work on phones, where the panel is hidden.
+  const BN_STYLES = [
+    { v: 'l1', n: 'L1', d: 'Світла пастель', sw: '--br:#C9D5E6;background:linear-gradient(74.4deg,#E3E9F2,#F4F7FB)' },
+    { v: 'l2', n: 'L2', d: 'Пляма за ілюстрацією', sw: '--br:#C9D5E6;background:radial-gradient(26px 22px at 80% 55%,#A9BAD0,transparent 75%),#fff' },
+    { v: 'l3', n: 'L3', d: 'Колір до ілюстрації', sw: '--br:#C9D5E6;background:linear-gradient(90deg,#F4F7FB 0%,#F4F7FB 38%,#98ACC6 100%)' },
+    { v: 'l4', n: 'L4', d: 'Кольоровий контур', sw: 'background:linear-gradient(74.4deg,#fff,#F4F7FB);box-shadow:inset 0 0 0 1.5px #A3B7D0' },
+    { v: 'dark', n: 'Темний', d: 'Темний градієнт', sw: 'background:linear-gradient(74.4deg,#2D3F51,#5D6B82 55%,#7E97B8)' }
+  ];
+  const BN_TARGETS = {
+    home:  { rails: () => [bnRail], key: 'rbua-banner-style', param: 'banner', def: 'l1' },
+    other: { rails: () => [aaBn], key: 'rbua-banner-style-other', param: 'banner2', def: 'dark' }
+  };
+  function setBannerStyle(target, v) {
+    const st = BN_STYLES.find((x) => x.v === v); if (!st) return;
+    BN_TARGETS[target].rails().forEach((r) => { r.dataset.v = v; });
+    const box = document.querySelector('.bn-styles[data-target="' + target + '"]');
+    box.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.v === v));
+    box.nextElementSibling.textContent = st.n + ' · ' + st.d;
+    try { localStorage.setItem(BN_TARGETS[target].key, v); } catch (e) {}
   }
-  document.getElementById('bnStyles').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setBannerStyle(b.dataset.v); });
-  let bnInit = new URLSearchParams(location.search).get('banner');
-  if (!bnInit) { try { bnInit = localStorage.getItem('rbua-banner-style'); } catch (e) {} }
-  setBannerStyle(BN_STYLES.includes(bnInit) ? bnInit : 'l1');
+  document.querySelectorAll('.bn-styles').forEach((box) => {
+    box.innerHTML = BN_STYLES.map((x) => '<button data-v="' + x.v + '" title="' + x.d + '"><span class="bn-sw" style="' + x.sw + '"></span>' + x.n + '</button>').join('');
+    box.insertAdjacentHTML('afterend', '<p class="bn-note"></p>');
+    box.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setBannerStyle(box.dataset.target, b.dataset.v); });
+  });
+  const bnQS = new URLSearchParams(location.search);
+  Object.entries(BN_TARGETS).forEach(([t, c]) => {
+    let v = bnQS.get(c.param);
+    if (!v) { try { v = localStorage.getItem(c.key); } catch (e) {} }
+    setBannerStyle(t, BN_STYLES.some((x) => x.v === v) ? v : c.def);
+  });
 
   document.getElementById('peek').addEventListener('input', (e) => {
     document.documentElement.style.setProperty('--peek', e.target.value + 'px');
