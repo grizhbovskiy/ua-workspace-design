@@ -345,6 +345,9 @@
   .aa.scrolled .aa-nav { box-shadow: 0 .5px 0 rgba(156,150,127,.3); }
   .aa-nav h1 { margin: 0; font-size: 17px; line-height: 22px; font-weight: 500; }
   .aa-nav .back { position: absolute; left: 4px; bottom: 6px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+  /* FOP banner on top of All accounts: same component and style as the home carousel */
+  .bn-rail.aa-bn { padding: 8px 16px; cursor: default; overflow: hidden; transition: height .4s var(--ease), padding .4s var(--ease), opacity .3s; }
+  .bn-rail.aa-bn .bn { width: 100%; max-width: none; }
   .aa-sec { display: flex; align-items: center; width: 100%; min-height: 56px; padding: 0 16px; gap: 16px; text-align: left; }
   .aa-sec .fl { width: 24px; display: flex; justify-content: center; }
   .aa-sec b { flex: 1; font-size: 16px; line-height: 20px; font-weight: 500; }
@@ -823,6 +826,7 @@
   <section class="aa" id="aa" role="dialog" aria-label="Усі рахунки" aria-hidden="true">
     <div class="aa-scroll" id="aaScroll">
       <div class="aa-nav"><button class="back" id="aaBack" aria-label="Назад"><img src="assets/aa-back.svg" width="24" height="24" alt=""></button><h1>Усі рахунки</h1></div>
+      <div class="bn-rail aa-bn" id="aaBn" data-v="l1"></div>
       <button class="aa-sec" data-g="uah"><span class="fl"><img src="assets/aa-flag-ua.svg" width="20" height="15" alt=""></span><b>Рахунки у гривні</b><img class="chev" src="assets/aa-hide.svg" alt=""></button>
       <div class="aa-group" data-g="uah"><div>
         <div class="aa-w sel"><div class="wr"><div class="aa-acc"><div class="tx"><div class="aa-amt"><span class="n"><span class="i">7 500,</span><span class="d">00</span></span><span class="c">₴</span></div><div class="cap">Рахунок RaifCard+</div></div><img class="ck" src="assets/aa-check.svg" alt="Обрано"></div><div class="aa-card"><img class="mini" src="assets/mini-raifgold.png" alt=""><span class="tx"><b>Raif Gold Card</b><span>**** 8742</span></span></div></div></div>
@@ -1466,6 +1470,18 @@
     bnGo(0);
   }
   renderBanners();
+  // All accounts: the FOP banner (first offer) sits above all content
+  const aaBn = document.getElementById('aaBn');
+  aaBn.innerHTML = bnRail.querySelector('.bn').outerHTML;
+  aaBn.addEventListener('click', (e) => {
+    const card = e.target.closest('.bn'); if (!card) return;
+    if (e.target.closest('.bn-x')) {
+      aaBn.style.height = aaBn.offsetHeight + 'px'; aaBn.offsetHeight;
+      aaBn.style.height = '0px'; aaBn.style.paddingTop = aaBn.style.paddingBottom = '0px'; aaBn.style.opacity = '0';
+      return;
+    }
+    toast(card.querySelector('.bn-ttl').textContent + ' — наступний крок прототипу');
+  });
   window.addEventListener('resize', () => bnGo(bn.idx));
   bnRail.addEventListener('click', (e) => {
     if (bnMoved) return;
@@ -1568,7 +1584,7 @@
   const BN_STYLES = ['l1', 'l2', 'l3', 'l4', 'dark'];
   function setBannerStyle(v) {
     if (!BN_STYLES.includes(v)) return;
-    bnRail.dataset.v = v;
+    bnRail.dataset.v = v; aaBn.dataset.v = v;
     document.querySelectorAll('#bnStyles button').forEach((b) => b.classList.toggle('on', b.dataset.v === v));
     try { localStorage.setItem('rbua-banner-style', v); } catch (e) {}
   }
