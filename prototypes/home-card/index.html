@@ -222,13 +222,8 @@
   .acct.blue .side { color: var(--tint-primary); }
   .acct.blue .sub { color: var(--tint-secondary); }
   .yellow .side { background: var(--surface-accent); color: var(--tint-primary); }
-  /* EUR currency card: logo, "EUR" and Visa are part of the art; number sits on a dark chip like in Figma 5742:119118 */
-  .eur .side { background: var(--surface-accent); color: var(--tint-primary); }
-  .eur .c-name, .eur .visa { display: none; }
-  .eur .c-head { top: 46px; }
-  .eur .c-mask { display: inline-block; padding: 2px 8px; border-radius: 4px; background: rgba(0,0,0,.55); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); color: #fff; }
-  .eur .pan, .eur .date, .eur .cvv-big, .eur .warn { color: var(--tint-primary); }
-  .eur .front .pill, .eur .back-side .pill { background: rgba(43,45,52,.12); color: var(--tint-primary); }
+  /* Currency tag next to the card name (EUR card) */
+  .cur-tag { display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 4px; background: var(--surface-inverted); color: var(--surface-accent); font-size: 11px; line-height: 16px; font-weight: 700; letter-spacing: .4px; vertical-align: 1px; }
   .yellow .graphic { position: absolute; left: -6px; top: -37px; width: 196px; height: 233px; }
   .yellow .sub { color: #4A4200; }
   .dark .side { background: var(--surface-inverted); color: #fff; }
@@ -530,15 +525,9 @@
   .bn-x img { filter: brightness(0) invert(1); opacity: .7; }
   .bn.gone { opacity: 0; transform: scale(.94); }
   /* ===== Ghost product (pre-approved 100-days card) ===== */
-  /* Ghost card face: blank card, no name/number/date; Visa treatment is switchable in the controls panel */
+  /* Ghost card face: 100-days art, darkened (shade), no name / number / date — only Visa stays */
   .ghost-card .c-head > div, .ghost-card .pan, .ghost-card .c-bottom { display: none; }
   .ghost-card .c-head { justify-content: flex-end; }
-  .ghost-card .side { background: #1E1F24; }
-  .ghost-card .band { background: #8C7A00; }
-  .ghost-card .shade { background: rgba(0,0,0,.25); }
-  [data-gvisa="muted"] .ghost-card .visa { opacity: .35; }
-  [data-gvisa="emboss"] .ghost-card .visa { filter: brightness(0) invert(1) opacity(.16) drop-shadow(0 1px 0 rgba(255,255,255,.25)) drop-shadow(0 -1px 0 rgba(0,0,0,.6)); }
-  [data-gvisa="none"] .ghost-card .visa { display: none; }
   .is-ghost .quick, .is-ghost .tx-widget, .is-ghost #bnWrap { display: none; }
   .gh-wrap { display: none; overflow: hidden; transition: height .4s var(--ease), opacity .3s; }
   .is-ghost .gh-wrap { display: block; }
@@ -656,9 +645,6 @@
   .controls label { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
   .controls p { margin: 0; color: var(--tint-secondary); line-height: 1.4; }
   .controls .c-ttl { font-weight: 500; margin-top: 4px; }
-  .seg { display: flex; gap: 4px; }
-  .seg button { flex: 1; height: 30px; border-radius: 8px; font-size: 12px; color: var(--tint-secondary); box-shadow: inset 0 0 0 1px rgba(156,150,127,.32); }
-  .seg button.on { background: var(--tint-primary); color: #fff; box-shadow: none; }
   .controls .c-ttl small { font-weight: 400; color: var(--tint-tertiary); }
   .bn-styles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
   .bn-styles button { display: grid; justify-items: center; gap: 4px; padding: 6px 2px; border-radius: 10px; font-size: 11px; line-height: 13px; color: var(--tint-secondary); }
@@ -1015,8 +1001,6 @@
   <div class="c-ttl">Гост-продукт <small>(«100 днів», останній слайд)</small></div>
   <div class="bn-colors" id="ghColors"></div>
   <div class="bn-styles" data-target="ghost"></div>
-  <div class="c-ttl">Visa на гост-картці</div>
-  <div class="seg" id="gVisa"><button data-v="muted">Приглушена</button><button data-v="emboss">Тиснення</button><button data-v="none">Без Visa</button></div>
   <p>Свайп або точки — гортати картки. Тап по картці — відкрити; у «Райфкарти» до рахунку є ще «Фішка». Аватар — профіль і перемикання на ФОП. «CVV» — перевернути. Утримуйте номер — скопіювати. Esc — назад.</p>
 </div>
 
@@ -1051,12 +1035,12 @@
         tx: { name: 'Переказ на рахунок', cat: 'Поповнення', amount: '+5 000,00 ₴', logo: 'ic-bank.svg', bg: '#EEE8CD' },
         title: 'UA58 **** 72214', iban: 'UA58 3808 0500 0000 0026 2058 7221 4' },
       // Currency card (Figma App 2026 5742:119115): own quick actions — transfer, exchange, all payments
-      { key: 'eur', skin: 'eur light', img: 'card-eur-bg.png', name: 'Райфкарта EUR', pan: ['6759', '1204', '3318', '9866'], date: '11/28', cvv: '614', cur: '€', qa: 'fx',
+      { key: 'eur', skin: 'yellow', name: 'Райфкарта', curTag: 'EUR', pan: ['6759', '1204', '3318', '9866'], date: '11/28', cvv: '614', cur: '€', qa: 'fx',
         bg: '#6B86A8', label: 'Власні кошти', value: 1200,
         tx: { name: 'Westside Market', cat: '12.02.26 Кафе та ресторани', amount: '-50,00 €', logo: 'tx-restaurant.svg', bg: '#E9E1FC' },
         title: 'UA73 **** 98662', iban: 'UA73 3808 0500 0000 0026 2073 9866 2' },
       // Ghost product: pre-approved "100 днів" credit card, not opened yet (blank darkened card, approved limit, open-card CTA)
-      { key: 'ghost', ghost: true, skin: 'by light', shade: true, name: '100 днів', pan: ['4149', '4997', '2210', '5731'], date: '11/29', cvv: '000',
+      { key: 'ghost', ghost: true, skin: 'by light', img: 'card-100.png', shade: true, name: '100 днів', pan: ['4149', '4997', '2210', '5731'], date: '11/29', cvv: '000',
         bg: '#5A72AA', label: 'Пільговий період до 100 днів', value: 200000,
         title: 'Кредитна картка «100 днів»', iban: '' }
     ],
@@ -1088,7 +1072,6 @@
     const sk = c.skin.split(' ')[0];
     let h = '';
     if (c.img) h += '<img class="bgimg" src="assets/' + c.img + '" alt="">';
-    if (c.ghost) h += '<div class="band"></div>';
     if (c.shade) h += '<div class="shade"></div>';
     if (sk === 'yellow') h += '<img class="graphic" src="assets/card-graphic.svg" width="196" height="233" alt="">';
     return h;
@@ -1099,7 +1082,7 @@
     const label = isAcct ? (c.name + ', рахунок ' + c.title) : (c.name + ', картка закінчується на ' + c.pan[3]);
     const groups = c.pan.map((g) => '<span class="g">' + g + '</span>').join('');
     const front = '<div class="side front">' + decor(c) +
-      '<div class="c-head"><div><div class="c-name sub">' + c.name + '</div><div class="c-mask">' + mask + '</div></div>' + (isAcct ? '' : visa) + '</div>' +
+      '<div class="c-head"><div><div class="c-name sub">' + c.name + (c.curTag ? '<span class="cur-tag">' + c.curTag + '</span>' : '') + '</div><div class="c-mask">' + mask + '</div></div>' + (isAcct ? '' : visa) + '</div>' +
       '<div class="pan big" title="Утримуйте, щоб скопіювати">' + groups + '</div>' +
       (isAcct
         ? '<div class="c-bottom"><span class="lbl sub">' + (c.faceLabel || 'Поточний рахунок · UAH') + '</span></div>'
@@ -1760,17 +1743,6 @@
   let ghC = bnQS.get('gcolor');
   if (!ghC) { try { ghC = localStorage.getItem('rbua-ghost-color'); } catch (e) {} }
   setGhostColor(GH_COLORS.some((x) => x.id === ghC) ? ghC : 'violet');
-  // Visa treatment on the ghost card
-  const gVisa = document.getElementById('gVisa');
-  const setGVisa = (v) => {
-    phone.dataset.gvisa = v;
-    gVisa.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.v === v));
-    try { localStorage.setItem('rbua-ghost-visa', v); } catch (e) {}
-  };
-  gVisa.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setGVisa(b.dataset.v); });
-  let gv = bnQS.get('gvisa');
-  if (!gv) { try { gv = localStorage.getItem('rbua-ghost-visa'); } catch (e) {} }
-  setGVisa(['muted', 'emboss', 'none'].includes(gv) ? gv : 'muted');
   Object.entries(BN_TARGETS).forEach(([t, c]) => {
     let v = bnQS.get(c.param);
     if (!v) { try { v = localStorage.getItem(c.key); } catch (e) {} }
