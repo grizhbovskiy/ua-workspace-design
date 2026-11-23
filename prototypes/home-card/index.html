@@ -327,6 +327,63 @@
   .rrow .main span.v { text-align: right; padding-right: 16px; }
   .rrow .ic { width: 52px; align-self: stretch; display: flex; align-items: center; justify-content: center; }
 
+
+  /* ===== All accounts (Figma 1574:66559): slides in from the right ===== */
+  .aa { position: absolute; inset: 0; z-index: 22; background: var(--surface-background); transform: translateX(100%); visibility: hidden;
+        transition: transform .45s var(--lift), visibility 0s .45s; box-shadow: -12px 0 30px rgba(0,0,0,.08); }
+  .aa.show { transform: none; visibility: visible; transition: transform .45s var(--lift); }
+  .home-shift { transition: transform .45s var(--lift); }
+  .aa-open .scroller, .aa-open .navbar, .aa-open .navbg { transform: translateX(-24%); }
+  .scroller, .navbar, .navbg { transition: transform .45s var(--lift); }
+  .aa-dim { position: absolute; inset: 0; z-index: 21; background: rgba(0,0,0,.18); opacity: 0; visibility: hidden; transition: opacity .45s ease, visibility 0s .45s; }
+  .aa-open .aa-dim { opacity: 1; visibility: visible; transition: opacity .45s ease; }
+  .aa-open .status { z-index: 23; filter: brightness(0); opacity: .85; }
+  .aa-scroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; overscroll-behavior: contain; padding-bottom: 120px; }
+  .aa-scroll::-webkit-scrollbar { display: none; }
+  .aa-nav { position: sticky; top: 0; z-index: 2; height: calc(var(--sb) + 56px); padding-top: var(--sb); display: flex; align-items: center; justify-content: center;
+            background: color-mix(in srgb, var(--surface-background) 62%, transparent); -webkit-backdrop-filter: blur(24px) saturate(185%); backdrop-filter: blur(24px) saturate(185%); transition: box-shadow .2s; }
+  .aa.scrolled .aa-nav { box-shadow: 0 .5px 0 rgba(156,150,127,.3); }
+  .aa-nav h1 { margin: 0; font-size: 17px; line-height: 22px; font-weight: 500; }
+  .aa-nav .back { position: absolute; left: 4px; bottom: 6px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
+  .aa-sec { display: flex; align-items: center; width: 100%; min-height: 56px; padding: 0 16px; gap: 16px; text-align: left; }
+  .aa-sec .fl { width: 24px; display: flex; justify-content: center; }
+  .aa-sec b { flex: 1; font-size: 16px; line-height: 20px; font-weight: 500; }
+  .aa-sec .chev { width: 20px; height: 20px; transition: transform .3s var(--ease); }
+  .aa-sec.closed .chev { transform: rotate(180deg); }
+  .aa-group { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .35s var(--ease), opacity .25s; }
+  .aa-group > div { overflow: hidden; }
+  .aa-group.closed { grid-template-rows: 0fr; opacity: 0; }
+  .aa-w { padding: 8px 16px; }
+  .aa-w .wr { position: relative; background: var(--surface-baseline); border-radius: 16px; box-shadow: var(--elevation-1); overflow: hidden; cursor: pointer; }
+  .aa-w .wr::after { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 2px solid transparent; pointer-events: none; transition: border-color .2s; }
+  .aa-w.sel .wr::after { border-color: #118DB8; }
+  .aa-acc { position: relative; display: flex; align-items: center; height: 82px; padding: 8px 16px; gap: 16px; }
+  .aa-acc::before { content: ''; position: absolute; left: 16px; right: 0; bottom: 0; height: 1px; background: rgba(156,150,127,.24); }
+  .aa-acc:last-child::before { display: none; }
+  .aa-acc .tx { flex: 1; min-width: 0; }
+  .aa-amt { display: flex; align-items: flex-end; gap: 4px; white-space: nowrap; color: var(--tint-primary); }
+  .aa-amt .n { display: flex; align-items: flex-end; }
+  .aa-amt .i { font-size: 24px; line-height: 28px; font-weight: 700; letter-spacing: -.12px; padding-bottom: 2px; }
+  .aa-amt .d { font-size: 20px; line-height: 26px; font-weight: 700; letter-spacing: -.1px; padding-bottom: 2px; }
+  .aa-amt .c { font-size: 20px; line-height: 30px; font-weight: 400; }
+  .aa-acc .cap { font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
+  .aa-acc .ck { width: 20px; height: 20px; opacity: 0; transform: scale(.6); transition: opacity .2s, transform .3s var(--spring); }
+  .aa-w.sel .aa-acc .ck { opacity: 1; transform: none; }
+  .aa-card { position: relative; display: flex; align-items: center; height: 60px; padding: 0 16px; gap: 16px; }
+  .aa-card + .aa-card::before { content: ''; position: absolute; left: 76px; right: 0; top: 0; height: 1px; background: rgba(156,150,127,.24); }
+  .aa-card .mini { width: 44px; height: 28px; border-radius: 4px; flex: none; }
+  .aa-card .tx { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .aa-card .tx b { font-size: 16px; line-height: 24px; font-weight: 400; }
+  .aa-card .tx span { font-size: 12px; line-height: 20px; color: var(--tint-secondary); }
+  .aa-ribbon { display: inline-flex; margin-left: 16px; padding: 0 12px; background: #118DB8; color: #fff; font-size: 14px; line-height: 24px; border-radius: 0 0 8px 8px; }
+  .aa-ghost .aa-amt { color: var(--tint-tertiary); }
+  .aa-ghost .aa-acc::before { display: none; }
+  .aa-ghost .sep { height: 2px; background: var(--surface-background); }
+  .aa-hidden { padding: 16px; text-align: center; font-size: 16px; line-height: 24px; color: var(--tint-secondary); }
+  .aa-foot { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; background: #F1EDE6; padding: 16px 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
+  .aa-foot .btn-acc { width: 100%; height: 48px; border-radius: 12px; background: var(--surface-accent); display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 16px; line-height: 16px; font-weight: 500; color: var(--tint-primary); }
+  .aa-foot .btn-acc:active { filter: brightness(.96); }
+
   /* Sheet */
   /* Full-screen scroll: header, cards and content scroll together */
   .scroller { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; overscroll-behavior: contain; }
@@ -548,7 +605,7 @@
         <div class="glass btn-group">
           <button aria-label="QR-код"><img src="assets/nav-qr.svg" width="24" height="24" alt=""></button>
           <button aria-label="Сповіщення"><img src="assets/nav-bell.svg" width="24" height="24" alt=""></button>
-          <button aria-label="Мої картки"><img src="assets/nav-cards.svg" width="24" height="24" alt=""></button>
+          <button aria-label="Усі рахунки" id="openAll"><img src="assets/nav-cards.svg" width="24" height="24" alt=""></button>
         </div>
       </div>
     </div>
@@ -722,6 +779,30 @@
           <button class="lcell"><span class="sqs" style="background-image:url(assets/sv-sq-lime.svg)"><img src="assets/sv-heart.svg" alt=""></span><span class="tx"><b>Благодійність</b><span>Донати на благодійність</span></span><span class="chev"><img src="assets/sv-go-right.svg" width="20" height="20" alt=""></span></button>
       </div></div>
     </div>
+  </section>
+
+  <div class="aa-dim" id="aaDim" aria-hidden="true"></div>
+  <section class="aa" id="aa" role="dialog" aria-label="Усі рахунки" aria-hidden="true">
+    <div class="aa-scroll" id="aaScroll">
+      <div class="aa-nav"><button class="back" id="aaBack" aria-label="Назад"><img src="assets/aa-back.svg" width="24" height="24" alt=""></button><h1>Усі рахунки</h1></div>
+      <button class="aa-sec" data-g="uah"><span class="fl"><img src="assets/aa-flag-ua.svg" width="20" height="15" alt=""></span><b>Рахунки у гривні</b><img class="chev" src="assets/aa-hide.svg" alt=""></button>
+      <div class="aa-group" data-g="uah"><div>
+        <div class="aa-w sel"><div class="wr"><div class="aa-acc"><div class="tx"><div class="aa-amt"><span class="n"><span class="i">7 500,</span><span class="d">00</span></span><span class="c">₴</span></div><div class="cap">Рахунок RaifCard+</div></div><img class="ck" src="assets/aa-check.svg" alt="Обрано"></div><div class="aa-card"><img class="mini" src="assets/mini-raifgold.png" alt=""><span class="tx"><b>Raif Gold Card</b><span>**** 8742</span></span></div></div></div>
+        <div class="aa-w"><div class="wr"><div class="aa-acc"><div class="tx"><div class="aa-amt"><span class="n"><span class="i">40 000,</span><span class="d">00</span></span><span class="c">₴</span></div><div class="cap">Рахунок RaifCard+</div></div><img class="ck" src="assets/aa-check.svg" alt="Обрано"></div><div class="aa-card"><img class="mini" src="assets/mini-gold.png" alt=""><span class="tx"><b>RaifCard+</b><span>**** 6666</span></span></div><div class="aa-card"><img class="mini" src="assets/mini-atb.png" alt=""><span class="tx"><b>ATB Card</b><span>**** 3214</span></span></div><div class="aa-card"><img class="mini" src="assets/mini-fishka.png" alt=""><span class="tx"><b>Fishka Card</b><span>**** 9889</span></span></div></div></div>
+        <div class="aa-w aa-ghost"><div class="wr"><span class="aa-ribbon">Тільки для вас</span><div class="aa-acc"><div class="tx"><div class="aa-amt"><span class="n"><span class="i">200 000,</span><span class="d">00</span></span><span class="c">₴</span></div><div class="cap">Доступний кредитний ліміт</div></div></div><div class="sep"></div><div class="aa-card"><img class="mini" src="assets/mini-credit.png" alt=""><span class="tx"><b>Відкрийте кредитну картку</b><span>З пільговим періодом 100 днів</span></span><img src="assets/aa-go-right.svg" width="20" height="20" alt=""></div></div></div>
+      </div></div>
+      <button class="aa-sec" data-g="usd"><span class="fl"><img src="assets/sv-flag-us.svg" width="20" height="15" alt=""></span><b>Рахунки у доларах США</b><img class="chev" src="assets/aa-hide.svg" alt=""></button>
+      <div class="aa-group" data-g="usd"><div>
+        <div class="aa-w"><div class="wr"><div class="aa-acc"><div class="tx"><div class="aa-amt"><span class="n"><span class="i">500,</span><span class="d">55</span></span><span class="c">$</span></div><div class="cap">Поточний рахунок для виплат</div></div><img class="ck" src="assets/aa-check.svg" alt="Обрано"></div></div></div>
+      </div></div>
+      <button class="aa-sec closed" data-g="eur"><span class="fl"><img src="assets/sv-flag-eu.svg" width="20" height="15" alt=""></span><b>Рахунки у євро</b><img class="chev" src="assets/aa-hide.svg" alt=""></button>
+      <div class="aa-group closed" data-g="eur"><div>
+        <div class="aa-w"><div class="wr"><div class="aa-acc"><div class="tx"><div class="aa-amt"><span class="n"><span class="i">1 240,</span><span class="d">00</span></span><span class="c">€</span></div><div class="cap">Поточний рахунок</div></div><img class="ck" src="assets/aa-check.svg" alt="Обрано"></div></div></div>
+        <div class="aa-w"><div class="wr"><div class="aa-acc"><div class="tx"><div class="aa-amt"><span class="n"><span class="i">3 000,</span><span class="d">00</span></span><span class="c">€</span></div><div class="cap">Депозитний рахунок</div></div><img class="ck" src="assets/aa-check.svg" alt="Обрано"></div></div></div>
+      </div></div>
+      <div class="aa-hidden" id="aaHidden">Приховано: 2 рахунки</div>
+    </div>
+    <div class="aa-foot"><button class="btn-acc"><img src="assets/aa-card-add.svg" width="20" height="20" alt="">Відкрити картку</button></div>
   </section>
 
   <nav class="tabbar" aria-label="Основна навігація">
@@ -1148,6 +1229,7 @@
   document.getElementById('collapse').addEventListener('click', () => setOpen(false));
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
+    if (aa.classList.contains('show')) { showAll(false); return; }
     if (psheet.classList.contains('show')) { showSwitcher(false); return; }
     if (profile.classList.contains('show')) { showProfile(false); return; }
     if (!state.open) return;
@@ -1334,6 +1416,34 @@
   }
   tabs.forEach((t, i) => t.addEventListener('click', () => setTab(i)));
   svcScroll.addEventListener('scroll', () => svc.classList.toggle('scrolled', svcScroll.scrollTop > 4), { passive: true });
+
+
+  // ===== All accounts screen =====
+  const aa = document.getElementById('aa');
+  const aaScroll = document.getElementById('aaScroll');
+  function showAll(v) {
+    aa.classList.toggle('show', v);
+    phone.classList.toggle('aa-open', v);
+    aa.setAttribute('aria-hidden', String(!v));
+    if (v) { aaScroll.scrollTop = 0; aa.classList.remove('scrolled'); setTimeout(() => document.getElementById('aaBack').focus({ preventScroll: true }), 450); }
+  }
+  document.getElementById('openAll').addEventListener('click', () => showAll(true));
+  document.getElementById('aaBack').addEventListener('click', () => showAll(false));
+  document.getElementById('aaDim').addEventListener('click', () => showAll(false));
+  aaScroll.addEventListener('scroll', () => aa.classList.toggle('scrolled', aaScroll.scrollTop > 4), { passive: true });
+  aa.querySelectorAll('.aa-sec').forEach((b) => b.addEventListener('click', () => {
+    const g = aa.querySelector('.aa-group[data-g="' + b.dataset.g + '"]');
+    const closed = !g.classList.contains('closed');
+    g.classList.toggle('closed', closed); b.classList.toggle('closed', closed);
+    const n = aa.querySelectorAll('.aa-group.closed .aa-w').length;
+    document.getElementById('aaHidden').textContent = n ? 'Приховано: ' + n + ' ' + (n === 1 ? 'рахунок' : n < 5 ? 'рахунки' : 'рахунків') : '';
+  }));
+  aa.querySelectorAll('.aa-w:not(.aa-ghost) .wr').forEach((w) => w.addEventListener('click', () => {
+    aa.querySelectorAll('.aa-w').forEach((x) => x.classList.remove('sel'));
+    w.parentElement.classList.add('sel');
+  }));
+  aa.querySelector('.aa-ghost .wr').addEventListener('click', () => toast('Оформлення кредитної картки — наступний крок'));
+  aa.querySelector('.btn-acc').addEventListener('click', () => toast('Відкриття картки — наступний крок'));
 
   document.getElementById('peek').addEventListener('input', (e) => {
     document.documentElement.style.setProperty('--peek', e.target.value + 'px');
