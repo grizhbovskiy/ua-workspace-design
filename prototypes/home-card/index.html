@@ -188,8 +188,11 @@
   .dark .pill { background: rgba(255,255,255,.16); }
   .pearl .pill { background: rgba(43,45,52,.08); }
 
-  .mag { position: absolute; left: 0; right: 0; top: 20px; height: 40px; background: var(--surface-inverted); }
-  .dark .mag { background: #0E0E12; }
+  /* Magnetic stripe sits above the card shade (never darkened) and reads as a glossy black strip */
+  .mag { position: absolute; z-index: 2; left: 0; right: 0; top: 20px; height: 40px;
+         background: linear-gradient(180deg, #1A1B1F 0%, #3A3B41 22%, #202126 48%, #121316 100%);
+         box-shadow: inset 0 1px 0 rgba(255,255,255,.12), inset 0 -1px 0 rgba(0,0,0,.4); }
+  .dark .mag { background: linear-gradient(180deg, #0E0E12 0%, #2E2F35 22%, #16171B 48%, #0A0A0D 100%); }
   .cvv-big { position: absolute; left: 0; right: 0; top: 86px; text-align: center; }
   .warn { position: absolute; right: 12px; bottom: 14px; font-size: 11px; line-height: 14px; text-align: right; }
 
