@@ -635,6 +635,74 @@
              transition: transform .55s cubic-bezier(.3,1.25,.4,1), width .55s cubic-bezier(.3,1.25,.4,1); }
   .tab-ind.moving { animation: tabSquash .55s ease; }
   @keyframes tabSquash { 0% { scale: 1 1; } 35% { scale: 1.12 .9; } 100% { scale: 1 1; } }
+  /* iOS-like press feedback on glass nav buttons: quick shrink on touch, spring back on release */
+  .navbar .icon-btn, .navbar .btn-group button { transition: transform .35s var(--spring), filter .2s; -webkit-tap-highlight-color: transparent; }
+  .navbar .icon-btn:active, .navbar .icon-btn.pressing { transform: scale(.86); filter: brightness(1.12); transition: transform .12s ease-out, filter .12s; }
+  .navbar .btn-group button:active { transform: scale(.84); transition: transform .12s ease-out; }
+
+  /* ===== Rea chat (Figma App 2026 5629:263969 intro, 5658:106401 chat) =====
+     Full-screen modal sliding up from the bottom (iOS full-screen cover / Android full-screen dialog). */
+  .rea { position: absolute; inset: 0; z-index: 30; background: var(--surface-baseline); transform: translateY(100%); visibility: hidden; overflow: hidden;
+         transition: transform .5s var(--lift), visibility 0s .5s; box-shadow: 0 -10px 30px rgba(0,0,0,.12); }
+  .rea.show { transform: none; visibility: visible; transition: transform .5s var(--lift); }
+  .rea.drag { transition: none; }
+  .rea-dim { position: absolute; inset: 0; z-index: 29; background: rgba(0,0,0,.32); opacity: 0; visibility: hidden; transition: opacity .5s ease, visibility 0s .5s; }
+  .rea-open .rea-dim { opacity: 1; visibility: visible; transition: opacity .5s ease; }
+  .rea-open .status { z-index: 31; filter: brightness(0); opacity: .85; }
+  .rea-nav { position: relative; z-index: 2; height: calc(var(--sb) + 56px); padding-top: var(--sb); background: var(--surface-background); display: flex; align-items: center; justify-content: center; touch-action: none; }
+  .rea-nav h1 { margin: 0; font-size: 16px; line-height: 20px; font-weight: 500; }
+  .rea-nav .back { position: absolute; left: 6px; bottom: 6px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background .2s; }
+  .rea-nav .back:active { background: rgba(43,45,52,.08); }
+  .rea-pages { position: absolute; left: 0; right: 0; top: calc(var(--sb) + 56px); bottom: 0; }
+  .rea-page { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--surface-baseline); transition: transform .45s var(--lift); }
+  .rea-page.left { transform: translateX(-30%); }
+  .rea-page.right { transform: translateX(100%); }
+  .rea-bottom { background: var(--surface-background); padding: 8px 0 calc(8px + 26px); }
+  @media (max-width: 500px) { .rea-bottom { padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); } }
+  /* Intro (shown once) */
+  .rea-intro-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; align-items: center; padding: 80px 16px 16px; text-align: center; }
+  .rea-intro-body img { width: 90px; height: 90px; margin-bottom: 16px; }
+  .rea-intro-body h2 { margin: 0; padding: 28px 16px 12px; font-size: 24px; line-height: 28px; font-weight: 700; letter-spacing: -.12px; }
+  .rea-intro-body p { margin: 0; padding: 0 16px; font-size: 16px; line-height: 24px; color: var(--tint-secondary); max-width: 340px; }
+  .rea-cta { display: block; width: calc(100% - 32px); height: 48px; margin: 8px 16px; border-radius: 12px; background: var(--surface-accent); color: var(--tint-primary); font-size: 16px; line-height: 16px; font-weight: 500; transition: transform .25s var(--spring), filter .2s; }
+  .rea-cta:active { transform: scale(.97); filter: brightness(.96); transition: transform .1s; }
+  /* Chat */
+  .rea-msgs { flex: 1; overflow-y: auto; padding: 4px 0 16px; scrollbar-width: none; }
+  .rea-msgs::-webkit-scrollbar { display: none; }
+  .rea-a { padding: 16px; font-size: 16px; line-height: 24px; color: var(--tint-primary); white-space: pre-wrap; }
+  .rea-a .caret { display: inline-block; width: 2px; height: 18px; margin-left: 2px; vertical-align: -3px; background: var(--tint-action); animation: reaBlink 1s steps(1) infinite; }
+  .rea-a .w { animation: reaIn .35s ease-out both; }
+  /* User bubble (Figma Chat Bubble 5658:111173): accent, radius 24/24/4/24, status badge at the bottom-right corner */
+  .rea-qw { display: flex; justify-content: flex-end; padding: 8px 16px 8px 56px; }
+  .rea-q { position: relative; padding: 10px 16px; border-radius: 24px 24px 4px 24px; background: var(--surface-accent); color: var(--tint-primary); font-size: 16px; line-height: 24px; white-space: pre-wrap; word-break: break-word; transform-origin: 100% 100%; animation: reaPop .35s var(--spring) both; }
+  .rea-q .st { position: absolute; right: -14px; bottom: -14px; padding: 2px; border-radius: 999px; background: var(--surface-baseline); opacity: 0; transform: scale(.4); transition: opacity .2s, transform .35s var(--spring); }
+  .rea-q .st img { display: block; width: 24px; height: 24px; }
+  .rea-q.sent .st { opacity: 1; transform: none; }
+  /* Thinking state (Figma .local/Chat/MessageStatus): AI icon + shimmering caption */
+  .rea-think { display: flex; gap: 12px; align-items: flex-start; padding: 16px; animation: reaIn .3s ease-out both; }
+  .rea-think img { width: 24px; height: 24px; flex: none; animation: reaSpin 2.4s ease-in-out infinite; }
+  .rea-think span { font-size: 16px; line-height: 24px; color: transparent; background: linear-gradient(90deg, #808185 0%, #808185 35%, #C9CACD 50%, #808185 65%, #808185 100%) 0 0 / 250% 100%; -webkit-background-clip: text; background-clip: text; animation: reaShimmer 1.6s linear infinite; }
+  @keyframes reaShimmer { from { background-position: 100% 0; } to { background-position: -150% 0; } }
+  @keyframes reaSpin { 0%, 100% { transform: rotate(0) scale(1); } 50% { transform: rotate(18deg) scale(1.08); } }
+  @keyframes reaBlink { 50% { opacity: 0; } }
+  @keyframes reaIn { from { opacity: 0; filter: blur(3px); } to { opacity: 1; filter: none; } }
+  @keyframes reaDot { 0%, 60%, 100% { transform: translateY(0); opacity: .45; } 30% { transform: translateY(-4px); opacity: 1; } }
+  @keyframes reaPop { from { opacity: 0; transform: translateY(8px) scale(.96); } to { opacity: 1; transform: none; } }
+  .rea-bar { display: flex; align-items: center; gap: 16px; min-height: 80px; padding: 16px; background: var(--surface-background); }
+  .rea-bar .add { flex: none; width: 24px; height: 44px; display: flex; align-items: center; justify-content: center; }
+  .rea-field { flex: 1; min-width: 0; display: flex; align-items: center; min-height: 46px; padding: 0 16px; border-radius: 24px; background: #fff; border: 1px solid rgba(156,150,127,.24); transition: border-color .2s; }
+  .rea-field:focus-within { border-color: var(--tint-action); }
+  .rea-field input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font: inherit; font-size: 16px; line-height: 24px; color: var(--tint-primary); caret-color: var(--tint-action); padding: 10px 0; -webkit-appearance: none; }
+  .rea-field input::placeholder { color: var(--tint-tertiary); }
+  /* Send: accent 48 circle with the "up" icon, appears to the right of the field while typing (Figma 5658:106955) */
+  .rea-send { flex: none; width: 0; height: 48px; margin-left: -16px; border-radius: 99px; background: var(--surface-accent); display: flex; align-items: center; justify-content: center; overflow: hidden;
+              transform: scale(.3); opacity: 0; transition: width .3s var(--ease), margin .3s var(--ease), transform .35s var(--spring), opacity .2s; }
+  .rea-send img { width: 20px; height: 20px; flex: none; }
+  .rea-bar.has-text .rea-send { width: 48px; margin-left: 0; transform: none; opacity: 1; }
+  .rea-send:active { transform: scale(.9) !important; transition: transform .1s; }
+  .rea-bar.busy .rea-send { opacity: .5; pointer-events: none; }
+  .rea-bottom.chat { padding-top: 0; }
+
   .home-ind { position: absolute; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 20px; background: #111; z-index: 7; pointer-events: none; }
   .open .tabbar { transform: translateY(120px); opacity: 0; pointer-events: none; }
 
@@ -646,6 +714,7 @@
   .controls label { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
   .controls p { margin: 0; color: var(--tint-secondary); line-height: 1.4; }
   .controls .c-ttl { font-weight: 500; margin-top: 4px; }
+  .controls .c-link { align-self: flex-start; font-size: 13px; color: var(--tint-action); padding: 2px 0; }
   .controls .c-ttl small { font-weight: 400; color: var(--tint-tertiary); }
   .bn-styles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
   .bn-styles button { display: grid; justify-items: center; gap: 4px; padding: 6px 2px; border-radius: 10px; font-size: 11px; line-height: 13px; color: var(--tint-secondary); }
@@ -914,6 +983,30 @@
     </button>
     <button><img src="assets/tab-gift.png" width="24" height="24" alt=""><span class="tl">Raif+</span></button>
   </nav>
+  <div class="rea-dim" id="reaDim" aria-hidden="true"></div>
+  <section class="rea" id="rea" role="dialog" aria-label="Підтримка MyRaif" aria-hidden="true">
+    <div class="rea-nav" id="reaNav"><button class="back" id="reaBack" aria-label="Назад"><img src="assets/aa-back.svg" width="24" height="24" alt=""></button><h1>Підтримка MyRaif</h1></div>
+    <div class="rea-pages">
+      <div class="rea-page" id="reaIntro">
+        <div class="rea-intro-body">
+          <img src="assets/rea-stars.svg" alt="">
+          <h2>Рея тепер може більше!</h2>
+          <p>Рея використовує штучний інтелект і може переглядати ваші операції, щоб відповідати на запитання. Відкриваючи чат, ви погоджуєтеся на це.</p>
+        </div>
+        <div class="rea-bottom"><button class="rea-cta" id="reaStart">Відкрити чат</button></div>
+      </div>
+      <div class="rea-page right" id="reaChat">
+        <div class="rea-msgs" id="reaMsgs"></div>
+        <div class="rea-bottom chat">
+          <form class="rea-bar" id="reaForm" autocomplete="off">
+            <button type="button" class="add" aria-label="Додати файл"><img src="assets/rea-add.svg" width="24" height="24" alt=""></button>
+            <label class="rea-field" id="reaField"><input id="reaInput" type="text" placeholder="Напишіть ваше питання" aria-label="Ваше питання" enterkeyhint="send"></label>
+            <button type="submit" class="rea-send" aria-label="Надіслати"><img src="assets/rea-up.svg" alt=""></button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
   <div class="home-ind" aria-hidden="true"></div>
 
 
@@ -994,6 +1087,7 @@
 
 <div class="controls" aria-label="Налаштування прототипу">
   <label>Видима смуга <input id="peek" type="range" min="64" max="110" step="1" value="81"></label>
+  <button class="c-link" id="reaReset">Чат Реї: показати інтро знову</button>
   <div class="c-ttl">Банери на головній</div>
   <div class="bn-styles" data-target="home"></div>
   <div class="c-ttl">Банери в інших розділах <small>(Усі рахунки)</small></div>
@@ -1648,6 +1742,116 @@
     if (v) { aaScroll.scrollTop = 0; aa.classList.remove('scrolled'); setTimeout(() => document.getElementById('aaBack').focus({ preventScroll: true }), 450); }
   }
   document.getElementById('openAll').addEventListener('click', () => showAll(true));
+
+  // ===== Rea chat =====
+  const rea = document.getElementById('rea'), reaMsgs = document.getElementById('reaMsgs');
+  const reaIntro = document.getElementById('reaIntro'), reaChat = document.getElementById('reaChat');
+  const REA_KEY = 'rbua-rea-intro-seen';
+  const REA_HELLO = 'Вітаю! Мене звати Рея. Я - віртуальна помічниця Райффайзен Банку Україна. Будь ласка, напишіть Ваше запитання. З радістю допоможу.';
+  // Prototype answers: first matching topic wins (keywords are lowercase stems)
+  const REA_KB = [
+    { k: ['перевип', 'перевипуст', 'нову картк', 'замін'], a: 'Перевипустити картку можна прямо в застосунку:\n1. На головній натисніть на потрібну картку.\n2. У деталях оберіть «Перевипустити картку».\n3. Підтвердьте адресу або відділення для отримання.\nНова картка буде готова за 5–7 робочих днів, старою можна користуватися до її отримання.' },
+    { k: ['заблок', 'блокув', 'вкрал', 'загуб', 'втрат'], a: 'Якщо картку втрачено або вкрадено, заблокуйте її одразу: натисніть на картку на головній → «Заблокувати картку». Розблокувати її можна там само, якщо знайдете. Після блокування раджу перевипустити картку.' },
+    { k: ['ліміт'], a: 'Ліміти на перекази й зняття готівки встановлені законодавством України. Переглянути їх можна на головній у віджеті «Ліміти по рахунках».' },
+    { k: ['пін', 'pin', 'пароль'], a: 'Змінити PIN-код можна в деталях картки: натисніть на картку на головній → «Налаштувати PIN». Новий PIN діятиме одразу.' },
+    { k: ['курс', 'валют', 'долар', 'євро', 'обмін'], a: 'Актуальні курси купівлі й продажу видно на головній у віджеті «Курс обміну валют». Обміняти валюту можна на валютній картці кнопкою «Обміняти валюту».' },
+    { k: ['кешбек', 'raif+', 'бонус'], a: 'Кешбек нараховується за покупки в категоріях Raif+. Активні пропозиції дивіться у розділі «Raif+» на нижній панелі.' },
+    { k: ['кредит', '100 днів', 'розстроч'], a: 'Для вас уже схвалено кредитну картку «100 днів» з лімітом 200 000 ₴ і пільговим періодом до 100 днів. Щоб відкрити її, на головній перегорніть картки до останньої та натисніть «Відкрити кредитну картку».' },
+    { k: ['фоп', 'бізнес', 'підприєм'], a: 'Відкрити ФОП-рахунок можна онлайн за кілька хвилин. Зараз діє пропозиція з підвищеним кешбеком до 400 ₴ — знайдете її в банері «Пропозиції для вас».' },
+    { k: ['дякую', 'дякую!', 'спасиб'], a: 'Завжди рада допомогти! Якщо будуть ще запитання — пишіть.' },
+    { k: ['привіт', 'добрий', 'вітаю', 'доброго', 'хай'], a: 'Добрий день! Чим можу допомогти? Наприклад, підкажу, як перевипустити картку, змінити PIN чи подивитися ліміти.' }
+  ];
+  const REA_DEFAULT = 'Дякую за запитання! Я ще вчуся відповідати на таке. Спробуйте запитати про перевипуск картки, PIN, ліміти, курс валют або кешбек — або я з’єднаю вас з оператором.';
+  const reaAnswer = (q) => {
+    const t = q.toLowerCase();
+    // Greeting + question in one message: answer the question, not the greeting
+    const hit = REA_KB.slice(0, -1).find((x) => x.k.some((k) => t.includes(k))) || REA_KB[REA_KB.length - 1].k.some((k) => t.includes(k)) && REA_KB[REA_KB.length - 1];
+    return hit ? hit.a : REA_DEFAULT;
+  };
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let reaSeen = false; try { reaSeen = localStorage.getItem(REA_KEY) === '1'; } catch (e) {}
+  let reaTimer = null, reaGreeted = false;
+  const reaScrollEnd = () => { reaMsgs.scrollTop = reaMsgs.scrollHeight; };
+  // "Зачекайте, я думаю…", then the answer streams in word by word with a blinking caret (LLM-style)
+  function reaSay(text, done, think) {
+    clearTimeout(reaTimer);
+    const typing = document.createElement('div'); typing.className = 'rea-think';
+    typing.innerHTML = '<img src="assets/rea-ai.svg" alt=""><span>Зачекайте, я думаю…</span>';
+    reaMsgs.appendChild(typing); reaScrollEnd();
+    reaTimer = setTimeout(() => {
+      typing.remove();
+      const a = document.createElement('div'); a.className = 'rea-a'; reaMsgs.appendChild(a);
+      if (reduced) { a.textContent = text; reaScrollEnd(); if (done) done(); return; }
+      const caret = document.createElement('span'); caret.className = 'caret'; a.appendChild(caret);
+      const parts = text.match(/\S+\s*/g) || [];
+      let i = 0;
+      const step = () => {
+        if (i >= parts.length) { setTimeout(() => caret.remove(), 600); if (done) done(); return; }
+        const n = 1 + (Math.random() < .35 ? 1 : 0);  // 1–2 words per tick, like token chunks
+        for (let k = 0; k < n && i < parts.length; k++, i++) {
+          const w = document.createElement('span'); w.className = 'w'; w.textContent = parts[i]; a.insertBefore(w, caret);
+        }
+        reaScrollEnd();
+        reaTimer = setTimeout(step, 45 + Math.random() * 70);
+      };
+      step();
+    }, reduced ? 0 : (think || 900));
+  }
+  function reaShowChat(animate) {
+    reaIntro.classList.add('left'); reaChat.classList.remove('right');
+    if (!animate) { [reaIntro, reaChat].forEach((el) => { el.style.transition = 'none'; el.offsetWidth; el.style.transition = ''; }); }
+    if (!reaGreeted) { reaGreeted = true; setTimeout(() => reaSay(REA_HELLO), animate ? 380 : 450); }
+  }
+  function openRea(v) {
+    rea.classList.toggle('show', v);
+    phone.classList.toggle('rea-open', v);
+    rea.setAttribute('aria-hidden', String(!v));
+    rea.style.transform = '';
+    if (v) {
+      if (reaSeen) reaShowChat(false);
+      else { reaIntro.classList.remove('left'); reaChat.classList.add('right'); }
+      setTimeout(() => document.getElementById(reaSeen ? 'reaInput' : 'reaStart').focus({ preventScroll: true }), 520);
+    } else {
+      document.getElementById('reaInput').blur();
+    }
+  }
+  document.querySelector('.navbar [aria-label="Асистент"]').addEventListener('click', () => openRea(true));
+  document.getElementById('reaBack').addEventListener('click', () => openRea(false));
+  document.getElementById('reaDim').addEventListener('click', () => openRea(false));
+  document.getElementById('reaStart').addEventListener('click', () => {
+    reaSeen = true; try { localStorage.setItem(REA_KEY, '1'); } catch (e) {}
+    reaShowChat(true);
+    setTimeout(() => document.getElementById('reaInput').focus({ preventScroll: true }), 500);
+  });
+  const reaInput = document.getElementById('reaInput'), reaBar = document.getElementById('reaForm');
+  reaInput.addEventListener('input', () => reaBar.classList.toggle('has-text', !!reaInput.value.trim()));
+  let reaBusy = false;
+  reaBar.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const q = reaInput.value.trim(); if (!q || reaBusy) return;
+    reaBusy = true; reaBar.classList.add('busy');
+    const w = document.createElement('div'); w.className = 'rea-qw';
+    const b = document.createElement('div'); b.className = 'rea-q'; b.textContent = q;
+    b.insertAdjacentHTML('beforeend', '<span class="st"><img src="assets/rea-check.svg" alt="Доставлено"></span>');
+    w.appendChild(b); reaMsgs.appendChild(w);
+    reaInput.value = ''; reaBar.classList.remove('has-text'); reaScrollEnd();
+    setTimeout(() => b.classList.add('sent'), 450);  // delivered badge
+    setTimeout(() => reaSay(reaAnswer(q), () => { reaBusy = false; reaBar.classList.remove('busy'); }, 1400 + Math.random() * 600), 600);
+  });
+  // Swipe the nav bar down to dismiss (iOS sheet gesture)
+  let reaY = null, reaDY = 0;
+  const reaNav = document.getElementById('reaNav');
+  reaNav.addEventListener('pointerdown', (e) => { if (e.target.closest('.back')) return; reaY = e.clientY; reaDY = 0; reaNav.setPointerCapture(e.pointerId); rea.classList.add('drag'); });
+  reaNav.addEventListener('pointermove', (e) => { if (reaY === null) return; reaDY = Math.max(0, e.clientY - reaY); rea.style.transform = 'translateY(' + reaDY + 'px)'; });
+  const reaUp = () => { if (reaY === null) return; reaY = null; rea.classList.remove('drag'); rea.style.transform = ''; if (reaDY > 120) openRea(false); };
+  reaNav.addEventListener('pointerup', reaUp); reaNav.addEventListener('pointercancel', reaUp);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && rea.classList.contains('show')) { e.stopImmediatePropagation(); openRea(false); } }, true);
+  // Prototype helper: show the one-time intro again
+  document.getElementById('reaReset').addEventListener('click', () => {
+    reaSeen = false; reaGreeted = false; reaMsgs.innerHTML = ''; clearTimeout(reaTimer); reaBusy = false; reaBar.classList.remove('busy');
+    try { localStorage.removeItem(REA_KEY); } catch (e) {}
+    toast('Інтро Реї покажеться при наступному відкритті');
+  });
   document.getElementById('aaBack').addEventListener('click', () => showAll(false));
   document.getElementById('aaDim').addEventListener('click', () => showAll(false));
   aaScroll.addEventListener('scroll', () => aa.classList.toggle('scrolled', aaScroll.scrollTop > 4), { passive: true });
