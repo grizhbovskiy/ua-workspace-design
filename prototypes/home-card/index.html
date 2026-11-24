@@ -1816,10 +1816,14 @@
     rea.setAttribute('aria-hidden', String(!v));
     rea.style.transform = '';
     if (v) {
+      // Every entry into the chat starts fresh: the greeting is typed out again
+      clearTimeout(reaTimer); reaMsgs.innerHTML = ''; reaGreeted = false;
+      reaBusy = false; reaBar.classList.remove('busy');
       if (reaSeen) reaShowChat(false);
       else { reaIntro.classList.remove('left'); reaChat.classList.add('right'); }
       setTimeout(() => document.getElementById(reaSeen ? 'reaInput' : 'reaStart').focus({ preventScroll: true }), 520);
     } else {
+      clearTimeout(reaTimer);
       document.getElementById('reaInput').blur();
     }
   }
