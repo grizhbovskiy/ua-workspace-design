@@ -30,6 +30,7 @@
     --header: #7E97B8;
     /* Geometry */
     --card-w: 320px;
+    --card-gap: 12px;
     --card-h: 202px;
     --sb: 54px;                       /* status bar height (mock on desktop) */
     --shift: calc(var(--sb) - 54px);
@@ -142,7 +143,7 @@
   /* Cards */
   .cards { position: absolute; left: 0; right: 0; height: var(--card-h); top: var(--top-closed); transition: top .7s var(--lift); touch-action: pan-y; z-index: 1; }
   .open .cards { top: var(--top-open); }
-  .track { position: relative; display: flex; gap: 12px; padding-left: 35px; transition: transform .45s var(--ease); }
+  .track { position: relative; display: flex; gap: var(--card-gap); padding-left: 35px; transition: transform .45s var(--ease); }
   .card { position: relative; flex: 0 0 var(--card-w); height: var(--card-h); perspective: 1100px; cursor: pointer; border-radius: 16px; outline-offset: 4px; transition: opacity .25s, transform .3s var(--ease); -webkit-user-select: none; user-select: none; }
   .open .card.before { opacity: 0; transform: translateX(-40px); }
   .open .card.after { opacity: 0; transform: translateX(40px); }
@@ -408,11 +409,13 @@
   .scroller { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; overscroll-behavior: contain; }
   .scroller::-webkit-scrollbar { display: none; }
   .page { position: relative; min-height: 100%; display: flow-root; }
-  /* Glass navigation surface: keeps the card colour, blurs content scrolling under it */
-  .navbg { position: absolute; left: 0; right: 0; top: 0; height: calc(var(--sb) + 60px); z-index: 4; pointer-events: none;
+  /* Navigation surface: at the very top it is transparent (exactly the header colour);
+     the glass (tint + blur + saturate) fades in only once content scrolls under it */
+  .navbg { position: absolute; left: 0; right: 0; top: 0; height: calc(var(--sb) + 60px); z-index: 4; pointer-events: none; transition: box-shadow .2s; }
+  .navbg::before { content: ''; position: absolute; inset: 0; opacity: 0; transition: opacity .25s ease, background .45s ease;
            background: color-mix(in srgb, var(--header) 64%, transparent);
-           -webkit-backdrop-filter: blur(24px) saturate(185%); backdrop-filter: blur(24px) saturate(185%);
-           transition: background .45s ease, box-shadow .2s; }
+           -webkit-backdrop-filter: blur(24px) saturate(185%); backdrop-filter: blur(24px) saturate(185%); }
+  .scrolled .navbg::before { opacity: 1; }
   .scrolled .navbg { box-shadow: 0 .5px 0 rgba(255,255,255,.25), 0 1px 0 rgba(0,0,0,.08); }
 
   .sheet { position: relative; margin-top: calc(var(--top-closed) + var(--peek)); min-height: 620px; padding-bottom: 120px; background: var(--surface-background); border-radius: 24px 24px 0 0; transition: margin-top .7s var(--lift); z-index: 2; }
@@ -729,6 +732,7 @@
   .controls label { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
   .controls p { margin: 0; color: var(--tint-secondary); line-height: 1.4; }
   .controls .c-ttl { font-weight: 500; margin-top: 4px; }
+  .controls .c-val { margin-top: -6px; font-size: 12px; color: var(--tint-tertiary); text-align: right; }
   .controls .c-link { align-self: flex-start; font-size: 13px; color: var(--tint-action); padding: 2px 0; }
   .controls .c-ttl small { font-weight: 400; color: var(--tint-tertiary); }
   .bn-styles { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
@@ -1089,6 +1093,8 @@
 
 <div class="controls" aria-label="Налаштування прототипу">
   <label>Видима смуга <input id="peek" type="range" min="64" max="110" step="1" value="81"></label>
+  <label>Відстань між картками <input id="cardGap" type="range" min="4" max="40" step="1" value="12"></label>
+  <div class="c-val" id="cardGapVal">12 px</div>
   <button class="c-link" id="reaReset">Чат Реї: показати інтро знову</button>
   <div class="c-ttl">Банери на головній</div>
   <div class="bn-styles" data-target="home"></div>
@@ -1108,7 +1114,7 @@
   const dotsWrap = document.getElementById('dots');
   const title = document.getElementById('title');
   const scroller = document.getElementById('scroller');
-  const STEP = 332;
+  let STEP = 332;  // card width (320) + gap; the gap is adjustable from the controls panel
 
   // Cards and accounts per profile. All numbers are made up for the prototype.
   const PROFILES = {
@@ -2023,6 +2029,16 @@
     setTimeout(tickClock, 60000 - d.getSeconds() * 1000 - d.getMilliseconds() + 50);
   };
   tickClock();
+
+  // Gap between cards in the home carousel
+  const setCardGap = (g) => {
+    document.documentElement.style.setProperty('--card-gap', g + 'px');
+    STEP = 320 + g;
+    document.getElementById('cardGapVal').textContent = g + ' px';
+    list().forEach((c, i) => { if (c.extra && extraEl) extraEl.style.left = (35 + STEP * (i + 1)) + 'px'; });
+    render();
+  };
+  document.getElementById('cardGap').addEventListener('input', (e) => setCardGap(+e.target.value));
 
   document.getElementById('peek').addEventListener('input', (e) => {
     document.documentElement.style.setProperty('--peek', e.target.value + 'px');
