@@ -131,6 +131,12 @@
   .activate-pill svg { flex: none; }
   .activate-pill .pl-label { padding: 0 4px; font-size: 14px; line-height: 24px; font-weight: 400; }
   .needs-activation:not(.open) .activate-pill { opacity: 1; pointer-events: auto; }
+  /* Pill (UDS RB Mobile 3.6.0): Intent Default · Size Medium · State Default · Style Subtle · leading icon card-credit (outlined) */
+  .minpay-pill { position: absolute; left: 50%; top: calc(211px + var(--shift)); transform: translateX(-50%); display: flex; align-items: center; padding: 4px 8px; border-radius: 100px;
+                 background: rgba(170,171,174,.2); border: 1px solid rgba(143,145,153,.32); color: #fff; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .25s; }
+  .minpay-pill img { flex: none; }
+  .minpay-pill .pl-label { padding: 0 4px; font-size: 14px; line-height: 24px; font-weight: 400; }
+  .has-minpay:not(.open) .minpay-pill { opacity: 1; }
   .activate-pill::after { content: ''; position: absolute; inset: -4px 0; }
 
   /* Cards */
@@ -355,18 +361,10 @@
   /* FOP banner on top of All accounts: same component and style as the home carousel */
   .bn-rail.aa-bn { padding: 8px 16px; cursor: default; overflow: hidden; transition: height .4s var(--ease), padding .4s var(--ease), opacity .3s; }
   .bn-rail.aa-bn .bn { width: 100%; max-width: none; }
-  .aa-sec { display: flex; align-items: center; width: 100%; min-height: 56px; padding: 0 16px; gap: 16px; text-align: left; }
-  .aa-sec .fl { width: 24px; display: flex; justify-content: center; }
-  .aa-sec b { flex: 1; font-size: 16px; line-height: 20px; font-weight: 500; }
-  .aa-sec .chev { width: 20px; height: 20px; transition: transform .3s var(--ease); }
-  .aa-sec.closed .chev { transform: rotate(180deg); }
-  .aa-group { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .35s var(--ease), opacity .25s; }
-  .aa-group > div { overflow: hidden; }
-  .aa-group.closed { grid-template-rows: 0fr; opacity: 0; }
   .aa-w { padding: 8px 16px; }
   .aa-w .wr { position: relative; background: var(--surface-baseline); border-radius: 16px; box-shadow: var(--elevation-1); overflow: hidden; cursor: pointer; }
   .aa-w .wr::after { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 2px solid transparent; pointer-events: none; transition: border-color .2s; }
-  .aa-w.sel .wr::after { border-color: #118DB8; }
+  .aa-w.sel .wr::after { border-color: var(--tint-action); }
   .aa-acc { position: relative; display: flex; align-items: center; height: 82px; padding: 8px 16px; gap: 16px; }
   .aa-acc::before { content: ''; position: absolute; left: 16px; right: 0; bottom: 0; height: 1px; background: rgba(156,150,127,.24); }
   .aa-acc:last-child::before { display: none; }
@@ -389,7 +387,18 @@
   .aa-ghost .aa-amt { color: var(--tint-tertiary); }
   .aa-ghost .aa-acc::before { display: none; }
   .aa-ghost .sep { height: 2px; background: var(--surface-background); }
-  .aa-hidden { padding: 16px; text-align: center; font-size: 16px; line-height: 24px; color: var(--tint-secondary); }
+  /* All accounts (concept 1489:92797): ⋯ per account, ★ on accounts with several cards, "+ Нова картка до рахунку" */
+  .aa-acc .more, .aa-card .fav { flex: none; width: 40px; height: 40px; margin-right: -10px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background .2s, transform .3s var(--spring); }
+  .aa-acc .more:active, .aa-card .fav:active { background: rgba(0,119,164,.1); transform: scale(.9); }
+  .aa-card .fav img { width: 20px; height: 20px; }
+  .aa-card .fav.on img { animation: favPop .45s var(--spring); }
+  @keyframes favPop { 0% { transform: scale(.4); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
+  .aa-card { cursor: pointer; }
+  .aa-card .mini { object-fit: cover; box-shadow: 0 0 0 .5px rgba(43,45,52,.12); }
+  .aa-card:last-of-type::after { content: ''; position: absolute; left: 76px; right: 0; bottom: 0; height: 1px; background: rgba(156,150,127,.24); }
+  .aa-add { display: flex; align-items: center; width: 100%; height: 60px; padding: 0 16px; gap: 8px; text-align: left; color: var(--tint-action); font-size: 16px; line-height: 20px; font-weight: 500; }
+  .aa-add img { width: 20px; height: 20px; }
+  .aa-add:active { background: rgba(0,119,164,.06); }
   .aa-foot { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; background: #F1EDE6; padding: 16px 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
   .aa-foot .btn-acc { width: 100%; height: 48px; border-radius: 12px; background: var(--surface-accent); display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 16px; line-height: 16px; font-weight: 500; color: var(--tint-primary); }
   .aa-foot .btn-acc:active { filter: brightness(.96); }
@@ -791,6 +800,8 @@
 </svg><span class="pl-label" id="activateText">Активувати картку</span>
   </button>
 
+  <div class="minpay-pill" id="minPay" aria-hidden="true"><img src="assets/pill-card-credit.svg" width="16" height="16" alt=""><span class="pl-label" id="minPayText"></span></div>
+
   <div class="cards" id="cards">
     <div class="track" id="track"></div>
   </div>
@@ -951,24 +962,9 @@
     <div class="aa-scroll" id="aaScroll">
       <div class="aa-nav"><button class="back" id="aaBack" aria-label="Назад"><img src="assets/aa-back.svg" width="24" height="24" alt=""></button><h1>Усі рахунки</h1></div>
       <div class="bn-rail aa-bn" id="aaBn" data-v="l1"></div>
-      <button class="aa-sec" data-g="uah"><span class="fl"><img src="assets/aa-flag-ua.svg" width="20" height="15" alt=""></span><b>Рахунки у гривні</b><img class="chev" src="assets/aa-hide.svg" alt=""></button>
-      <div class="aa-group" data-g="uah"><div>
-        <div class="aa-w sel"><div class="wr"><div class="aa-acc"><div class="tx"><div class="aa-amt"><span class="n"><span class="i">7 500,</span><span class="d">00</span></span><span class="c">₴</span></div><div class="cap">Рахунок RaifCard+</div></div><img class="ck" src="assets/aa-check.svg" alt="Обрано"></div><div class="aa-card"><img class="mini" src="assets/mini-raifgold.png" alt=""><span class="tx"><b>Raif Gold Card</b><span>**** 8742</span></span></div></div></div>
-        <div class="aa-w"><div class="wr"><div class="aa-acc"><div class="tx"><div class="aa-amt"><span class="n"><span class="i">40 000,</span><span class="d">00</span></span><span class="c">₴</span></div><div class="cap">Рахунок RaifCard+</div></div><img class="ck" src="assets/aa-check.svg" alt="Обрано"></div><div class="aa-card"><img class="mini" src="assets/mini-gold.png" alt=""><span class="tx"><b>RaifCard+</b><span>**** 6666</span></span></div><div class="aa-card"><img class="mini" src="assets/mini-atb.png" alt=""><span class="tx"><b>ATB Card</b><span>**** 3214</span></span></div><div class="aa-card"><img class="mini" src="assets/mini-fishka.png" alt=""><span class="tx"><b>Fishka Card</b><span>**** 9889</span></span></div></div></div>
-        <div class="aa-w aa-ghost"><div class="wr"><span class="aa-ribbon">Тільки для вас</span><div class="aa-acc"><div class="tx"><div class="aa-amt"><span class="n"><span class="i">200 000,</span><span class="d">00</span></span><span class="c">₴</span></div><div class="cap">Доступний кредитний ліміт</div></div></div><div class="sep"></div><div class="aa-card"><img class="mini" src="assets/mini-credit.png" alt=""><span class="tx"><b>Відкрийте кредитну картку</b><span>З пільговим періодом 100 днів</span></span><img src="assets/aa-go-right.svg" width="20" height="20" alt=""></div></div></div>
-      </div></div>
-      <button class="aa-sec" data-g="usd"><span class="fl"><img src="assets/sv-flag-us.svg" width="20" height="15" alt=""></span><b>Рахунки у доларах США</b><img class="chev" src="assets/aa-hide.svg" alt=""></button>
-      <div class="aa-group" data-g="usd"><div>
-        <div class="aa-w"><div class="wr"><div class="aa-acc"><div class="tx"><div class="aa-amt"><span class="n"><span class="i">500,</span><span class="d">55</span></span><span class="c">$</span></div><div class="cap">Поточний рахунок для виплат</div></div><img class="ck" src="assets/aa-check.svg" alt="Обрано"></div></div></div>
-      </div></div>
-      <button class="aa-sec closed" data-g="eur"><span class="fl"><img src="assets/sv-flag-eu.svg" width="20" height="15" alt=""></span><b>Рахунки у євро</b><img class="chev" src="assets/aa-hide.svg" alt=""></button>
-      <div class="aa-group closed" data-g="eur"><div>
-        <div class="aa-w"><div class="wr"><div class="aa-acc"><div class="tx"><div class="aa-amt"><span class="n"><span class="i">1 240,</span><span class="d">00</span></span><span class="c">€</span></div><div class="cap">Поточний рахунок</div></div><img class="ck" src="assets/aa-check.svg" alt="Обрано"></div></div></div>
-        <div class="aa-w"><div class="wr"><div class="aa-acc"><div class="tx"><div class="aa-amt"><span class="n"><span class="i">3 000,</span><span class="d">00</span></span><span class="c">€</span></div><div class="cap">Депозитний рахунок</div></div><img class="ck" src="assets/aa-check.svg" alt="Обрано"></div></div></div>
-      </div></div>
-      <div class="aa-hidden" id="aaHidden">Приховано: 2 рахунки</div>
+      <div id="aaList"></div>
     </div>
-    <div class="aa-foot"><button class="btn-acc"><img src="assets/aa-card-add.svg" width="20" height="20" alt="">Відкрити картку</button></div>
+    <div class="aa-foot"><button class="btn-acc"><img src="assets/aa-card-add.svg" width="20" height="20" alt="">Відкрити новий рахунок</button></div>
   </section>
 
   <nav class="tabbar" aria-label="Основна навігація">
@@ -1122,7 +1118,7 @@
         title: 'UA67 **** 04519', iban: 'UA67 3808 0500 0000 0026 2049 0451 9',
         extra: { key: 'fishka', skin: 'red light', img: 'card-fishka.png', shade: true, backColor: '#F4323F', name: 'Фішка', pan: ['4149', '6093', '5520', '1736'], date: '02/30', cvv: '315' } },
       { key: 'd100', skin: 'by light', img: 'card-100.png', name: '100 днів', pan: ['4149', '4997', '1062', '8835'], date: '10/28', cvv: '907',
-        bg: '#534E6B', label: 'Використано 12 750,00 з 50 000,00 ₴', value: 37250.00, credit: '50 000 ₴',
+        bg: '#534E6B', label: 'Використано • 12 750,00 з 50 000,00 ₴', value: 37250.00, credit: '50 000 ₴', minPay: '1 250,00 ₴',
         tx: { name: 'Decathlon', cat: 'Спорттовари', amount: '-3 299,00 ₴', bg: '#0082C3', mark: 'DECATHLON', fg: '#FFFFFF', fs: 6.5 },
         title: 'UA21 **** 88350', iban: 'UA21 3808 0500 0000 0026 2511 8835 0' },
       { key: 'atb', skin: 'atb light', img: 'card-atb.png', shade: true, name: 'Картка АТБ', pan: ['4149', '3105', '7744', '6012'], date: '12/30', cvv: '238',
@@ -1264,6 +1260,8 @@
     phone.classList.toggle('needs-activation', (!!c.activate && !state.activated[c.key]) || !!c.ghost);
     phone.classList.toggle('is-ghost', !!c.ghost);
     phone.classList.toggle('is-credit', !!c.credit);
+    phone.classList.toggle('has-minpay', !!c.minPay);
+    if (c.minPay) document.getElementById('minPayText').textContent = 'Мінімальний платіж • ' + c.minPay;
     phone.classList.toggle('is-account', c.kind === 'account');
     phone.classList.toggle('business', state.profile === 'business');
     const slot = state.sub ? state.idx + 1 : state.idx;
@@ -1744,6 +1742,7 @@
   const aa = document.getElementById('aa');
   const aaScroll = document.getElementById('aaScroll');
   function showAll(v) {
+    if (v) renderAll();
     aa.classList.toggle('show', v);
     phone.classList.toggle('aa-open', v);
     aa.setAttribute('aria-hidden', String(!v));
@@ -1866,19 +1865,70 @@
   document.getElementById('aaBack').addEventListener('click', () => showAll(false));
   document.getElementById('aaDim').addEventListener('click', () => showAll(false));
   aaScroll.addEventListener('scroll', () => aa.classList.toggle('scrolled', aaScroll.scrollTop > 4), { passive: true });
-  aa.querySelectorAll('.aa-sec').forEach((b) => b.addEventListener('click', () => {
-    const g = aa.querySelector('.aa-group[data-g="' + b.dataset.g + '"]');
-    const closed = !g.classList.contains('closed');
-    g.classList.toggle('closed', closed); b.classList.toggle('closed', closed);
-    const n = aa.querySelectorAll('.aa-group.closed .aa-w').length;
-    document.getElementById('aaHidden').textContent = n ? 'Приховано: ' + n + ' ' + (n === 1 ? 'рахунок' : n < 5 ? 'рахунки' : 'рахунків') : '';
-  }));
-  aa.querySelectorAll('.aa-w:not(.aa-ghost) .wr').forEach((w) => w.addEventListener('click', () => {
-    aa.querySelectorAll('.aa-w').forEach((x) => x.classList.remove('sel'));
-    w.parentElement.classList.add('sel');
-  }));
-  aa.querySelector('.aa-ghost .wr').addEventListener('click', () => toast('Оформлення кредитної картки — наступний крок'));
-  aa.querySelector('.btn-acc').addEventListener('click', () => toast('Відкриття картки — наступний крок'));
+  // ===== All accounts list, built from the same data as the home carousel =====
+  const CARD_FIELDS = ['key', 'skin', 'img', 'shade', 'backColor', 'name', 'pan', 'date', 'cvv', 'curTag'];
+  const miniOf = (c) => 'assets/' + (c.key === 'fishka' ? 'mini-fishka.png' : (c.skin || '').startsWith('yellow') ? 'mini-raif-ua.png' : c.img);
+  const money = (v, cur) => { const f = fmt(v); return '<div class="aa-amt"><span class="n"><span class="i">' + f[0] + ',</span><span class="d">' + f[1] + '</span></span><span class="c">' + (cur || '₴') + '</span></div>'; };
+  const maskIban = (t) => (t || '').replace('****', '***');
+  function cardRow(acc, card, i, isMain, multiCard) {
+    return '<div class="aa-card" data-i="' + i + '">' +
+      '<img class="mini" src="' + miniOf(card) + '" alt="">' +
+      '<span class="tx"><b>' + card.name + (card.curTag ? ' ' + card.curTag : '') + '</b><span>•••• ' + card.pan[3] + '</span></span>' +
+      (multiCard ? '<button class="fav' + (isMain ? ' on' : '') + '" data-i="' + i + '" data-main="' + (isMain ? 1 : 0) + '" aria-pressed="' + isMain + '" aria-label="' + (isMain ? 'Показується на головній' : 'Показувати на головній') + '">' +
+        '<img src="assets/' + (isMain ? 'aa-fav-on.svg' : 'aa-fav-off.svg') + '" alt=""></button>' : '') + '</div>';
+  }
+  function renderAll() {
+    document.getElementById('aaList').innerHTML = list().map((acc, i) => {
+      if (acc.ghost) {
+        return '<div class="aa-w aa-ghost"><div class="wr" data-ghost="1"><span class="aa-ribbon">Тільки для вас</span>' +
+          '<div class="aa-acc"><div class="tx">' + money(acc.value) + '<div class="cap">Доступний кредитний ліміт</div></div></div>' +
+          '<div class="sep"></div><div class="aa-card"><img class="mini" src="assets/card-100.png" alt="" style="filter:brightness(.55)"><span class="tx"><b>Відкрийте кредитну картку</b><span>«100 днів» · пільговий період до 100 днів</span></span><img src="assets/dt-go-right.svg" width="20" height="20" alt=""></div></div></div>';
+      }
+      const isAcct = acc.kind === 'account';
+      // Account caption keeps the account's product name even after its main card is swapped
+      const accName = acc.accName || (acc.accName = acc.name);
+      const cap = accName + ' • ' + maskIban(acc.title);
+      const multiCard = !!acc.extra;
+      let rows = '';
+      if (!isAcct) rows += cardRow(acc, acc, i, true, multiCard);
+      if (acc.extra) rows += cardRow(acc, acc.extra, i, false, true);
+      return '<div class="aa-w' + (i === state.idx ? ' sel' : '') + '"><div class="wr">' +
+        '<div class="aa-acc" data-i="' + i + '"><div class="tx">' + money(acc.value, acc.cur) + '<div class="cap">' + cap + '</div></div>' +
+        '<button class="more" aria-label="Дії з рахунком"><img src="assets/aa-more.svg" width="20" height="20" alt=""></button></div>' +
+        rows +
+        '<button class="aa-add"><img src="assets/aa-add.svg" alt="">Нова картка до рахунку</button></div></div>';
+    }).join('');
+  }
+  // Make the extra card the main card of its account (swap card fields with the account's own card)
+  function makeMain(i) {
+    const acc = list()[i]; if (!acc.extra) return;
+    const own = {}; CARD_FIELDS.forEach((f) => { if (f in acc) own[f] = acc[f]; });
+    const ex = acc.extra;
+    CARD_FIELDS.forEach((f) => { delete acc[f]; if (f in ex) acc[f] = ex[f]; });
+    acc.extra = own;
+  }
+  document.getElementById('aaList').addEventListener('click', (e) => {
+    const fav = e.target.closest('.fav');
+    if (fav) {
+      const i = +fav.dataset.i, acc = list()[i];
+      if (fav.dataset.main !== '1') makeMain(i);
+      // The chosen card's account goes first on home, and home opens on it
+      list().splice(i, 1); list().unshift(acc);
+      fav.classList.add('on'); fav.querySelector('img').src = 'assets/aa-fav-on.svg';
+      setTimeout(() => {
+        build(); state.idx = 0; state.sub = 0; state.flipped = false; render();
+        showAll(false);
+        setTimeout(() => toast('«' + acc.name + '» тепер перша на головній'), 350);
+      }, 260);
+      return;
+    }
+    if (e.target.closest('.more')) { toast('Дії з рахунком — наступний крок'); return; }
+    if (e.target.closest('.aa-add')) { toast('Нова картка до рахунку — наступний крок'); return; }
+    if (e.target.closest('[data-ghost]')) { showAll(false); setTimeout(() => go(list().findIndex((x) => x.ghost)), 300); return; }
+    const row = e.target.closest('[data-i]');
+    if (row) { const i = +row.dataset.i; showAll(false); setTimeout(() => go(i), 300); }
+  });
+  aa.querySelector('.btn-acc').addEventListener('click', () => toast('Відкриття нового рахунку — наступний крок'));
 
   // Banner style switcher (controls panel): home and other sections are set independently.
   // URL params ?banner=… (home) and ?banner2=… (other sections) also work on phones, where the panel is hidden.
