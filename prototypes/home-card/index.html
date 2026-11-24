@@ -1754,7 +1754,6 @@
   // ===== Rea chat =====
   const rea = document.getElementById('rea'), reaMsgs = document.getElementById('reaMsgs');
   const reaIntro = document.getElementById('reaIntro'), reaChat = document.getElementById('reaChat');
-  const REA_KEY = 'rbua-rea-intro-seen';
   const REA_HELLO = 'Вітаю! Мене звати Рея. Я - віртуальна помічниця Райффайзен Банку Україна. Будь ласка, напишіть Ваше запитання. З радістю допоможу.';
   // Prototype answers: first matching topic wins (keywords are lowercase stems)
   const REA_KB = [
@@ -1777,7 +1776,8 @@
     return hit ? hit.a : REA_DEFAULT;
   };
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let reaSeen = false; try { reaSeen = localStorage.getItem(REA_KEY) === '1'; } catch (e) {}
+  // Intro is remembered only for this page load: every prototype restart starts with the intro again
+  let reaSeen = false;
   let reaTimer = null, reaGreeted = false;
   const reaScrollEnd = () => { reaMsgs.scrollTop = reaMsgs.scrollHeight; };
   // "Зачекайте, я думаю…", then the answer streams in word by word with a blinking caret (LLM-style)
@@ -1827,7 +1827,7 @@
   document.getElementById('reaBack').addEventListener('click', () => openRea(false));
   document.getElementById('reaDim').addEventListener('click', () => openRea(false));
   document.getElementById('reaStart').addEventListener('click', () => {
-    reaSeen = true; try { localStorage.setItem(REA_KEY, '1'); } catch (e) {}
+    reaSeen = true;
     reaShowChat(true);
     setTimeout(() => document.getElementById('reaInput').focus({ preventScroll: true }), 500);
   });
@@ -1857,7 +1857,6 @@
   // Prototype helper: show the one-time intro again
   document.getElementById('reaReset').addEventListener('click', () => {
     reaSeen = false; reaGreeted = false; reaMsgs.innerHTML = ''; clearTimeout(reaTimer); reaBusy = false; reaBar.classList.remove('busy');
-    try { localStorage.removeItem(REA_KEY); } catch (e) {}
     toast('Інтро Реї покажеться при наступному відкритті');
   });
   document.getElementById('aaBack').addEventListener('click', () => showAll(false));
