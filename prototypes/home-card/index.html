@@ -863,6 +863,24 @@
     --tint-primary: #2B2D34; --tint-secondary: #505258; --tint-tertiary: #808185; --tint-action: #0077A4; }
   html.theme-dark .quick .lbl, html.theme-dark .nav-tiles .nt span { color: var(--tint-primary); }
   html.theme-dark .qa-dark { background: #2B2D34; border-color: rgba(255,255,255,.08); }
+  /* Quick actions: Surface / Accent tiles with Tint / On Accent glyphs */
+  html.theme-dark .qa-dark { background: #FEE600; border-color: rgba(43,45,52,.08); }
+  html.theme-dark img[src$="qa-transfer.svg"] { content: url(assets/qa-transfer-dk.svg); }
+  html.theme-dark img[src$="qa-iban.svg"] { content: url(assets/qa-iban-dk.svg); }
+  html.theme-dark img[src$="qa-mobile.svg"] { content: url(assets/qa-mobile-dk.svg); }
+  html.theme-dark img[src$="qa-wallet-icon.svg"] { content: url(assets/qa-wallet-icon-dk.svg); }
+  html.theme-dark img[src$="qa2-card.svg"] { content: url(assets/qa2-card-dk.svg); }
+  html.theme-dark img[src$="qa2-exch.svg"] { content: url(assets/qa2-exch-dk.svg); }
+  html.theme-dark img[src$="qa2-wallet.svg"] { content: url(assets/qa2-wallet-dk.svg); }
+  /* Dark squircles (Surface / Inverted) flip to the dark-mode Inverted surface with a dark glyph */
+  html.theme-dark img[src$="pr-sq-premium.svg"] { content: url(assets/pr-sq-premium-dk.svg); }
+  html.theme-dark img[src$="pr-sq-premium.svg"] + img { content: url(assets/pr-premium-dk.svg); }
+  html.theme-dark img[src$="dt-sq-dark.svg"] { content: url(assets/dt-sq-dark-dk.svg); }
+  html.theme-dark img[src$="dt-sq-dark.svg"] + img { content: url(assets/dt-invoice-dk.svg); }
+  /* Raster tab icons follow the tab tint */
+  html.theme-dark .tabbar img { filter: brightness(0) invert(.84); }
+  html.theme-dark .tabbar button.on img { filter: brightness(0) saturate(100%) invert(84%) sepia(77%) saturate(1500%) hue-rotate(4deg) brightness(104%); }
+  html.theme-dark.android .tabbar button.on img { filter: brightness(0) invert(.98); }
   /* Tint / On Accent stays dark on yellow surfaces */
   html.theme-dark .badge-biz, html.theme-dark .activate-pill, html.theme-dark .aa-foot .btn-acc, html.theme-dark .cta,
   html.theme-dark .rea-cta, html.theme-dark .rea-q, html.theme-dark .rea-send { color: #2B2D34; }
@@ -1281,7 +1299,7 @@
     document.querySelectorAll('#themeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.v === (rootCl.contains('theme-dark') ? 'dark' : 'light')));
   }
   function setPlatform(p) { rootCl.toggle('android', p === 'android'); IOS_SYS.forEach((html, el) => { el.innerHTML = p === 'android' ? ANDROID_SYS : html; }); syncPlatformQS(); }
-  function setTheme(t) { rootCl.toggle('theme-dark', t === 'dark'); syncPlatformQS(); }
+  function setTheme(t) { rootCl.toggle('theme-dark', t === 'dark'); syncPlatformQS(); render(); }
   document.querySelectorAll('#platSeg button').forEach((b) => b.addEventListener('click', () => setPlatform(b.dataset.v)));
   document.querySelectorAll('#themeSeg button').forEach((b) => b.addEventListener('click', () => setTheme(b.dataset.v)));
   setPlatform(rootCl.contains('android') ? 'android' : 'ios');
@@ -1433,6 +1451,12 @@
     balRaf = requestAnimationFrame(step);
   }
 
+  // Dark theme: product header colours are pulled 60% towards Dark / Surface / Background (#2B2D34), hue kept
+  function hdrBg(h) {
+    if (!document.documentElement.classList.contains('theme-dark') || !/^#[0-9a-f]{6}$/i.test(h)) return h;
+    const B = [43, 45, 52];
+    return '#' + [1, 3, 5].map((i, k) => Math.round(parseInt(h.slice(i, i + 2), 16) * .4 + B[k] * .6).toString(16).padStart(2, '0')).join('');
+  }
   function render() {
     if (!multi()) state.sub = 0;
     const c = cur();
@@ -1448,9 +1472,9 @@
     phone.classList.toggle('business', state.profile === 'business');
     const slot = state.sub ? state.idx + 1 : state.idx;
     track.style.transform = 'translateX(' + (-STEP * slot) + 'px)';
-    phone.style.background = c.bg;
-    document.documentElement.style.setProperty('--header', c.bg);
-    if (!phone.classList.contains('on-svc')) document.getElementById('themeColor').setAttribute('content', c.bg);
+    phone.style.background = hdrBg(c.bg);
+    document.documentElement.style.setProperty('--header', hdrBg(c.bg));
+    if (!phone.classList.contains('on-svc')) document.getElementById('themeColor').setAttribute('content', hdrBg(c.bg));
     cards.concat(extraEl ? [extraEl] : []).forEach((el) => {
       const isCur = el === currentEl();
       el.classList.toggle('current', isCur);
@@ -1622,7 +1646,7 @@
     if (!multi() && !edge) {
       const to = list()[state.idx + (dx < 0 ? 1 : -1)];
       if (to) {
-        const col = mixHex(cur().bg, to.bg, Math.min(1, Math.abs(drag.dx) / STEP));
+        const col = mixHex(hdrBg(cur().bg), hdrBg(to.bg), Math.min(1, Math.abs(drag.dx) / STEP));
         phone.style.background = col; document.documentElement.style.setProperty('--header', col);
       }
     }
@@ -1963,7 +1987,7 @@
     tabs.forEach((t, k) => { t.classList.toggle('on', k === i); if (k === i) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); });
     phone.classList.toggle('on-svc', toSvc);
     svc.setAttribute('aria-hidden', String(!toSvc));
-    document.getElementById('themeColor').setAttribute('content', toSvc ? '#F8F6F2' : cur().bg);
+    document.getElementById('themeColor').setAttribute('content', toSvc ? (document.documentElement.classList.contains('theme-dark') ? '#2B2D34' : '#F8F6F2') : hdrBg(cur().bg));
     if (toSvc) { renderServices(); svcScroll.scrollTop = 0; svc.classList.remove('scrolled'); }
   }
   tabs.forEach((t, i) => t.addEventListener('click', () => setTab(i)));

@@ -397,3 +397,8 @@ Mobbin MCP підключений для референсів (може бути
   - Card faces and offer banners keep their light artwork palette. Text on yellow surfaces stays `#2B2D34` (Tint / On Accent).
   - Monochrome icon assets are recoloured with CSS filters: dark glyphs become light, action glyphs become Tint / Action (yellow).
   - The iOS glass tab bar becomes dark glass; the Android tab bar uses the dark solid surface.
+- **Dark theme, second pass:**
+  - **Header backgrounds:** the per-product colour is pulled 60% towards Dark / Surface / Background `#2B2D34`, keeping its hue. This also applies while dragging between cards.
+  - **Quick actions:** Surface / Accent `#FEE600` tiles with Tint / On Accent `#2B2D34` glyphs. The accent details of the glyphs become white. These are separate `*-dk.svg` assets, swapped with CSS `content: url()`.
+  - **Dark squircles** («Ваш преміум», «Рахунок»): switch to the dark-mode Inverted surface `#EAEAEB` with a dark glyph.
+  - **Raster tab icons** («Накопичення», «Raif+»): recoloured to the tab tint, including the selected state.
