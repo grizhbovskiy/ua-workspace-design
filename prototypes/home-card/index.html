@@ -71,6 +71,7 @@
     .status, .pr-status, .home-ind { display: none !important; }
     .tabbar { bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important; }
     .fab { bottom: calc(12px + 62px + 16px + env(safe-area-inset-bottom, 0px)) !important; }
+    .phone { --tab-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
     .scroller, .pr-scroll { -webkit-overflow-scrolling: touch; }
   }
 
@@ -660,6 +661,9 @@
                     font-size: 11px; line-height: 18px; font-weight: 700; text-align: center; display: none; box-shadow: 0 0 0 2px #fff; }
   .fab-badge-on .fab .fab-badge { display: block; }
   .fab-on .navbar [aria-label="Асистент"] { display: none; }
+  /* With the FAB on, content scrolls further so the last widget ends 16 px above the FAB (FAB sits on the background) */
+  .phone { --tab-bottom: 26px; }
+  .fab-on .sheet, .fab-on .svc-scroll { padding-bottom: calc(var(--tab-bottom) + 62px + 16px + var(--fab-h, 48px) + 16px); }
   .open .fab, .on-svc .fab.hide-svc { transform: translateY(160px); opacity: 0; pointer-events: none; }
   /* Panel switch */
   .controls .sw-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
@@ -2084,11 +2088,13 @@
   function fabSize(expand) {
     fabExpanded = expand;
     fab.classList.toggle('expanded', expand);
-    if (!expand) { fab.style.width = '48px'; fab.style.height = '48px'; return; }
+    if (!expand) { fab.style.width = '48px'; fab.style.height = '48px'; phone.style.setProperty('--fab-h', '48px'); return; }
     const W = phone.clientWidth - 32;                // full width minus 16 + 16
     fabText.style.width = (W - 4 - 14 - 10 - 32 - 8) + 'px';  // border, paddings, icon, gap
     const h = Math.max(fabText.scrollHeight, 32) + 4 + 20;
     fab.style.width = W + 'px'; fab.style.height = h + 'px';
+    // Only a permanently expanded FAB reserves its full height; in Auto it collapses on scroll anyway
+    phone.style.setProperty('--fab-h', (fabCfg.state === 'expanded' ? h : 48) + 'px');
   }
   function fabApply() {
     phone.classList.toggle('fab-on', fabCfg.on);
