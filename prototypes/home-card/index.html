@@ -70,6 +70,7 @@
     .phone { width: 100%; height: 100vh; height: 100dvh; border-radius: 0; box-shadow: none; }
     .status, .pr-status, .home-ind { display: none !important; }
     .tabbar { bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important; }
+    .fab { bottom: calc(12px + 62px + 16px + env(safe-area-inset-bottom, 0px)) !important; }
     .scroller, .pr-scroll { -webkit-overflow-scrolling: touch; }
   }
 
@@ -638,6 +639,41 @@
   .is-credit .only-credit { display: flex !important; }
 
   /* iOS Tab Bar (floating glass) */
+  /* ===== FAB — Expandable button (UDS RB Mobile 3.9.0 · 40014867:23552) =====
+     16 px above the tab bar and from the right edge. Collapsed 48×48, expanded = screen − 32, text Body 2 Medium 16/24.
+     Border 2px gradient (Gradient point 1 #7CD5F1 → point 2 #6A4CAD), radius 24/24/4/24, Elevation 3. */
+  .fab { position: absolute; right: 16px; bottom: calc(26px + 62px + 16px); z-index: 6; display: none; align-items: flex-start; gap: 8px;
+         width: 48px; height: 48px; padding: 6px; text-align: left; color: var(--tint-primary); cursor: pointer;
+         border: 2px solid transparent; border-radius: 24px 24px 4px 24px;
+         background: linear-gradient(#fff, #fff) padding-box, linear-gradient(120deg, #7CD5F1 0%, #6A4CAD 100%) border-box;
+         box-shadow: 0 2px 6px rgba(43,45,52,.15), 0 6px 20px rgba(43,45,52,.2);
+         transition: width .45s var(--lift), height .45s var(--lift), padding .45s var(--lift), transform .35s var(--spring), opacity .3s; -webkit-tap-highlight-color: transparent; }
+  .fab-on .fab { display: flex; }
+  .fab-in { display: flex; align-items: flex-start; gap: 8px; width: 100%; height: 100%; overflow: hidden; }
+  .fab img { flex: none; width: 32px; height: 32px; }
+  .fab .fab-t { flex: none; font-size: 16px; line-height: 24px; font-weight: 500; opacity: 0; transform: translateX(8px); transition: opacity .2s, transform .3s var(--ease); }
+  .fab.expanded { padding: 10px 10px 10px 14px; }
+  .fab.expanded .fab-badge { right: 6px; }
+  .fab.expanded .fab-t { opacity: 1; transform: none; transition: opacity .3s .15s, transform .4s .12s var(--ease); }
+  .fab:active { transform: scale(.94); transition: transform .12s ease-out; }
+  .fab .fab-badge { position: absolute; top: -10px; right: -10px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: #D62C2C; color: #fff;
+                    font-size: 11px; line-height: 18px; font-weight: 700; text-align: center; display: none; box-shadow: 0 0 0 2px #fff; }
+  .fab-badge-on .fab .fab-badge { display: block; }
+  .fab-on .navbar [aria-label="Асистент"] { display: none; }
+  .open .fab, .on-svc .fab.hide-svc { transform: translateY(160px); opacity: 0; pointer-events: none; }
+  /* Panel switch */
+  .controls .sw-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .tgl { position: relative; flex: none; width: 40px; height: 24px; border-radius: 12px; background: rgba(43,45,52,.2); transition: background .2s; }
+  .tgl::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.2); transition: transform .25s var(--spring); }
+  .tgl[aria-checked="true"] { background: #0A84FF; }
+  .tgl[aria-checked="true"]::after { transform: translateX(16px); }
+  .controls .fab-opts { display: grid; gap: 8px; padding-left: 10px; border-left: 2px solid rgba(43,45,52,.08); }
+  .controls .fab-opts[hidden] { display: none; }
+  .controls .seg2 { display: flex; gap: 4px; }
+  .controls .seg2 button { flex: 1; height: 28px; border-radius: 8px; font-size: 11px; color: var(--tint-secondary); box-shadow: inset 0 0 0 1px rgba(156,150,127,.32); }
+  .controls .seg2 button.on { background: var(--tint-primary); color: #fff; box-shadow: none; }
+  .controls textarea { width: 100%; resize: none; font: inherit; font-size: 13px; line-height: 18px; padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(156,150,127,.4); color: var(--tint-primary); }
+
   .tabbar { position: absolute; left: 18px; right: 18px; bottom: 26px; height: 62px; padding: 4px; display: flex; border-radius: 31px; z-index: 6;
             background: linear-gradient(180deg, rgba(255,255,255,.5) 0%, rgba(255,255,255,.34) 100%);
             -webkit-backdrop-filter: blur(16px) saturate(220%) brightness(1.06); backdrop-filter: blur(16px) saturate(220%) brightness(1.06);
@@ -972,6 +1008,7 @@
     <div class="aa-foot"><button class="btn-acc"><img src="assets/aa-card-add.svg" width="20" height="20" alt="">Відкрити новий рахунок</button></div>
   </section>
 
+  <button class="fab" id="fab" aria-label="Асистент Рея"><span class="fab-in"><img src="assets/fab-stars.svg" alt=""><span class="fab-t" id="fabText"></span></span><span class="fab-badge" id="fabBadge">1</span></button>
   <nav class="tabbar" aria-label="Основна навігація">
     <span class="tab-ind" id="tabInd" aria-hidden="true"></span>
     <button class="on" aria-current="page">
@@ -1093,6 +1130,12 @@
 
 <div class="controls" aria-label="Налаштування прототипу">
   <label>Видима смуга <input id="peek" type="range" min="64" max="110" step="1" value="81"></label>
+  <div class="sw-row"><span class="c-ttl" style="margin:0">FAB-кнопка Реї</span><button class="tgl" id="fabToggle" role="switch" aria-checked="false" aria-label="FAB-кнопка"></button></div>
+  <div class="fab-opts" id="fabOpts" hidden>
+    <div class="seg2" id="fabState"><button data-v="collapsed">Згорнута</button><button data-v="expanded">Розгорнута</button><button data-v="auto">Авто</button></div>
+    <textarea id="fabTextIn" rows="3" aria-label="Текст розгорнутої кнопки"></textarea>
+    <div class="sw-row"><span>Бейдж</span><button class="tgl" id="fabBadgeToggle" role="switch" aria-checked="false" aria-label="Бейдж"></button></div>
+  </div>
   <label>Відстань між картками <input id="cardGap" type="range" min="4" max="40" step="1" value="12"></label>
   <div class="c-val" id="cardGapVal">12 px</div>
   <button class="c-link" id="reaReset">Чат Реї: показати інтро знову</button>
@@ -2029,6 +2072,47 @@
     setTimeout(tickClock, 60000 - d.getSeconds() * 1000 - d.getMilliseconds() + 50);
   };
   tickClock();
+
+  // ===== FAB (Expandable button). On → replaces the ✦ button in the navbar; same behaviour: opens Rea =====
+  const fab = document.getElementById('fab'), fabText = document.getElementById('fabText');
+  const FAB_DEF = 'Підкажу, як перевипустити картку чи змінити PIN';
+  const fabCfg = { on: false, state: 'auto', text: FAB_DEF, badge: false };
+  try { Object.assign(fabCfg, JSON.parse(localStorage.getItem('rbua-fab') || '{}')); } catch (e) {}
+  const qsFab = new URLSearchParams(location.search).get('fab'); if (qsFab !== null) fabCfg.on = qsFab !== '0';
+  const saveFab = () => { try { localStorage.setItem('rbua-fab', JSON.stringify(fabCfg)); } catch (e) {} };
+  let fabExpanded = false, fabTimer = null;
+  function fabSize(expand) {
+    fabExpanded = expand;
+    fab.classList.toggle('expanded', expand);
+    if (!expand) { fab.style.width = '48px'; fab.style.height = '48px'; return; }
+    const W = phone.clientWidth - 32;                // full width minus 16 + 16
+    fabText.style.width = (W - 4 - 14 - 10 - 32 - 8) + 'px';  // border, paddings, icon, gap
+    const h = Math.max(fabText.scrollHeight, 32) + 4 + 20;
+    fab.style.width = W + 'px'; fab.style.height = h + 'px';
+  }
+  function fabApply() {
+    phone.classList.toggle('fab-on', fabCfg.on);
+    phone.classList.toggle('fab-badge-on', fabCfg.badge);
+    fabText.textContent = fabCfg.text || FAB_DEF;
+    clearTimeout(fabTimer);
+    if (fabCfg.state === 'expanded') fabSize(true);
+    else if (fabCfg.state === 'collapsed') fabSize(false);
+    else { fabSize(false); if (fabCfg.on) fabTimer = setTimeout(() => { fabSize(true); fabTimer = setTimeout(() => fabSize(false), 6000); }, 1200); }
+    document.getElementById('fabToggle').setAttribute('aria-checked', String(fabCfg.on));
+    document.getElementById('fabBadgeToggle').setAttribute('aria-checked', String(fabCfg.badge));
+    document.getElementById('fabOpts').hidden = !fabCfg.on;
+    document.querySelectorAll('#fabState button').forEach((b) => b.classList.toggle('on', b.dataset.v === fabCfg.state));
+    const ta = document.getElementById('fabTextIn'); if (document.activeElement !== ta) ta.value = fabCfg.text;
+  }
+  fab.addEventListener('click', () => { clearTimeout(fabTimer); if (fabCfg.state === 'auto') fabSize(false); fabCfg.badge = false; saveFab(); phone.classList.remove('fab-badge-on'); openRea(true); });
+  // Auto mode: collapse as soon as the user scrolls
+  scroller.addEventListener('scroll', () => { if (fabCfg.state === 'auto' && fabExpanded && scroller.scrollTop > 8) { clearTimeout(fabTimer); fabSize(false); } }, { passive: true });
+  document.getElementById('fabToggle').addEventListener('click', () => { fabCfg.on = !fabCfg.on; saveFab(); fabApply(); });
+  document.getElementById('fabBadgeToggle').addEventListener('click', () => { fabCfg.badge = !fabCfg.badge; saveFab(); fabApply(); });
+  document.getElementById('fabState').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { fabCfg.state = b.dataset.v; saveFab(); fabApply(); } });
+  document.getElementById('fabTextIn').addEventListener('input', (e) => { fabCfg.text = e.target.value; saveFab(); fabText.textContent = fabCfg.text || FAB_DEF; if (fabExpanded) fabSize(true); });
+  window.addEventListener('resize', () => { if (fabExpanded) fabSize(true); });
+  fabApply();
 
   // Gap between cards in the home carousel
   const setCardGap = (g) => {
