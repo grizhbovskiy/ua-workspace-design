@@ -402,3 +402,6 @@ Mobbin MCP підключений для референсів (може бути
   - **Quick actions:** Surface / Accent `#FEE600` tiles with Tint / On Accent `#2B2D34` glyphs. The accent details of the glyphs become white. These are separate `*-dk.svg` assets, swapped with CSS `content: url()`.
   - **Dark squircles** («Ваш преміум», «Рахунок»): switch to the dark-mode Inverted surface `#EAEAEB` with a dark glyph.
   - **Raster tab icons** («Накопичення», «Raif+»): recoloured to the tab tint, including the selected state.
+- **Card details:** the card is centred between the navbar and the sheet with equal 26 px gaps (`--top-open` 118 → 132).
+- **Quick actions, dark theme:** the accent details of the glyphs use Tint / Accent On Inverted, whose Dark value is `#2B2D34`. No white remains on the yellow tiles.
+- **Credit card, double tap:** the whole «Мінімальний платіж» pill is replaced by the mini UA flag (20×15). The pill background, border, icon and text are hidden.

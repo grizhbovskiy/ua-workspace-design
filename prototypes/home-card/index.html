@@ -36,7 +36,7 @@
     --shift: calc(var(--sb) - 54px);
     --top-closed: calc(279px + var(--shift));
     --peek: 81px;
-    --top-open: calc(118px + var(--shift));
+    --top-open: calc(132px + var(--shift));   /* equal 26px gaps: navbar → card → sheet */
     --spring: cubic-bezier(.32, 1.28, .52, 1);
     --lift: cubic-bezier(.22, 1, .36, 1);
     --ease: cubic-bezier(.2, .8, .2, 1);
@@ -153,8 +153,11 @@
   .minpay-pill .pl-label { padding: 0 0 0 4px; font-size: 14px; line-height: 24px; font-weight: 400; }
   .minpay-pill .pl-sum { padding: 0 4px; font-size: 14px; line-height: 24px; }
   .minpay-pill .pl-flag { display: none; width: 16px; height: 12px; margin: 0 4px 0 6px; border-radius: 2px; }
-  .bal-hidden .minpay-pill .pl-sum { display: none; }
-  .bal-hidden .minpay-pill .pl-flag { display: block; animation: flagPop .45s var(--spring); }
+  /* Hidden balance: the whole pill is replaced by the mini flag */
+  .minpay-pill { transition: opacity .25s, background .2s, border-color .2s; }
+  .bal-hidden .minpay-pill { background: transparent; border-color: transparent; }
+  .bal-hidden .minpay-pill > :not(.pl-flag) { display: none; }
+  .bal-hidden .minpay-pill .pl-flag { display: block; width: 20px; height: 15px; margin: 4px 0; animation: flagPop .45s var(--spring); }
   @keyframes flagPop { from { transform: scale(.3); opacity: 0; } to { transform: none; opacity: 1; } }
   .has-minpay:not(.open) .minpay-pill { opacity: 1; }
   .activate-pill::after { content: ''; position: absolute; inset: -4px 0; }
