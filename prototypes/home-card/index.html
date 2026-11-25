@@ -99,8 +99,7 @@
   .avatar { position: relative; width: 44px; height: 44px; }
   .avatar .ph { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
   /* Avatar / Badge / Small / Top — top-right corner (Figma 1538:115526) */
-  /* Pill Medium (UDS): padding 4 8, Caption 1 14/24; anchored to the avatar's top-right */
-  .avatar .badge-biz { position: absolute; left: calc(50% + 10px); top: calc(50% - 20px); transform: translate(0, -50%) scale(.6); transform-origin: 0 50%; opacity: 0; padding: 4px 8px; border-radius: 100px; background: var(--surface-accent); color: var(--tint-primary); font-size: 14px; line-height: 24px; font-weight: 500; white-space: nowrap; transition: opacity .2s, transform .3s var(--spring); }
+  .avatar .badge-biz { position: absolute; left: calc(50% + 25.7px); top: calc(50% - 18px); transform: translate(-50%, -50%) scale(.6); opacity: 0; padding: 0 4px 1px; border-radius: 100px; background: var(--surface-accent); color: var(--tint-primary); font-size: 10px; line-height: 12px; font-weight: 500; white-space: nowrap; transition: opacity .2s, transform .3s var(--spring); }
   .avatar .badge-biz::after { content: ''; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none;
     background: linear-gradient(180deg, rgba(43,45,52,.08) 0%, rgba(43,45,52,.08) 15%, rgba(43,45,52,.1) 90%, rgba(43,45,52,.2) 100%);
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
@@ -112,7 +111,7 @@
   .business .av-biz { display: flex; }
   .avatar { transition: transform .2s var(--ease); -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
   .avatar.pressing { transform: scale(.9); }
-  .business .avatar .badge-biz { opacity: 1; transform: translate(0, -50%); }
+  .business .avatar .badge-biz { opacity: 1; transform: translate(-50%, -50%); }
   .nav-right { display: flex; gap: 10px; align-items: center; }
   .icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
   .btn-group { display: flex; gap: 8px; height: 44px; align-items: center; padding: 0 6px; }
@@ -146,7 +145,12 @@
   .minpay-pill { position: absolute; left: 50%; top: calc(211px + var(--shift)); transform: translateX(-50%); display: flex; align-items: center; padding: 4px 8px; border-radius: 100px;
                  background: rgba(170,171,174,.2); border: 1px solid rgba(143,145,153,.32); color: #fff; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .25s; }
   .minpay-pill img { flex: none; }
-  .minpay-pill .pl-label { padding: 0 4px; font-size: 14px; line-height: 24px; font-weight: 400; }
+  .minpay-pill .pl-label { padding: 0 0 0 4px; font-size: 14px; line-height: 24px; font-weight: 400; }
+  .minpay-pill .pl-sum { padding: 0 4px; font-size: 14px; line-height: 24px; }
+  .minpay-pill .pl-flag { display: none; width: 16px; height: 12px; margin: 0 4px 0 6px; border-radius: 2px; }
+  .bal-hidden .minpay-pill .pl-sum { display: none; }
+  .bal-hidden .minpay-pill .pl-flag { display: block; animation: flagPop .45s var(--spring); }
+  @keyframes flagPop { from { transform: scale(.3); opacity: 0; } to { transform: none; opacity: 1; } }
   .has-minpay:not(.open) .minpay-pill { opacity: 1; }
   .activate-pill::after { content: ''; position: absolute; inset: -4px 0; }
 
@@ -868,7 +872,7 @@
 </svg><span class="pl-label" id="activateText">Активувати картку</span>
   </button>
 
-  <div class="minpay-pill" id="minPay" aria-hidden="true"><img src="assets/pill-card-credit.svg" width="16" height="16" alt=""><span class="pl-label" id="minPayText"></span></div>
+  <div class="minpay-pill" id="minPay" aria-hidden="true"><img src="assets/pill-card-credit.svg" width="16" height="16" alt=""><span class="pl-label" id="minPayText"></span><span class="pl-sum" id="minPaySum"></span><img class="pl-flag" src="assets/aa-flag-ua.svg" width="16" height="12" alt="приховано"></div>
 
   <div class="cards" id="cards">
     <div class="track" id="track"></div>
@@ -1339,7 +1343,7 @@
     phone.classList.toggle('is-ghost', !!c.ghost);
     phone.classList.toggle('is-credit', !!c.credit);
     phone.classList.toggle('has-minpay', !!c.minPay);
-    if (c.minPay) document.getElementById('minPayText').textContent = 'Мінімальний платіж • ' + c.minPay;
+    if (c.minPay) { document.getElementById('minPayText').textContent = 'Мінімальний платіж •'; document.getElementById('minPaySum').textContent = c.minPay; }
     phone.classList.toggle('is-account', c.kind === 'account');
     phone.classList.toggle('business', state.profile === 'business');
     const slot = state.sub ? state.idx + 1 : state.idx;
