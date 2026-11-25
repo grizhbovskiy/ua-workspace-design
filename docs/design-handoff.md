@@ -385,3 +385,15 @@ Mobbin MCP підключений для референсів (може бути
     - The selected tab is `tint-primary`; there is no floating pill or sliding indicator.
   - The FAB and bottom paddings follow the new tab bar height.
   - On a real phone the mock gesture bar is hidden and the system safe area is used instead.
+
+## 12. Control panel: platform and theme switchers
+
+- **Платформа iOS / Android** and **Тема Світла / Темна** are toggled live in the control panel. They are written to the URL (`?platform=android`, `?theme=dark`), so any state can be shared as a link.
+- **Dark theme:** UDS RB Theme 3.8.0, mode Dark.
+  - Tokens:
+    - Surfaces: Background `#2B2D34`, Baseline `#35373C`, Inverted `#EAEAEB`.
+    - Tints: Primary `#F9F9F9`, Secondary `#D5D5D6`, Tertiary `#AAABAE`, Action `#FEE600`.
+    - Surface/Info `#115F7B` with Tint/On Info `#BFE9F8`; Border `rgba(143,145,153,.24)`.
+  - Card faces and offer banners keep their light artwork palette. Text on yellow surfaces stays `#2B2D34` (Tint / On Accent).
+  - Monochrome icon assets are recoloured with CSS filters: dark glyphs become light, action glyphs become Tint / Action (yellow).
+  - The iOS glass tab bar becomes dark glass; the Android tab bar uses the dark solid surface.

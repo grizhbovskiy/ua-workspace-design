@@ -848,10 +848,53 @@
     html.android .phone { --tab-bottom: calc(env(safe-area-inset-bottom, 0px) - 12px); }
     html.android .fab { bottom: calc(50px + 16px + env(safe-area-inset-bottom, 0px)) !important; }
   }
+  /* ===== Dark theme (?theme=dark) — UDS RB Theme 3.8.0, mode Dark ===== */
+  html.theme-dark .phone {
+    --surface-background: #2B2D34; --surface-baseline: #35373C; --surface-inverted: #EAEAEB;
+    --tint-primary: #F9F9F9; --tint-secondary: #D5D5D6; --tint-tertiary: #AAABAE; --tint-action: #FEE600;
+    --border-regular: rgba(143,145,153,.24); --elevation-1: 0 1px 1px 0 rgba(0,0,0,.45);
+    color: var(--tint-primary); color-scheme: dark;
+  }
+  /* Card faces keep their own (light-theme) artwork colours */
+  html.theme-dark .phone .card { --surface-background: #F8F6F2; --surface-baseline: #FFFFFF; --surface-inverted: #2B2D34;
+    --tint-primary: #2B2D34; --tint-secondary: #505258; --tint-tertiary: #808185; --tint-action: #0077A4; color: var(--tint-primary); }
+  /* Offer banners keep their light artwork palette */
+  html.theme-dark .phone :is(.bn, .gh) { --surface-background: #F8F6F2; --surface-baseline: #FFFFFF; --surface-inverted: #2B2D34;
+    --tint-primary: #2B2D34; --tint-secondary: #505258; --tint-tertiary: #808185; --tint-action: #0077A4; }
+  html.theme-dark .quick .lbl, html.theme-dark .nav-tiles .nt span { color: var(--tint-primary); }
+  html.theme-dark .qa-dark { background: #2B2D34; border-color: rgba(255,255,255,.08); }
+  /* Tint / On Accent stays dark on yellow surfaces */
+  html.theme-dark .badge-biz, html.theme-dark .activate-pill, html.theme-dark .aa-foot .btn-acc, html.theme-dark .cta,
+  html.theme-dark .rea-cta, html.theme-dark .rea-q, html.theme-dark .rea-send { color: #2B2D34; }
+  html.theme-dark .rea-send img, html.theme-dark .aa-foot .btn-acc img { filter: none !important; }
+  /* Surface / Info + Tint / On Info */
+  html.theme-dark .btn-info { background: #115F7B; color: #BFE9F8; }
+  html.theme-dark .btn-info:active { background: #0E4F66; }
+  /* Sticky / modal surfaces */
+  html.theme-dark .toast { background: #404248; }
+  html.theme-dark .ut-dots i, html.theme-dark .bn-dots i { background: rgba(255,255,255,.24); }
+  html.theme-dark .ut-dots i.on, html.theme-dark .bn-dots i.on { background: var(--tint-primary); }
+  html.theme-dark .tab-ind { background: rgba(255,255,255,.1); }
+  html.theme-dark .tabbar { background: linear-gradient(180deg, rgba(64,66,72,.72) 0%, rgba(53,55,60,.6) 100%); border-color: rgba(255,255,255,.1);
+    box-shadow: 0 0 0 .5px rgba(0,0,0,.4), inset 0 1px 1px rgba(255,255,255,.12), 0 10px 30px rgba(0,0,0,.4); }
+  html.theme-dark.android .tabbar { background: var(--surface-background); box-shadow: 0 -.5px 0 rgba(143,145,153,.3); }
+  /* Status bar over dark screens stays light */
+  html.theme-dark .on-svc .status, html.theme-dark .aa-open .status, html.theme-dark .rea-open .status { filter: none; opacity: 1; }
+  /* Monochrome icon assets: dark glyphs → light, action glyphs → Tint / Action (yellow) */
+  html.theme-dark .phone :is(img[src*="rea-add"], img[src*="rea-ai"], img[src*="rea-stars"], img[src*="rea-up"], img[src*="dt-case"], img[src*="dt-docs"], img[src*="dt-pdf"]) { filter: invert(.92) hue-rotate(180deg); }
+  html.theme-dark .phone :is(img[src*="aa-add"], img[src*="aa-back"], img[src*="aa-fav-on"], img[src*="aa-fav-off"], img[src*="aa-hide"], img[src*="aa-more"], img[src*="dt-copy"], img[src*="dt-go-right"],
+    img[src*="pr-close"], img[src*="pr-go-right"], img[src*="pr-headphones"], img[src*="rea-check"], img[src*="sv-chart"], img[src*="sv-go-right"]) {
+    filter: brightness(0) saturate(100%) invert(84%) sepia(77%) saturate(1500%) hue-rotate(4deg) brightness(104%); }
+  html.theme-dark .phone :not(.card *) > svg[stroke="#0077A4"] { stroke: var(--tint-action); }
+  html.theme-dark .phone :not(.card *) > svg[fill="#0077A4"], html.theme-dark .phone :not(.card *) > svg [fill="#0077A4"] { fill: var(--tint-action); }
+  html.theme-dark .phone .svc svg[stroke="#2B2D34"], html.theme-dark .phone .aa svg[stroke="#2B2D34"], html.theme-dark .phone .profile svg[stroke="#2B2D34"], html.theme-dark .phone .rea svg[stroke="#2B2D34"] { stroke: var(--tint-primary); }
+  html.theme-dark .phone .svc svg[fill="#2B2D34"], html.theme-dark .phone .aa svg[fill="#2B2D34"], html.theme-dark .phone .profile svg[fill="#2B2D34"], html.theme-dark .phone .rea svg[fill="#2B2D34"] { fill: var(--tint-primary); }
 </style>
 <script>
   // Platform switch: ?platform=android renders the UDS Android variants of system bars, toolbar and tab bar.
-  if (new URLSearchParams(location.search).get('platform') === 'android') document.documentElement.classList.add('android');
+  (function () { const q = new URLSearchParams(location.search);
+    if (q.get('platform') === 'android') document.documentElement.classList.add('android');
+    if (q.get('theme') === 'dark') document.documentElement.classList.add('theme-dark'); })();
 </script>
 </head>
 <body>
@@ -1195,6 +1238,8 @@
 </div>
 
 <div class="controls" aria-label="Налаштування прототипу">
+  <div class="sw-row"><span class="c-ttl" style="margin:0">Платформа</span><div class="seg2" id="platSeg" style="width:140px"><button data-v="ios">iOS</button><button data-v="android">Android</button></div></div>
+  <div class="sw-row"><span class="c-ttl" style="margin:0">Тема</span><div class="seg2" id="themeSeg" style="width:140px"><button data-v="light">Світла</button><button data-v="dark">Темна</button></div></div>
   <label>Видима смуга <input id="peek" type="range" min="64" max="110" step="1" value="81"></label>
   <div class="sw-row"><span class="c-ttl" style="margin:0">FAB-кнопка Реї</span><button class="tgl" id="fabToggle" role="switch" aria-checked="false" aria-label="FAB-кнопка"></button></div>
   <div class="fab-opts" id="fabOpts" hidden>
@@ -1221,13 +1266,25 @@
 <script>
 (function () {
   const phone = document.getElementById('phone');
-  if (document.documentElement.classList.contains('android')) {
-    // Android status bar icons (UDS System / Status Bar, Platform=Android): cellular, Wi-Fi, battery
-    const SYS = '<svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M14 0v14H0z"/></svg>' +
-      '<svg width="18" height="14" viewBox="0 0 18 14" fill="currentColor"><path d="M9 14 0 3.2A14.4 14.4 0 0 1 9 0a14.4 14.4 0 0 1 9 3.2z"/></svg>' +
-      '<svg width="9" height="14" viewBox="0 0 9 14" fill="currentColor"><path d="M3 0h3v1.5h2a1 1 0 0 1 1 1V13a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V2.5a1 1 0 0 1 1-1h2z"/></svg>';
-    document.querySelectorAll('.status .sys, .pr-status .sys').forEach((el) => { el.innerHTML = SYS; });
+  // ---------- Platform (iOS / Android) and theme (light / dark) switches ----------
+  const ANDROID_SYS = '<svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M14 0v14H0z"/></svg>' +
+    '<svg width="18" height="14" viewBox="0 0 18 14" fill="currentColor"><path d="M9 14 0 3.2A14.4 14.4 0 0 1 9 0a14.4 14.4 0 0 1 9 3.2z"/></svg>' +
+    '<svg width="9" height="14" viewBox="0 0 9 14" fill="currentColor"><path d="M3 0h3v1.5h2a1 1 0 0 1 1 1V13a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V2.5a1 1 0 0 1 1-1h2z"/></svg>';
+  const IOS_SYS = new Map(); document.querySelectorAll('.status .sys, .pr-status .sys').forEach((el) => IOS_SYS.set(el, el.innerHTML));
+  const rootCl = document.documentElement.classList;
+  function syncPlatformQS() {
+    const q = new URLSearchParams(location.search);
+    if (rootCl.contains('android')) q.set('platform', 'android'); else q.delete('platform');
+    if (rootCl.contains('theme-dark')) q.set('theme', 'dark'); else q.delete('theme');
+    const qs = q.toString(); history.replaceState(null, '', location.pathname + (qs ? '?' + qs : '') + location.hash);
+    document.querySelectorAll('#platSeg button').forEach((b) => b.classList.toggle('on', b.dataset.v === (rootCl.contains('android') ? 'android' : 'ios')));
+    document.querySelectorAll('#themeSeg button').forEach((b) => b.classList.toggle('on', b.dataset.v === (rootCl.contains('theme-dark') ? 'dark' : 'light')));
   }
+  function setPlatform(p) { rootCl.toggle('android', p === 'android'); IOS_SYS.forEach((html, el) => { el.innerHTML = p === 'android' ? ANDROID_SYS : html; }); syncPlatformQS(); }
+  function setTheme(t) { rootCl.toggle('theme-dark', t === 'dark'); syncPlatformQS(); }
+  document.querySelectorAll('#platSeg button').forEach((b) => b.addEventListener('click', () => setPlatform(b.dataset.v)));
+  document.querySelectorAll('#themeSeg button').forEach((b) => b.addEventListener('click', () => setTheme(b.dataset.v)));
+  setPlatform(rootCl.contains('android') ? 'android' : 'ios');
   const track = document.getElementById('track');
   const dotsWrap = document.getElementById('dots');
   const title = document.getElementById('title');
