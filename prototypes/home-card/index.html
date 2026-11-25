@@ -150,7 +150,8 @@
   .open .card.before { opacity: 0; transform: translateX(-40px); }
   .open .card.after { opacity: 0; transform: translateX(40px); }
   .card.current.lift { transform: scale(.95); }
-  .ghost { position: absolute; left: 10px; right: 10px; top: -8px; height: 40px; border-radius: 16px 16px 0 0; background: rgba(255,255,255,.35); transition: opacity .25s, transform .35s var(--ease); }
+  /* Second card peeking behind the main one; its width is adjustable from the controls panel (--stack-w, default 300 of 320) */
+  .ghost { position: absolute; left: calc((var(--card-w) - var(--stack-w, 300px)) / 2); right: calc((var(--card-w) - var(--stack-w, 300px)) / 2); top: -8px; height: 40px; border-radius: 16px 16px 0 0; background: rgba(255,255,255,.35); transition: opacity .25s, transform .35s var(--ease); }
   .open .ghost { opacity: 0; transform: translateY(8px); }
   .card.extra { position: absolute; left: 699px; top: 0; width: var(--card-w); opacity: 0; transform: translateX(40px); pointer-events: none; }
   .open.multi .card.extra { opacity: 1; transform: none; pointer-events: auto; transition-delay: .35s; }
@@ -1140,6 +1141,8 @@
     <textarea id="fabTextIn" rows="3" aria-label="Текст розгорнутої кнопки"></textarea>
     <div class="sw-row"><span>Бейдж</span><button class="tgl" id="fabBadgeToggle" role="switch" aria-checked="false" aria-label="Бейдж"></button></div>
   </div>
+  <label>Ширина картки позаду <input id="stackW" type="range" min="200" max="320" step="2" value="300"></label>
+  <div class="c-val" id="stackWVal">300 px</div>
   <label>Відстань між картками <input id="cardGap" type="range" min="4" max="40" step="1" value="12"></label>
   <div class="c-val" id="cardGapVal">12 px</div>
   <button class="c-link" id="reaReset">Чат Реї: показати інтро знову</button>
@@ -2119,6 +2122,12 @@
   document.getElementById('fabTextIn').addEventListener('input', (e) => { fabCfg.text = e.target.value; saveFab(); fabText.textContent = fabCfg.text || FAB_DEF; if (fabExpanded) fabSize(true); });
   window.addEventListener('resize', () => { if (fabExpanded) fabSize(true); });
   fabApply();
+
+  // Width of the card peeking behind the main card (accounts with several cards)
+  document.getElementById('stackW').addEventListener('input', (e) => {
+    document.documentElement.style.setProperty('--stack-w', e.target.value + 'px');
+    document.getElementById('stackWVal').textContent = e.target.value + ' px';
+  });
 
   // Gap between cards in the home carousel
   const setCardGap = (g) => {
