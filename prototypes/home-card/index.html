@@ -425,6 +425,10 @@
   .aa-add img { width: 20px; height: 20px; }
   .aa-add:active { background: rgba(0,119,164,.06); }
   .aa-foot { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; background: transparent; pointer-events: none; padding: 16px 16px calc(24px + env(safe-area-inset-bottom, 0px)); }
+  /* Sticky container: transparent while content ends above it; Translucent (DS Surface/Translucent ≈ background 80% + blur) once content runs under the button */
+  .aa-foot { transition: background .25s ease, box-shadow .25s ease, -webkit-backdrop-filter .25s, backdrop-filter .25s; }
+  .aa-foot.over { pointer-events: auto; background: color-mix(in srgb, var(--surface-background) 80%, transparent);
+                  -webkit-backdrop-filter: blur(24px) saturate(180%); backdrop-filter: blur(24px) saturate(180%); box-shadow: 0 -.5px 0 rgba(156,150,127,.3); }
   .aa-foot .btn-acc { pointer-events: auto; width: 100%; height: 48px; border-radius: 12px; background: var(--surface-accent); display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 16px; line-height: 16px; font-weight: 500; color: var(--tint-primary); }
   .aa-foot .btn-acc:active { filter: brightness(.96); }
 
@@ -1878,7 +1882,7 @@
     aa.classList.toggle('show', v);
     phone.classList.toggle('aa-open', v);
     aa.setAttribute('aria-hidden', String(!v));
-    if (v) { aaScroll.scrollTop = 0; aa.classList.remove('scrolled'); setTimeout(() => document.getElementById('aaBack').focus({ preventScroll: true }), 450); }
+    if (v) { setTimeout(aaFootState, 60); aaScroll.scrollTop = 0; aa.classList.remove('scrolled'); setTimeout(() => document.getElementById('aaBack').focus({ preventScroll: true }), 450); }
   }
   document.getElementById('openAll').addEventListener('click', () => showAll(true));
 
@@ -1996,7 +2000,8 @@
   });
   document.getElementById('aaBack').addEventListener('click', () => showAll(false));
   document.getElementById('aaDim').addEventListener('click', () => showAll(false));
-  aaScroll.addEventListener('scroll', () => aa.classList.toggle('scrolled', aaScroll.scrollTop > 4), { passive: true });
+  aaScroll.addEventListener('scroll', () => { aa.classList.toggle('scrolled', aaScroll.scrollTop > 4); aaFootState(); }, { passive: true });
+  window.addEventListener('resize', aaFootState);
   // ===== All accounts list, built from the same data as the home carousel =====
   const CARD_FIELDS = ['key', 'skin', 'img', 'shade', 'backColor', 'name', 'pan', 'date', 'cvv', 'curTag'];
   const miniOf = (c) => 'assets/' + (c.key === 'fishka' ? 'mini-fishka.png' : (c.skin || '').startsWith('yellow') ? 'mini-raif-ua.png' : c.img);
@@ -2024,6 +2029,15 @@
   ];
   const aaClosed = new Set();
   const plural = (n) => n === 1 ? 'рахунок' : n < 5 ? 'рахунки' : 'рахунків';
+  // Is any content under the sticky button? → translucent container
+  function aaFootState() {
+    const foot = aa.querySelector('.aa-foot'); if (!foot || !aa.classList.contains('show')) return;
+    const top = foot.getBoundingClientRect().top;
+    let bottom = 0;
+    aa.querySelectorAll('#aaList .aa-sec, #aaList .aa-group:not(.closed) .aa-w, #aaBn .bn').forEach((el) => { bottom = Math.max(bottom, el.getBoundingClientRect().bottom); });
+    const hid = document.getElementById('aaHidden'); if (hid && hid.textContent) bottom = Math.max(bottom, hid.getBoundingClientRect().bottom - 16);
+    foot.classList.toggle('over', bottom > top + 1);
+  }
   function aaHiddenText() {
     const n = [...document.querySelectorAll('#aaList .aa-group.closed .aa-w')].length;
     document.getElementById('aaHidden').textContent = n ? 'Приховано: ' + n + ' ' + plural(n) : '';
@@ -2093,7 +2107,7 @@
       const g = sec.dataset.g, grp = sec.nextElementSibling, closed = !grp.classList.contains('closed');
       grp.classList.toggle('closed', closed); sec.classList.toggle('closed', closed);
       if (closed) aaClosed.add(g); else aaClosed.delete(g);
-      aaHiddenText(); return;
+      aaHiddenText(); setTimeout(aaFootState, 380); return;
     }
     if (e.target.closest('.more')) { toast('Дії з рахунком — наступний крок'); return; }
     if (e.target.closest('[data-x]')) { toast('Рахунок без картки — наступний крок'); return; }
