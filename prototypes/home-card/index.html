@@ -99,7 +99,8 @@
   .avatar { position: relative; width: 44px; height: 44px; }
   .avatar .ph { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
   /* Avatar / Badge / Small / Top — top-right corner (Figma 1538:115526) */
-  .avatar .badge-biz { position: absolute; left: calc(50% + 25.7px); top: calc(50% - 18px); transform: translate(-50%, -50%) scale(.6); opacity: 0; padding: 0 4px 1px; border-radius: 100px; background: var(--surface-accent); color: var(--tint-primary); font-size: 10px; line-height: 12px; font-weight: 500; white-space: nowrap; transition: opacity .2s, transform .3s var(--spring); }
+  /* Pill Medium (UDS): padding 4 8, Caption 1 14/24; anchored to the avatar's top-right */
+  .avatar .badge-biz { position: absolute; left: calc(50% + 10px); top: calc(50% - 20px); transform: translate(0, -50%) scale(.6); transform-origin: 0 50%; opacity: 0; padding: 4px 8px; border-radius: 100px; background: var(--surface-accent); color: var(--tint-primary); font-size: 14px; line-height: 24px; font-weight: 500; white-space: nowrap; transition: opacity .2s, transform .3s var(--spring); }
   .avatar .badge-biz::after { content: ''; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none;
     background: linear-gradient(180deg, rgba(43,45,52,.08) 0%, rgba(43,45,52,.08) 15%, rgba(43,45,52,.1) 90%, rgba(43,45,52,.2) 100%);
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
@@ -111,7 +112,7 @@
   .business .av-biz { display: flex; }
   .avatar { transition: transform .2s var(--ease); -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
   .avatar.pressing { transform: scale(.9); }
-  .business .avatar .badge-biz { opacity: 1; transform: translate(-50%, -50%); }
+  .business .avatar .badge-biz { opacity: 1; transform: translate(0, -50%); }
   .nav-right { display: flex; gap: 10px; align-items: center; }
   .icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
   .btn-group { display: flex; gap: 8px; height: 44px; align-items: center; padding: 0 6px; }
@@ -127,6 +128,13 @@
   .amount .dec { font-size: 24px; line-height: 28px; letter-spacing: -.12px; margin-left: 1px; }
   .amount .cur { font-size: 24px; line-height: 28px; margin-left: 8px; }
   .open .balance { opacity: 0; transform: translateY(-18px) scale(.96); }
+  /* Double tap on the balance hides the amount behind the Ukrainian flag (and back) */
+  .balance { -webkit-user-select: none; user-select: none; cursor: pointer; touch-action: manipulation; }
+  .bal-flag { position: absolute; left: 50%; top: 28px; height: 44px; display: flex; align-items: center; transform: translateX(-50%) scale(.4); opacity: 0; pointer-events: none; transition: opacity .2s, transform .45s var(--spring); }
+  .bal-flag img { width: 52px; height: 39px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+  .amount { transition: opacity .2s, transform .35s var(--ease), filter .25s; }
+  .bal-hidden .amount { opacity: 0; transform: scale(.9); filter: blur(6px); }
+  .bal-hidden .bal-flag { opacity: 1; transform: translateX(-50%) scale(1); }
 
   /* Activate card pill (shown for a card that needs activation) */
   /* UDS Pill: Size=Large, Intent=Accent, Style=Subtle (3.6.0, 25005:12958) */
@@ -392,6 +400,15 @@
   .aa-ghost .aa-acc::before { display: none; }
   .aa-ghost .sep { height: 2px; background: var(--surface-background); }
   /* All accounts (concept 1489:92797): ⋯ per account, ★ on accounts with several cards, "+ Нова картка до рахунку" */
+  .aa-sec { display: flex; align-items: center; width: 100%; min-height: 56px; padding: 0 16px; gap: 16px; text-align: left; }
+  .aa-sec .fl { width: 24px; display: flex; justify-content: center; }
+  .aa-sec b { flex: 1; font-size: 16px; line-height: 20px; font-weight: 500; }
+  .aa-sec .chev { width: 20px; height: 20px; transition: transform .3s var(--ease); }
+  .aa-sec.closed .chev { transform: rotate(180deg); }
+  .aa-group { display: grid; grid-template-rows: 1fr; transition: grid-template-rows .35s var(--ease), opacity .25s; }
+  .aa-group > div { overflow: hidden; }
+  .aa-group.closed { grid-template-rows: 0fr; opacity: 0; }
+  .aa-hidden { padding: 16px; text-align: center; font-size: 16px; line-height: 24px; color: var(--tint-secondary); }
   .aa-acc .more, .aa-card .fav { flex: none; width: 40px; height: 40px; margin-right: -10px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: background .2s, transform .3s var(--spring); }
   .aa-acc .more:active, .aa-card .fav:active { background: rgba(0,119,164,.1); transform: scale(.9); }
   .aa-card .fav img { width: 20px; height: 20px; }
@@ -552,7 +569,7 @@
   .is-ghost .quick, .is-ghost .tx-widget, .is-ghost #bnWrap { display: none; }
   .gh-wrap { display: none; overflow: hidden; transition: height .4s var(--ease), opacity .3s; }
   .is-ghost .gh-wrap { display: block; }
-  .gh { position: relative; margin: 8px 16px; border-radius: 16px; overflow: hidden; padding: 16px 20px 20px; display: flex; flex-direction: column; align-items: center; text-align: center;
+  .gh { position: relative; margin: 16px 16px 8px; border-radius: 16px; overflow: hidden; padding: 16px 20px 20px; display: flex; flex-direction: column; align-items: center; text-align: center;
         box-shadow: 0 1px 1px rgba(43,45,52,.2); cursor: pointer; transition: transform .2s var(--ease); -webkit-user-select: none; user-select: none; }
   .gh:active { transform: scale(.98); }
   .gh::after { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 1px solid var(--br); pointer-events: none; }
@@ -647,10 +664,14 @@
   .fab { position: absolute; right: 16px; bottom: calc(26px + 62px + 16px); z-index: 6; display: none; align-items: flex-start; gap: 8px;
          width: 48px; height: 48px; padding: 6px; text-align: left; color: var(--tint-primary); cursor: pointer;
          border: 2px solid transparent; border-radius: 24px 24px 4px 24px;
-         background: linear-gradient(#fff, #fff) padding-box, linear-gradient(120deg, #7CD5F1 0%, #6A4CAD 100%) border-box;
+         background: linear-gradient(#fff, #fff) padding-box, conic-gradient(from var(--fab-a), #7CD5F1, #6A4CAD, #A592CF, #7CD5F1) border-box;
+         animation: fabFlow 4s linear infinite;
          box-shadow: 0 2px 6px rgba(43,45,52,.15), 0 6px 20px rgba(43,45,52,.2);
          transition: width .45s var(--lift), height .45s var(--lift), padding .45s var(--lift), transform .35s var(--spring), opacity .3s; -webkit-tap-highlight-color: transparent; }
   .fab-on .fab { display: flex; }
+  @property --fab-a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+  @keyframes fabFlow { to { --fab-a: 360deg; } }
+  @media (prefers-reduced-motion: reduce) { .fab { animation: none; } }
   .fab-in { display: flex; align-items: flex-start; gap: 8px; width: 100%; height: 100%; overflow: hidden; }
   .fab img { flex: none; width: 32px; height: 32px; }
   .fab .fab-t { flex: none; font-size: 16px; line-height: 24px; font-weight: 500; opacity: 0; transform: translateX(8px); transition: opacity .2s, transform .3s var(--ease); }
@@ -832,6 +853,7 @@
   <div class="scroller" id="scroller"><div class="page">
   <div class="balance" id="balance" aria-label="Власні кошти 8 412,50 гривень">
     <div class="label" id="balLabel" aria-hidden="true">Власні кошти</div>
+    <div class="bal-flag" aria-hidden="true"><img src="assets/aa-flag-ua.svg" alt=""></div>
     <div class="amount" aria-hidden="true"><span class="int" id="balInt">8 412</span><span class="comma">,</span><span class="dec" id="balDec">50</span><span class="cur" id="balCur">₴</span></div>
   </div>
 
@@ -875,7 +897,6 @@
       </div></div>
 
       <div class="gh-wrap" id="ghostWrap" data-v="dark">
-        <div class="sec-head"><h2>Пропозиція для вас</h2></div>
         <div class="gh" id="ghost" role="button" tabindex="0">
           <img class="gh-card" src="assets/ghost-card-100.png" alt="Кредитна картка «100 днів»">
           <span class="gh-pill">Схвалено для вас</span>
@@ -1366,6 +1387,17 @@
     if (quick.dataset.set !== qaSet) { quick.innerHTML = QA_SETS[qaSet]; quick.dataset.set = qaSet; }
     setBalance();
   }
+  // Double tap (touch or mouse) on the balance
+  let balTap = 0;
+  document.getElementById('balance').addEventListener('pointerup', () => {
+    const now = performance.now();
+    if (now - balTap < 320) {
+      balTap = 0;
+      const hidden = phone.classList.toggle('bal-hidden');
+      if (navigator.vibrate) navigator.vibrate(10);
+      document.getElementById('balance').setAttribute('aria-label', hidden ? 'Баланс приховано' : document.getElementById('balLabel').textContent);
+    } else balTap = now;
+  });
   function toast(text) {
     const t = document.getElementById('toast');
     document.getElementById('toastText').textContent = text;
@@ -1456,16 +1488,55 @@
   // Swipe between cards (collapsed, or between cards of one account in details)
   let startX = null, swiped = false;
   const area = document.getElementById('cards');
-  area.addEventListener('pointerdown', (e) => { if (!state.open || multi()) { startX = e.clientX; swiped = false; } });
-  area.addEventListener('pointerup', (e) => {
-    if (startX === null) return;
-    const dx = e.clientX - startX;
-    startX = null;
-    if (Math.abs(dx) <= 40) return;
-    swiped = true;
-    if (multi()) { state.sub = dx < 0 ? 1 : 0; state.flipped = false; render(); }
-    else go(state.idx + (dx < 0 ? 1 : -1));
+  // Cards follow the finger/cursor; on release snap to the nearest card. While dragging, the header colour
+  // blends from the current card's colour to the neighbour's.
+  const hexRgb = (h) => { h = h.replace('#', ''); return [0, 2, 4].map((k) => parseInt(h.slice(k, k + 2), 16)); };
+  const mixHex = (a, b, t) => { const A = hexRgb(a), B = hexRgb(b); return 'rgb(' + A.map((v, k) => Math.round(v + (B[k] - v) * t)).join(',') + ')'; };
+  let drag = null;
+  area.addEventListener('pointerdown', (e) => {
+    if (state.open && !multi()) return;
+    if (e.button !== undefined && e.button !== 0) return;
+    drag = { x: e.clientX, y: e.clientY, dx: 0, t: performance.now(), active: false, id: e.pointerId };
+    swiped = false;
   });
+  area.addEventListener('pointermove', (e) => {
+    if (!drag) return;
+    const dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+    if (!drag.active) {
+      if (Math.abs(dx) < 6) return;
+      if (Math.abs(dy) > Math.abs(dx)) { drag = null; return; }   // vertical: let the page scroll
+      drag.active = true; swiped = true;
+      try { area.setPointerCapture(e.pointerId); } catch (err) {}
+      track.style.transition = 'none';
+    }
+    const slot = state.sub ? state.idx + 1 : state.idx;
+    const atStart = multi() ? state.sub === 0 : state.idx === 0;
+    const atEnd = multi() ? state.sub === 1 : state.idx === cards.length - 1;
+    const edge = (dx > 0 && atStart) || (dx < 0 && atEnd);
+    drag.dx = edge ? dx * .35 : Math.max(-STEP, Math.min(STEP, dx));
+    track.style.transform = 'translateX(' + (-STEP * slot + drag.dx) + 'px)';
+    if (!multi() && !edge) {
+      const to = list()[state.idx + (dx < 0 ? 1 : -1)];
+      if (to) {
+        const col = mixHex(cur().bg, to.bg, Math.min(1, Math.abs(drag.dx) / STEP));
+        phone.style.background = col; document.documentElement.style.setProperty('--header', col);
+      }
+    }
+  });
+  const dragEnd = () => {
+    if (!drag) return;
+    const d = drag; drag = null;
+    if (!d.active) return;
+    track.style.transition = '';
+    const v = d.dx / Math.max(1, performance.now() - d.t);      // px/ms, a quick flick also switches
+    const go1 = Math.abs(d.dx) > STEP * .22 || (Math.abs(d.dx) > 24 && Math.abs(v) > .35);
+    if (go1 && multi()) { state.sub = d.dx < 0 ? 1 : 0; state.flipped = false; render(); }
+    else if (go1) go(state.idx + (d.dx < 0 ? 1 : -1));
+    else render();
+    setTimeout(() => { swiped = false; }, 0);
+  };
+  area.addEventListener('pointerup', dragEnd);
+  area.addEventListener('pointercancel', dragEnd);
 
   let pressTimer = null, longPressed = false;
   function wireCards() {
@@ -1934,8 +2005,42 @@
       (multiCard ? '<button class="fav' + (isMain ? ' on' : '') + '" data-i="' + i + '" data-main="' + (isMain ? 1 : 0) + '" aria-pressed="' + isMain + '" aria-label="' + (isMain ? 'Показується на головній' : 'Показувати на головній') + '">' +
         '<img src="assets/' + (isMain ? 'aa-fav-on.svg' : 'aa-fav-off.svg') + '" alt=""></button>' : '') + '</div>';
   }
+  // Accounts without a card on home (shown only here), per profile
+  const AA_EXTRA = {
+    personal: [
+      { cur: '$', value: 500.55, name: 'Поточний рахунок для виплат', title: 'UA42 **** 31877' },
+      { cur: '€', value: 3000, name: 'Депозитний рахунок', title: 'UA88 **** 50213' }
+    ],
+    business: []
+  };
+  const AA_CUR = [
+    { k: '₴', g: 'uah', t: 'Рахунки у гривні', fl: 'aa-flag-ua.svg' },
+    { k: '$', g: 'usd', t: 'Рахунки у доларах США', fl: 'sv-flag-us.svg' },
+    { k: '€', g: 'eur', t: 'Рахунки у євро', fl: 'sv-flag-eu.svg' }
+  ];
+  const aaClosed = new Set();
+  const plural = (n) => n === 1 ? 'рахунок' : n < 5 ? 'рахунки' : 'рахунків';
+  function aaHiddenText() {
+    const n = [...document.querySelectorAll('#aaList .aa-group.closed .aa-w')].length;
+    document.getElementById('aaHidden').textContent = n ? 'Приховано: ' + n + ' ' + plural(n) : '';
+  }
   function renderAll() {
-    document.getElementById('aaList').innerHTML = list().map((acc, i) => {
+    const items = list().map((acc, i) => ({ acc, i })).concat((AA_EXTRA[state.profile] || []).map((acc, j) => ({ acc, x: j })));
+    const html = AA_CUR.map((c) => {
+      const inCur = items.filter(({ acc }) => (acc.cur || '₴') === c.k);
+      if (!inCur.length) return '';
+      const closed = aaClosed.has(c.g);
+      return '<button class="aa-sec' + (closed ? ' closed' : '') + '" data-g="' + c.g + '"><span class="fl"><img src="assets/' + c.fl + '" width="20" height="15" alt=""></span><b>' + c.t + '</b><img class="chev" src="assets/aa-hide.svg" alt=""></button>' +
+        '<div class="aa-group' + (closed ? ' closed' : '') + '" data-g="' + c.g + '"><div>' + inCur.map(({ acc, i, x }) => x !== undefined
+          ? '<div class="aa-w"><div class="wr" data-x="' + x + '"><div class="aa-acc"><div class="tx">' + money(acc.value, acc.cur) + '<div class="cap">' + acc.name + ' • ' + maskIban(acc.title) + '</div></div>' +
+            '<button class="more" aria-label="Дії з рахунком"><img src="assets/aa-more.svg" width="20" height="20" alt=""></button></div></div></div>'
+          : accHTML(acc, i)).join('') + '</div></div>';
+    }).join('') + '<div class="aa-hidden" id="aaHidden"></div>';
+    document.getElementById('aaList').innerHTML = html;
+    aaHiddenText();
+  }
+  function accHTML(acc, i) {
+    return [acc].map((acc) => {
       if (acc.ghost) {
         return '<div class="aa-w aa-ghost"><div class="wr" data-ghost="1"><span class="aa-ribbon">Тільки для вас</span>' +
           '<div class="aa-acc"><div class="tx">' + money(acc.value) + '<div class="cap">Доступний кредитний ліміт</div></div></div>' +
@@ -1979,7 +2084,15 @@
       }, 260);
       return;
     }
+    const sec = e.target.closest('.aa-sec');
+    if (sec) {
+      const g = sec.dataset.g, grp = sec.nextElementSibling, closed = !grp.classList.contains('closed');
+      grp.classList.toggle('closed', closed); sec.classList.toggle('closed', closed);
+      if (closed) aaClosed.add(g); else aaClosed.delete(g);
+      aaHiddenText(); return;
+    }
     if (e.target.closest('.more')) { toast('Дії з рахунком — наступний крок'); return; }
+    if (e.target.closest('[data-x]')) { toast('Рахунок без картки — наступний крок'); return; }
     if (e.target.closest('.aa-add')) { toast('Нова картка до рахунку — наступний крок'); return; }
     if (e.target.closest('[data-ghost]')) { showAll(false); setTimeout(() => go(list().findIndex((x) => x.ghost)), 300); return; }
     const row = e.target.closest('[data-i]');
