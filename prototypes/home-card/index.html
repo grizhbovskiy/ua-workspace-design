@@ -113,6 +113,11 @@
   .avatar.pressing { transform: scale(.9); }
   .business .avatar .badge-biz { opacity: 1; transform: translate(-50%, -50%); }
   .nav-right { display: flex; gap: 10px; align-items: center; }
+  /* Navbar icons are white on the coloured header (glass tuned down so white keeps contrast) */
+  .navbar .glass { background: rgba(255, 255, 255, .2); }
+  .navbar .glass img { filter: brightness(0) invert(1); }
+  .navbar .nav-detail .glass svg { stroke: #fff; fill: none; }
+  .navbar .nav-detail .glass svg:not([fill="none"]) { fill: #fff; stroke: none; }
   .icon-btn { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
   .btn-group { display: flex; gap: 8px; height: 44px; align-items: center; padding: 0 6px; }
   .btn-group button { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
@@ -820,7 +825,34 @@
   .bn-sw::before { content: ''; position: absolute; left: 4px; top: 5px; width: 13px; height: 4px; border-radius: 3px; background: #FFF05C; }
   @media (max-width: 900px) { .controls { display: none; } }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; transition-delay: 0s !important; } }
+  /* ===== Android platform (?platform=android) — UDS RB Mobile 3.8.0, Platform=Android variants:
+     System / Status Bar (32), Navigation Bar (toolbar 56, plain icons), Tab Bar (solid sticky surface, 50 + gesture 32) ===== */
+  @media (min-width: 501px) { html.android { --sb: 32px; } }
+  html.android .phone { border-radius: 28px; --tab-bottom: 20px; }
+  html.android .status, html.android .pr-status { height: var(--sb); padding: 0 16px; font-family: Roboto, system-ui, sans-serif; font-size: 14px; font-weight: 500; }
+  html.android .status .sys, html.android .pr-status .sys { gap: 6px; }
+  html.android .home-ind { display: none; }
+  html.android .navbar .glass { background: none; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+  html.android .btn-group { gap: 0; padding: 0; }
+  html.android .btn-group button { width: 44px; height: 44px; }
+  html.android .tabbar { left: 0; right: 0; bottom: 0 !important; height: 82px; padding: 0 0 32px; border: 0; border-radius: 0;
+            background: var(--surface-background); -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: 0 -.5px 0 rgba(156,150,127,.3); }
+  html.android .tabbar::after { content: ''; position: absolute; left: 50%; bottom: 6px; width: 72px; height: 2px; margin-left: -36px; border-radius: 4px; background: var(--tint-primary); }
+  html.android .tabbar button { flex: 1 1 0; border-radius: 0; gap: 2px; }
+  html.android .tabbar button.on { color: var(--tint-primary); }
+  html.android .tab-ind { display: none; }
+  html.android .fab { bottom: calc(82px + 16px) !important; }
+  @media (max-width: 500px) {
+    html.android .tabbar { height: calc(50px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); }
+    html.android .tabbar::after { display: none; }
+    html.android .phone { --tab-bottom: calc(env(safe-area-inset-bottom, 0px) - 12px); }
+    html.android .fab { bottom: calc(50px + 16px + env(safe-area-inset-bottom, 0px)) !important; }
+  }
 </style>
+<script>
+  // Platform switch: ?platform=android renders the UDS Android variants of system bars, toolbar and tab bar.
+  if (new URLSearchParams(location.search).get('platform') === 'android') document.documentElement.classList.add('android');
+</script>
 </head>
 <body>
 <div class="phone" id="phone">
@@ -1189,6 +1221,13 @@
 <script>
 (function () {
   const phone = document.getElementById('phone');
+  if (document.documentElement.classList.contains('android')) {
+    // Android status bar icons (UDS System / Status Bar, Platform=Android): cellular, Wi-Fi, battery
+    const SYS = '<svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><path d="M14 0v14H0z"/></svg>' +
+      '<svg width="18" height="14" viewBox="0 0 18 14" fill="currentColor"><path d="M9 14 0 3.2A14.4 14.4 0 0 1 9 0a14.4 14.4 0 0 1 9 3.2z"/></svg>' +
+      '<svg width="9" height="14" viewBox="0 0 9 14" fill="currentColor"><path d="M3 0h3v1.5h2a1 1 0 0 1 1 1V13a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V2.5a1 1 0 0 1 1-1h2z"/></svg>';
+    document.querySelectorAll('.status .sys, .pr-status .sys').forEach((el) => { el.innerHTML = SYS; });
+  }
   const track = document.getElementById('track');
   const dotsWrap = document.getElementById('dots');
   const title = document.getElementById('title');

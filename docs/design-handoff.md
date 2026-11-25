@@ -374,3 +374,14 @@ Mobbin MCP підключений для референсів (може бути
 - Зірочка, «⋯», «Нова картка до рахунку», ФОП-банер — як у 10.3.
 - **Sticky Container з кнопкою «Відкрити новий рахунок»:** прозорий, поки контент закінчується вище кнопки; щойно контент заходить під неї — **Translucent**: фон дашборду 80% + blur 24 + saturate 180% і лінія зверху. Точне значення токена `Light/Surface/Translucent` (UDS RB Theme 3.9.0) MCP не віддав — значення наближене, звірити з темою.
 
+
+## 11. Navbar icons and Android platform
+
+- **Navbar icons are white** on the coloured header (QR, bell, cards, ✦, and close/⋯ in card details). Glass pills are toned down to `rgba(255,255,255,.2)` so the white icons keep contrast.
+- **Android version:** the same prototype opened with `?platform=android`. It uses the UDS RB Mobile 3.8.0 `Platform=Android` variants:
+  - System / Status Bar: 32 px high, time on the left, cellular / Wi-Fi / battery icons on the right, no notch.
+  - Navigation Bar: 56 px toolbar with plain 24 px icons and no glass pills.
+  - Tab Bar: full width on a solid sticky surface (`#F8F6F2`), 50 px of tabs plus a 32 px gesture area with a 72×2 indicator.
+    - The selected tab is `tint-primary`; there is no floating pill or sliding indicator.
+  - The FAB and bottom paddings follow the new tab bar height.
+  - On a real phone the mock gesture bar is hidden and the system safe area is used instead.
