@@ -135,7 +135,14 @@
   /* Double tap on the balance hides the amount behind the Ukrainian flag (and back) */
   .balance { -webkit-user-select: none; user-select: none; cursor: pointer; touch-action: manipulation; }
   .bal-flag { position: absolute; left: 50%; top: 28px; height: 44px; display: flex; align-items: center; transform: translateX(-50%) scale(.4); opacity: 0; pointer-events: none; transition: opacity .2s, transform .45s var(--spring); }
-  .bal-flag img { width: 52px; height: 39px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+  /* Hidden balance: 4 Twemoji (assets/emoji, CC-BY 4.0) instead of the amount */
+  .bal-flag { gap: 8px; }
+  .bal-flag img { width: 36px; height: 36px; }
+  .bal-hidden .bal-flag img { animation: emoPop .5s var(--spring) both; }
+  .bal-hidden .bal-flag img:nth-child(2) { animation-delay: .05s; } .bal-hidden .bal-flag img:nth-child(3) { animation-delay: .1s; } .bal-hidden .bal-flag img:nth-child(4) { animation-delay: .15s; }
+  @keyframes emoPop { from { transform: scale(.3) rotate(-12deg); opacity: 0; } to { transform: none; opacity: 1; } }
+  .emo { display: none; align-items: center; gap: 2px; }
+  .emo img { width: 16px; height: 16px; }
   .amount { transition: opacity .2s, transform .35s var(--ease), filter .25s; }
   .bal-hidden .amount { opacity: 0; transform: scale(.9); filter: blur(6px); }
   .bal-hidden .bal-flag { opacity: 1; transform: translateX(-50%) scale(1); }
@@ -155,9 +162,16 @@
   .minpay-pill .pl-flag { display: none; width: 16px; height: 12px; margin: 0 4px 0 6px; border-radius: 2px; }
   /* Hidden balance: the whole pill is replaced by the mini flag */
   .minpay-pill { transition: opacity .25s, background .2s, border-color .2s; }
-  .bal-hidden .minpay-pill { background: transparent; border-color: transparent; }
-  .bal-hidden .minpay-pill > :not(.pl-flag) { display: none; }
-  .bal-hidden .minpay-pill .pl-flag { display: block; width: 20px; height: 15px; margin: 4px 0; animation: flagPop .45s var(--spring); }
+  /* Hidden balance: only the sum inside the pill turns into emoji, the pill stays */
+  .bal-hidden .minpay-pill .pl-sum { display: none; }
+  .bal-hidden .minpay-pill .emo { display: flex; padding: 0 4px; animation: flagPop .45s var(--spring); }
+  /* Hidden balance: the last operation's amount turns into emoji too */
+  .bal-hidden #txAmount { display: none; }
+  .bal-hidden .cell .emo { display: flex; flex: none; animation: flagPop .45s var(--spring); }
+  .controls .emo-sets { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+  .controls .emo-sets button { height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 1px; box-shadow: inset 0 0 0 1px rgba(156,150,127,.32); }
+  .controls .emo-sets button img { width: 14px; height: 14px; }
+  .controls .emo-sets button.on { box-shadow: inset 0 0 0 2px var(--tint-primary); background: rgba(43,45,52,.05); }
   @keyframes flagPop { from { transform: scale(.3); opacity: 0; } to { transform: none; opacity: 1; } }
   .has-minpay:not(.open) .minpay-pill { opacity: 1; }
   .activate-pill::after { content: ''; position: absolute; inset: -4px 0; }
@@ -957,7 +971,7 @@
   <div class="scroller" id="scroller"><div class="page">
   <div class="balance" id="balance" aria-label="Власні кошти 8 412,50 гривень">
     <div class="label" id="balLabel" aria-hidden="true">Власні кошти</div>
-    <div class="bal-flag" aria-hidden="true"><img src="assets/aa-flag-ua.svg" alt=""></div>
+    <div class="bal-flag js-emo" aria-hidden="true"></div>
     <div class="amount" aria-hidden="true"><span class="int" id="balInt">8 412</span><span class="comma">,</span><span class="dec" id="balDec">50</span><span class="cur" id="balCur">₴</span></div>
   </div>
 
@@ -972,7 +986,7 @@
 </svg><span class="pl-label" id="activateText">Активувати картку</span>
   </button>
 
-  <div class="minpay-pill" id="minPay" aria-hidden="true"><img src="assets/pill-card-credit.svg" width="16" height="16" alt=""><span class="pl-label" id="minPayText"></span><span class="pl-sum" id="minPaySum"></span><img class="pl-flag" src="assets/aa-flag-ua.svg" width="16" height="12" alt="приховано"></div>
+  <div class="minpay-pill" id="minPay" aria-hidden="true"><img src="assets/pill-card-credit.svg" width="16" height="16" alt=""><span class="pl-label" id="minPayText"></span><span class="pl-sum" id="minPaySum"></span><span class="emo js-emo" aria-hidden="true"></span></div>
 
   <div class="cards" id="cards">
     <div class="track" id="track"></div>
@@ -995,7 +1009,7 @@
         <div style="height:8px"></div>
         <a class="cell" href="#" onclick="return false">
           <span class="lead merchant" id="txLogoWrap"><img id="txLogo" src="" alt=""><span class="mono" id="txMono" aria-hidden="true"></span></span>
-          <span class="main"><span class="txt"><span class="t" id="txName"></span><span class="c" id="txCat"></span></span><span class="val" id="txAmount"></span></span>
+          <span class="main"><span class="txt"><span class="t" id="txName"></span><span class="c" id="txCat"></span></span><span class="val" id="txAmount"></span><span class="emo js-emo" aria-hidden="true"></span></span>
         </a>
         <button class="w-btn">Всі операції</button>
       </div></div>
@@ -1262,6 +1276,8 @@
   <div class="sw-row"><span class="c-ttl" style="margin:0">Платформа</span><div class="seg2" id="platSeg" style="width:140px"><button data-v="ios">iOS</button><button data-v="android">Android</button></div></div>
   <div class="sw-row"><span class="c-ttl" style="margin:0">Тема</span><div class="seg2" id="themeSeg" style="width:140px"><button data-v="light">Світла</button><button data-v="dark">Темна</button></div></div>
   <label>Видима смуга <input id="peek" type="range" min="64" max="110" step="1" value="81"></label>
+  <span class="c-ttl" style="margin:0">Прихований баланс (подвійний тап)</span>
+  <div class="emo-sets" id="emoSets"></div>
   <div class="sw-row"><span class="c-ttl" style="margin:0">FAB-кнопка Реї</span><button class="tgl" id="fabToggle" role="switch" aria-checked="false" aria-label="FAB-кнопка"></button></div>
   <div class="fab-opts" id="fabOpts" hidden>
     <div class="seg2" id="fabState"><button data-v="collapsed">Згорнута</button><button data-v="expanded">Розгорнута</button><button data-v="auto">Авто</button></div>
@@ -1519,6 +1535,25 @@
     setBalance();
   }
   // Double tap (touch or mouse) on the balance
+  // Hidden-balance emoji sets (Twemoji SVGs in assets/emoji)
+  const EMO_SETS = {
+    monkeys: ['1f648', '1f649', '1f64a', '1f435'], secret: ['1f92b', '1f512', '1f4b0', '2728'], pets: ['1f431', '1f436', '1f98a', '1f43c'],
+    food: ['1f355', '1f354', '1f369', '1f366'], mood: ['1f60e', '1f929', '1f973', '1f607'], nature: ['1f33b', '1f308', '2b50', '1f340']
+  };
+  let emoSet = 'monkeys'; try { emoSet = localStorage.getItem('emoSet') || emoSet; } catch (e) {} if (!EMO_SETS[emoSet]) emoSet = 'monkeys';
+  const emoImgs = (k) => EMO_SETS[k].map((c) => '<img src="assets/emoji/' + c + '.svg" alt="" draggable="false">').join('');
+  function setEmo(k) {
+    emoSet = k; try { localStorage.setItem('emoSet', k); } catch (e) {}
+    document.querySelectorAll('.js-emo').forEach((el) => { el.innerHTML = emoImgs(k); });
+    document.querySelectorAll('#emoSets button').forEach((b) => b.classList.toggle('on', b.dataset.k === k));
+  }
+  document.getElementById('emoSets').innerHTML = Object.keys(EMO_SETS).map((k) => '<button data-k="' + k + '" aria-label="' + k + '">' + emoImgs(k) + '</button>').join('');
+  document.querySelectorAll('#emoSets button').forEach((b) => b.addEventListener('click', () => {
+    setEmo(b.dataset.k);
+    if (!phone.classList.contains('bal-hidden')) return;
+    phone.classList.remove('bal-hidden'); void phone.offsetWidth; phone.classList.add('bal-hidden');   // replay the pop
+  }));
+  setEmo(emoSet);
   let balTap = 0;
   document.getElementById('balance').addEventListener('pointerup', () => {
     const now = performance.now();
