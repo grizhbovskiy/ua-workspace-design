@@ -401,6 +401,12 @@
   .bn-rail.aa-bn { padding: 8px 16px; cursor: default; overflow: hidden; transition: height .4s var(--ease), padding .4s var(--ease), opacity .3s; }
   .bn-rail.aa-bn .bn { width: 100%; max-width: none; }
   .aa-w { padding: 8px 16px; }
+  /* Drag & drop reorder (long press on an account) */
+  .aa-w[data-di] { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+  .aa-w.shift { transition: transform .25s var(--ease); }
+  .aa-w.lift { position: relative; z-index: 5; }
+  .aa-w.lift .wr { transform: scale(1.03); box-shadow: 0 14px 30px rgba(0,0,0,.22), 0 2px 6px rgba(0,0,0,.1); transition: transform .2s var(--spring), box-shadow .2s; }
+  .aa-w.settle { transition: transform .22s var(--ease); }
   .aa-w .wr { position: relative; background: var(--surface-baseline); border-radius: 16px; box-shadow: var(--elevation-1); overflow: hidden; cursor: pointer; }
   .aa-w .wr::after { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 2px solid transparent; pointer-events: none; transition: border-color .2s; }
   .aa-w.sel .wr::after { border-color: var(--tint-action); }
@@ -901,6 +907,13 @@
   html.theme-dark .tabbar img { filter: brightness(0) invert(.84); }
   html.theme-dark .tabbar button.on img { filter: brightness(0) saturate(100%) invert(84%) sepia(77%) saturate(1500%) hue-rotate(4deg) brightness(104%); }
   html.theme-dark.android .tabbar button.on img { filter: brightness(0) invert(.98); }
+  /* Nav tiles in card details: Tint / Primary glyph + Tint / Action (yellow) accent */
+  html.theme-dark img[src$="dt-pdf.svg"] { content: url(assets/dt-pdf-dk.svg); }
+  html.theme-dark img[src$="dt-case.svg"] { content: url(assets/dt-case-dk.svg); }
+  html.theme-dark img[src$="dt-docs.svg"] { content: url(assets/dt-docs-dk.svg); }
+  /* Operation icon = DS Avatar · Default · Subtle: Surface / Elevation (Dark #AAABAE @ 20%), glyph Tint / Primary */
+  html.theme-dark .merchant.is-icon { background: rgba(170,171,174,.2) !important; }
+  html.theme-dark .merchant.is-icon img[src$="ic-bank.svg"] { filter: brightness(0) invert(.98); }
   /* Tint / On Accent stays dark on yellow surfaces */
   html.theme-dark .badge-biz, html.theme-dark .activate-pill, html.theme-dark .aa-foot .btn-acc, html.theme-dark .cta,
   html.theme-dark .rea-cta, html.theme-dark .rea-q, html.theme-dark .rea-send { color: #2B2D34; }
@@ -919,7 +932,7 @@
   /* Status bar over dark screens stays light */
   html.theme-dark .on-svc .status, html.theme-dark .aa-open .status, html.theme-dark .rea-open .status { filter: none; opacity: 1; }
   /* Monochrome icon assets: dark glyphs → light, action glyphs → Tint / Action (yellow) */
-  html.theme-dark .phone :is(img[src*="rea-add"], img[src*="rea-ai"], img[src*="rea-stars"], img[src*="rea-up"], img[src*="dt-case"], img[src*="dt-docs"], img[src*="dt-pdf"]) { filter: invert(.92) hue-rotate(180deg); }
+  html.theme-dark .phone :is(img[src*="rea-add"], img[src*="rea-ai"], img[src*="rea-stars"], img[src*="rea-up"]) { filter: invert(.92) hue-rotate(180deg); }
   html.theme-dark .phone :is(img[src*="aa-add"], img[src*="aa-back"], img[src*="aa-fav-on"], img[src*="aa-fav-off"], img[src*="aa-hide"], img[src*="aa-more"], img[src*="dt-copy"], img[src*="dt-go-right"],
     img[src*="pr-close"], img[src*="pr-go-right"], img[src*="pr-headphones"], img[src*="rea-check"], img[src*="sv-chart"], img[src*="sv-go-right"]) {
     filter: brightness(0) saturate(100%) invert(84%) sepia(77%) saturate(1500%) hue-rotate(4deg) brightness(104%); }
@@ -1525,6 +1538,7 @@
       else { logo.removeAttribute('src'); wrap.classList.add('no-logo'); }
       document.getElementById('txLogo').alt = c.tx.name;
       document.getElementById('txLogoWrap').style.background = c.tx.bg;
+      document.getElementById('txLogoWrap').classList.toggle('is-icon', !!c.tx.logo);   // DS Avatar · Default · Subtle
       document.getElementById('txName').textContent = c.tx.name;
       document.getElementById('txCat').textContent = c.tx.cat;
       document.getElementById('txAmount').textContent = c.tx.amount;
@@ -2233,7 +2247,7 @@
       let rows = '';
       if (!isAcct) rows += cardRow(acc, acc, i, true, multiCard);
       if (acc.extra) rows += cardRow(acc, acc.extra, i, false, true);
-      return '<div class="aa-w' + (i === state.idx ? ' sel' : '') + '"><div class="wr">' +
+      return '<div class="aa-w' + (i === state.idx ? ' sel' : '') + '" data-di="' + i + '"><div class="wr">' +
         '<div class="aa-acc" data-i="' + i + '"><div class="tx">' + money(acc.value, acc.cur) + '<div class="cap">' + cap + '</div></div>' +
         '<button class="more" aria-label="Дії з рахунком"><img src="assets/aa-more.svg" width="20" height="20" alt=""></button></div>' +
         rows +
@@ -2278,6 +2292,79 @@
     if (row) { const i = +row.dataset.i; showAll(false); setTimeout(() => go(i), 300); }
   });
   aa.querySelector('.btn-acc').addEventListener('click', () => toast('Відкриття нового рахунку — наступний крок'));
+
+  // ===== Drag & drop: long press an account, move it within its currency group → new order on home =====
+  const aaListEl = document.getElementById('aaList');
+  let dnd = null, dndSuppressClick = false;
+  const DND_HOLD = 320, DND_SLOP = 8;
+  function dndSiblings(w) { return [...w.parentElement.querySelectorAll(':scope > .aa-w[data-di]')]; }
+  function dndStart() {
+    const d = dnd; d.active = true;
+    d.sibs = dndSiblings(d.el); d.from = d.sibs.indexOf(d.el); d.to = d.from;
+    d.rects = d.sibs.map((el) => { const r = el.getBoundingClientRect(); return { top: r.top + aaScroll.scrollTop, h: r.height }; });
+    d.scroll0 = aaScroll.scrollTop;
+    d.el.classList.add('lift'); d.sibs.forEach((el) => { if (el !== d.el) el.classList.add('shift'); });
+    if (navigator.vibrate) navigator.vibrate(12);
+  }
+  function dndMove(y) {
+    const d = dnd; const dy = y - d.y0 + (aaScroll.scrollTop - d.scroll0);
+    d.el.style.transform = 'translateY(' + dy + 'px)';
+    const r = d.rects[d.from], center = r.top + r.h / 2 + dy;
+    // new index = how many other accounts of the group sit above the lifted card's centre
+    d.to = d.rects.reduce((n, o, k) => n + (k !== d.from && o.top + o.h / 2 < center ? 1 : 0), 0);
+    d.sibs.forEach((el, k) => {
+      if (el === d.el) return;
+      let off = 0;
+      if (d.from < d.to && k > d.from && k <= d.to) off = -r.h;
+      if (d.from > d.to && k >= d.to && k < d.from) off = r.h;
+      el.style.transform = off ? 'translateY(' + off + 'px)' : '';
+    });
+    // auto-scroll near the edges of the list viewport
+    const vr = aaScroll.getBoundingClientRect();
+    if (y < vr.top + 140) aaScroll.scrollTop -= 8; else if (y > vr.bottom - 120) aaScroll.scrollTop += 8;
+  }
+  function dndEnd(commit) {
+    const d = dnd; dnd = null; clearTimeout(d.timer);
+    if (!d.active) return;
+    dndSuppressClick = true; setTimeout(() => { dndSuppressClick = false; }, 60);
+    const moved = commit && d.to !== d.from;
+    // settle the lifted card into its slot, then commit
+    let target = 0;
+    if (moved) { const r = d.rects; target = d.to > d.from ? (r[d.to].top + r[d.to].h) - (r[d.from].top + r[d.from].h) : r[d.to].top - r[d.from].top; target += aaScroll.scrollTop - d.scroll0; }
+    d.el.classList.add('settle'); d.el.style.transform = moved ? 'translateY(' + target + 'px)' : '';
+    d.el.classList.remove('lift');
+    setTimeout(() => {
+      if (moved) {
+        const L = list(), cur = L[state.idx];
+        const slots = d.sibs.map((el) => +el.dataset.di);              // positions of this group's accounts in the home list
+        const accs = slots.map((i) => L[i]);
+        const [m] = accs.splice(d.from, 1); accs.splice(d.to, 0, m);
+        slots.forEach((i, k) => { L[i] = accs[k]; });
+        build(); state.idx = Math.max(0, L.indexOf(cur)); state.sub = 0; state.flipped = false; render();
+        const keep = aaScroll.scrollTop; renderAll(); aaScroll.scrollTop = keep;
+        toast('Порядок рахунків оновлено — так вони йдуть на головній');
+      } else {
+        d.sibs.forEach((el) => { el.style.transform = ''; el.classList.remove('shift', 'settle'); });
+      }
+    }, moved ? 230 : 200);
+  }
+  aaListEl.addEventListener('pointerdown', (e) => {
+    const w = e.target.closest('.aa-w[data-di]');
+    if (!w || e.button > 0 || e.target.closest('.fav, .more, .aa-add')) return;
+    dnd = { el: w, y0: e.clientY, x0: e.clientX, active: false, id: e.pointerId };
+    dnd.timer = setTimeout(() => { if (dnd && !dnd.active) { dndStart(); try { aaListEl.setPointerCapture(dnd.id); } catch (err) {} } }, DND_HOLD);
+  });
+  aaListEl.addEventListener('pointermove', (e) => {
+    if (!dnd) return;
+    if (!dnd.active) { if (Math.hypot(e.clientX - dnd.x0, e.clientY - dnd.y0) > DND_SLOP) { clearTimeout(dnd.timer); dnd = null; } return; }
+    e.preventDefault(); dndMove(e.clientY);
+  });
+  aaListEl.addEventListener('pointerup', () => { if (dnd) dndEnd(true); });
+  aaListEl.addEventListener('pointercancel', () => { if (dnd) dndEnd(false); });
+  // While an account is lifted, the list must not scroll under the finger (iOS needs a non-passive touchmove)
+  aaListEl.addEventListener('touchmove', (e) => { if (dnd && dnd.active) e.preventDefault(); }, { passive: false });
+  aaListEl.addEventListener('contextmenu', (e) => { if (dnd) e.preventDefault(); });
+  aaListEl.addEventListener('click', (e) => { if (dndSuppressClick) { e.stopImmediatePropagation(); e.preventDefault(); } }, true);
 
   // Banner style switcher (controls panel): home and other sections are set independently.
   // URL params ?banner=… (home) and ?banner2=… (other sections) also work on phones, where the panel is hidden.

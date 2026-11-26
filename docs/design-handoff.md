@@ -411,3 +411,14 @@ Mobbin MCP підключений для референсів (може бути
   - **Other sets in the panel:** Мавпочки, Секрет, Звірята, Настрій, Природа.
 - **Dark theme, home sheet:** the sheet takes the widget colour, Surface / Baseline `#35373C`. Widgets on it step up to Surface / Foreground `#404248`.
 - **Control panel:** scrolls when it is taller than the window.
+- **Dark theme, operation icon** (e.g. «Переказ на рахунок»): uses DS Avatar · Default · Subtle. The circle is Surface / Elevation (Light `#9C967F` @ 10% → Dark `#AAABAE` @ 20%) and the glyph is Tint / Primary. Merchant brand logos keep their own colours.
+- **Dark theme, card-details nav tiles** («Надіслати реквізити», «Деталі рахунку», «Виписка»): the glyph is Tint / Primary `#F9F9F9` and the accent is Tint / Action `#FEE600` instead of blue (`dt-*-dk.svg`).
+
+## 13. Усі рахунки: drag & drop to reorder
+
+- **How it works:** long-press an account (320 ms; it lifts with a haptic tick on Android), then drag it up or down.
+  - Other accounts slide out of the way. The list auto-scrolls near its edges.
+  - On release the card settles into its new slot.
+- **Scope:** reordering works within a currency group. Only accounts that have a card on home can be moved; the ghost offer and card-less accounts stay where they are.
+- **Effect on home:** the new order is applied to the home carousel right away. The currently open card stays selected, and a toast confirms the change.
+- **Gesture conflicts:** moving more than 8 px before the hold completes is treated as a scroll. A short tap still opens the account, and ★ / ⋯ / «Нова картка» keep working.
