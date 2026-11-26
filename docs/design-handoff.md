@@ -450,6 +450,6 @@ Mobbin MCP підключений для референсів (може бути
 - **Приховати на головній:** removes the account from the home carousel.
   - Not allowed for the last remaining account.
   - From card details, the details close first.
-  - In «Усі рахунки» the account stays in its currency group: dimmed, labelled «👁̸ Приховано на головній», not draggable.
+  - In «Усі рахунки» the account stays in its currency group at full opacity, with only a «Приховано на головній» label (eye-off icon). It is not draggable.
   - Its ⋯ menu then shows **Показати на головній** with the open-eye icon. This puts the account back on home at its previous position, before the ghost offer.
 - **Closing the menu:** tap outside, Esc, or scrolling the list.
