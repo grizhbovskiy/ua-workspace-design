@@ -433,7 +433,7 @@ Mobbin MCP підключений для референсів (може бути
 - **How it works:** long-press an account (320 ms; it lifts with a haptic tick on Android), then drag it up or down.
   - Other accounts slide out of the way. The list auto-scrolls near its edges.
   - On release the card settles into its new slot.
-- **Scope:** reordering works within a currency group. Only accounts that have a card on home can be moved; the ghost offer and card-less accounts stay where they are.
+- **Scope:** reordering works across the whole screen. On lift, the list switches to one flat list in home order («Порядок карток на головній»): currency headers, hidden accounts, card-less accounts and the ghost offer are left out. The card can then be dropped anywhere, for example a EUR account between UAH ones. After the drop the list returns to the currency groups.
 - **Effect on home:** the new order is applied to the home carousel right away. The currently open card stays selected, and a toast confirms the change.
 - **Gesture conflicts:** moving more than 8 px before the hold completes is treated as a scroll. A short tap still opens the account, and ★ / ⋯ / «Нова картка» keep working.
 

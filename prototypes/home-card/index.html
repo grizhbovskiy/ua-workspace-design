@@ -407,6 +407,9 @@
   .aa-w.lift { position: relative; z-index: 5; }
   .aa-w.lift .wr { transform: scale(1.03); box-shadow: 0 14px 30px rgba(0,0,0,.22), 0 2px 6px rgba(0,0,0,.1); transition: transform .2s var(--spring), box-shadow .2s; }
   .aa-w.settle { transition: transform .22s var(--ease); }
+  .aa-flat-hint { padding: 16px 16px 4px; font-size: 14px; line-height: 20px; color: var(--tint-secondary); animation: aaFlatIn .25s ease both; }
+  .aa-flat .aa-w:not(.lift) { animation: aaFlatIn .25s ease both; }
+  @keyframes aaFlatIn { from { opacity: 0; } to { opacity: 1; } }
   .aa-w .wr { position: relative; background: var(--surface-baseline); border-radius: 16px; box-shadow: var(--elevation-1); overflow: hidden; cursor: pointer; }
   .aa-w .wr::after { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 2px solid transparent; pointer-events: none; transition: border-color .2s; }
   .aa-w.sel .wr::after { border-color: var(--tint-action); }
@@ -2413,8 +2416,18 @@
   let dnd = null, dndSuppressClick = false;
   const DND_HOLD = 320, DND_SLOP = 8;
   function dndSiblings(w) { return [...w.parentElement.querySelectorAll(':scope > .aa-w[data-di]')]; }
+  // While reordering, the list turns into one flat list in home order (no currency groups), so a card can go anywhere
+  function renderFlat() {
+    aaListEl.innerHTML = '<div class="aa-flat-hint">Порядок карток на головній</div><div class="aa-flat">' +
+      list().map((acc, i) => acc.ghost ? '' : accHTML(acc, i)).join('') + '</div>';
+  }
   function dndStart() {
     const d = dnd; d.active = true;
+    const di = d.el.dataset.di, oldTop = d.el.getBoundingClientRect().top;
+    renderFlat();
+    d.el = aaListEl.querySelector('.aa-w[data-di="' + di + '"]');
+    aaScroll.scrollTop += d.el.getBoundingClientRect().top - oldTop;
+    d.off0 = oldTop - d.el.getBoundingClientRect().top;          // what scrolling could not compensate
     d.sibs = dndSiblings(d.el); d.from = d.sibs.indexOf(d.el); d.to = d.from;
     d.rects = d.sibs.map((el) => { const r = el.getBoundingClientRect(); return { top: r.top + aaScroll.scrollTop, h: r.height }; });
     d.scroll0 = aaScroll.scrollTop;
@@ -2422,7 +2435,7 @@
     if (navigator.vibrate) navigator.vibrate(12);
   }
   function dndMove(y) {
-    const d = dnd; const dy = y - d.y0 + (aaScroll.scrollTop - d.scroll0);
+    const d = dnd; const dy = y - d.y0 + (aaScroll.scrollTop - d.scroll0) + d.off0;
     d.el.style.transform = 'translateY(' + dy + 'px)';
     const r = d.rects[d.from], center = r.top + r.h / 2 + dy;
     // new index = how many other accounts of the group sit above the lifted card's centre
@@ -2447,6 +2460,7 @@
     let target = 0;
     if (moved) { const r = d.rects; target = d.to > d.from ? (r[d.to].top + r[d.to].h) - (r[d.from].top + r[d.from].h) : r[d.to].top - r[d.from].top; target += aaScroll.scrollTop - d.scroll0; }
     d.el.classList.add('settle'); d.el.style.transform = moved ? 'translateY(' + target + 'px)' : '';
+    if (!moved) d.sibs.forEach((el) => { el.style.transform = ''; });
     d.el.classList.remove('lift');
     setTimeout(() => {
       if (moved) {
@@ -2459,7 +2473,7 @@
         const keep = aaScroll.scrollTop; renderAll(); aaScroll.scrollTop = keep;
         toast('Порядок рахунків оновлено — так вони йдуть на головній');
       } else {
-        d.sibs.forEach((el) => { el.style.transform = ''; el.classList.remove('shift', 'settle'); });
+        const keep = aaScroll.scrollTop; renderAll(); aaScroll.scrollTop = keep;
       }
     }, moved ? 230 : 200);
   }
