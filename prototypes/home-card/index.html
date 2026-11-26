@@ -898,7 +898,9 @@
   html.theme-dark .ctx.ios .ctx-i + .ctx-i::before { background: rgba(84,84,88,.6); }
   html.theme-dark .ctx.android { background: #404248; }
   /* Accounts hidden from home stay in «Усі рахунки» as usual, only with a «Приховано на головній» label */
-  .aa-hid-tag { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 12px; line-height: 16px; color: var(--tint-secondary); }
+  /* Status label in DS Meaning / Info: Info 600 #118DB8 (light) → Info 400 #47C5E9 (dark) */
+  .aa-hid-tag { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 12px; line-height: 16px; font-weight: 500; color: #118DB8; }
+  html.theme-dark .aa-hid-tag { color: #47C5E9; }
   .aa-hid-tag svg { width: 14px; height: 14px; }
 
   /* ===== Dark theme (?theme=dark) — UDS RB Theme 3.8.0, mode Dark ===== */
