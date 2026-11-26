@@ -405,8 +405,9 @@ Mobbin MCP підключений для референсів (може бути
 - **Card details:** the card is centred between the navbar and the sheet with equal 26 px gaps (`--top-open` 118 → 132).
 - **Quick actions, dark theme:** the accent details of the glyphs use Tint / Accent On Inverted, whose Dark value is `#2B2D34`. No white remains on the yellow tiles.
 - **Credit card, double tap:** the whole «Мінімальний платіж» pill is replaced by the mini UA flag (20×15). The pill background, border, icon and text are hidden.
-- **Hidden balance (double tap), emoji version:** the balance is replaced by 4 emoji from **Twemoji 15.0.0** (`@twemoji/svg`, CC-BY 4.0). The SVGs are in `assets/emoji/` together with a `LICENSE.txt`.
-  - **Pop animation:** each emoji pops in with a small stagger.
-  - **Min-payment pill:** stays as is; only the sum turns into the same 4 emoji (16 px).
-  - **Last operation:** the amount in the «Операції» widget turns into the same 4 emoji.
-  - **Emoji sets in the control panel** (stored in `localStorage`): Мавпочки 🙈🙉🙊🐵 (default), Секрет 🤫🔒💰✨, Звірята 🐱🐶🦊🐼, Смаколики 🍕🍔🍩🍦, Настрій 😎🤩🥳😇, Природа 🌻🌈⭐🍀.
+- **Hidden balance (double tap), emoji version:** the balance, the sum in the min-payment pill and the last operation amount are replaced by 4 **native system emoji** (Apple on iOS, Noto/Segoe elsewhere): 28 px on the balance, 14 px in the pill and in the operation.
+  - The Twemoji SVGs were dropped: they looked too large and foreign next to the system UI.
+  - **Default set:** Смаколики 🍕🍔🍩🍦.
+  - **Other sets in the panel:** Мавпочки, Секрет, Звірята, Настрій, Природа.
+- **Dark theme, home sheet:** the sheet takes the widget colour, Surface / Baseline `#35373C`. Widgets on it step up to Surface / Foreground `#404248`.
+- **Control panel:** scrolls when it is taller than the window.

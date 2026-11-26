@@ -136,13 +136,14 @@
   .balance { -webkit-user-select: none; user-select: none; cursor: pointer; touch-action: manipulation; }
   .bal-flag { position: absolute; left: 50%; top: 28px; height: 44px; display: flex; align-items: center; transform: translateX(-50%) scale(.4); opacity: 0; pointer-events: none; transition: opacity .2s, transform .45s var(--spring); }
   /* Hidden balance: 4 Twemoji (assets/emoji, CC-BY 4.0) instead of the amount */
-  .bal-flag { gap: 8px; }
-  .bal-flag img { width: 36px; height: 36px; }
-  .bal-hidden .bal-flag img { animation: emoPop .5s var(--spring) both; }
-  .bal-hidden .bal-flag img:nth-child(2) { animation-delay: .05s; } .bal-hidden .bal-flag img:nth-child(3) { animation-delay: .1s; } .bal-hidden .bal-flag img:nth-child(4) { animation-delay: .15s; }
+  .bal-flag, .emo, .controls .emo-sets button { font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; }
+  .bal-flag { gap: 4px; font-size: 28px; line-height: 34px; }
+  .bal-flag span { display: inline-block; }
+  .bal-hidden .bal-flag span { animation: emoPop .5s var(--spring) both; }
+  .bal-hidden .bal-flag span:nth-child(2) { animation-delay: .05s; } .bal-hidden .bal-flag span:nth-child(3) { animation-delay: .1s; } .bal-hidden .bal-flag span:nth-child(4) { animation-delay: .15s; }
   @keyframes emoPop { from { transform: scale(.3) rotate(-12deg); opacity: 0; } to { transform: none; opacity: 1; } }
   .emo { display: none; align-items: center; gap: 2px; }
-  .emo img { width: 16px; height: 16px; }
+  .emo { font-size: 14px; line-height: 20px; gap: 1px; }
   .amount { transition: opacity .2s, transform .35s var(--ease), filter .25s; }
   .bal-hidden .amount { opacity: 0; transform: scale(.9); filter: blur(6px); }
   .bal-hidden .bal-flag { opacity: 1; transform: translateX(-50%) scale(1); }
@@ -170,7 +171,7 @@
   .bal-hidden .cell .emo { display: flex; flex: none; animation: flagPop .45s var(--spring); }
   .controls .emo-sets { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
   .controls .emo-sets button { height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; gap: 1px; box-shadow: inset 0 0 0 1px rgba(156,150,127,.32); }
-  .controls .emo-sets button img { width: 14px; height: 14px; }
+  .controls .emo-sets button { font-size: 13px; letter-spacing: 1px; }
   .controls .emo-sets button.on { box-shadow: inset 0 0 0 2px var(--tint-primary); background: rgba(43,45,52,.05); }
   @keyframes flagPop { from { transform: scale(.3); opacity: 0; } to { transform: none; opacity: 1; } }
   .has-minpay:not(.open) .minpay-pill { opacity: 1; }
@@ -820,7 +821,7 @@
   .toast.show { opacity: 1; transform: none; }
   .toast .ok { width: 26px; height: 26px; border-radius: 13px; background: #3DBE6E; display: flex; align-items: center; justify-content: center; flex: none; }
 
-  .controls { position: fixed; right: 16px; bottom: 16px; background: #fff; border-radius: 16px; padding: 12px 14px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.12); display: flex; flex-direction: column; gap: 8px; max-width: 250px; }
+  .controls { max-height: calc(100vh - 32px); overflow-y: auto; overscroll-behavior: contain; position: fixed; right: 16px; bottom: 16px; background: #fff; border-radius: 16px; padding: 12px 14px; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,.12); display: flex; flex-direction: column; gap: 8px; max-width: 250px; }
   .controls label { display: flex; align-items: center; gap: 8px; justify-content: space-between; }
   .controls p { margin: 0; color: var(--tint-secondary); line-height: 1.4; }
   .controls .c-ttl { font-weight: 500; margin-top: 4px; }
@@ -875,6 +876,8 @@
   /* Card faces keep their own (light-theme) artwork colours */
   html.theme-dark .phone .card { --surface-background: #F8F6F2; --surface-baseline: #FFFFFF; --surface-inverted: #2B2D34;
     --tint-primary: #2B2D34; --tint-secondary: #505258; --tint-tertiary: #808185; --tint-action: #0077A4; color: var(--tint-primary); }
+  /* Sheet takes the widget colour (Surface / Baseline); widgets on it step up to Surface / Foreground */
+  html.theme-dark .phone .sheet { --surface-background: #35373C; --surface-baseline: #404248; }
   /* Offer banners keep their light artwork palette */
   html.theme-dark .phone :is(.bn, .gh) { --surface-background: #F8F6F2; --surface-baseline: #FFFFFF; --surface-inverted: #2B2D34;
     --tint-primary: #2B2D34; --tint-secondary: #505258; --tint-tertiary: #808185; --tint-action: #0077A4; }
@@ -1537,13 +1540,13 @@
   // Double tap (touch or mouse) on the balance
   // Hidden-balance emoji sets (Twemoji SVGs in assets/emoji)
   const EMO_SETS = {
-    monkeys: ['1f648', '1f649', '1f64a', '1f435'], secret: ['1f92b', '1f512', '1f4b0', '2728'], pets: ['1f431', '1f436', '1f98a', '1f43c'],
-    food: ['1f355', '1f354', '1f369', '1f366'], mood: ['1f60e', '1f929', '1f973', '1f607'], nature: ['1f33b', '1f308', '2b50', '1f340']
+    food: ['🍕', '🍔', '🍩', '🍦'], monkeys: ['🙈', '🙉', '🙊', '🐵'], secret: ['🤫', '🔒', '💰', '✨'],
+    pets: ['🐱', '🐶', '🦊', '🐼'], mood: ['😎', '🤩', '🥳', '😇'], nature: ['🌻', '🌈', '⭐', '🍀']
   };
-  let emoSet = 'monkeys'; try { emoSet = localStorage.getItem('emoSet') || emoSet; } catch (e) {} if (!EMO_SETS[emoSet]) emoSet = 'monkeys';
-  const emoImgs = (k) => EMO_SETS[k].map((c) => '<img src="assets/emoji/' + c + '.svg" alt="" draggable="false">').join('');
+  let emoSet = 'food'; try { emoSet = localStorage.getItem('emoSet2') || emoSet; } catch (e) {} if (!EMO_SETS[emoSet]) emoSet = 'food';
+  const emoImgs = (k) => EMO_SETS[k].map((c) => '<span>' + c + '</span>').join('');   // native system emoji
   function setEmo(k) {
-    emoSet = k; try { localStorage.setItem('emoSet', k); } catch (e) {}
+    emoSet = k; try { localStorage.setItem('emoSet2', k); } catch (e) {}
     document.querySelectorAll('.js-emo').forEach((el) => { el.innerHTML = emoImgs(k); });
     document.querySelectorAll('#emoSets button').forEach((b) => b.classList.toggle('on', b.dataset.k === k));
   }
