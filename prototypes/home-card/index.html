@@ -872,6 +872,33 @@
     html.android .phone { --tab-bottom: calc(env(safe-area-inset-bottom, 0px) - 12px); }
     html.android .fab { bottom: calc(50px + 16px + env(safe-area-inset-bottom, 0px)) !important; }
   }
+  /* ===== Context menu on ⋯ (accounts): iOS pull-down menu / Android Material menu ===== */
+  .ctx-layer { position: absolute; inset: 0; z-index: 40; display: none; }
+  .ctx-layer.show { display: block; }
+  .ctx { position: absolute; width: max-content; min-width: 250px; max-width: 320px; overflow: hidden; transform-origin: top right; opacity: 0; transform: scale(.6); transition: opacity .18s ease, transform .32s var(--spring); }
+  .ctx-layer.show .ctx.in { opacity: 1; transform: none; }
+  .ctx-i { position: relative; display: flex; align-items: center; width: 100%; text-align: left; color: var(--tint-primary); font: inherit; white-space: nowrap; }
+  .ctx-i svg { flex: none; width: 22px; height: 22px; }
+  .ctx-i:active { background: rgba(120,120,128,.16); }
+  /* iOS: translucent material, 17px rows, icon on the right, hairline separators */
+  .ctx.ios { border-radius: 22px; background: rgba(246,246,246,.82); -webkit-backdrop-filter: blur(30px) saturate(180%); backdrop-filter: blur(30px) saturate(180%);
+             box-shadow: 0 12px 40px rgba(0,0,0,.18), 0 0 0 .5px rgba(0,0,0,.06); }
+  .ctx.ios .ctx-i { min-height: 52px; padding: 0 18px 0 20px; gap: 12px; font-size: 17px; line-height: 22px; }
+  .ctx.ios .ctx-i span { flex: 1; }
+  .ctx.ios .ctx-i + .ctx-i::before { content: ''; position: absolute; left: 20px; right: 0; top: 0; height: .5px; background: rgba(60,60,67,.29); }
+  /* Android (Material 3): solid surface, 48px rows, leading icon, no separators, opens over the anchor */
+  .ctx.android { min-width: 200px; border-radius: 4px; padding: 8px 0; background: var(--surface-baseline);
+                 box-shadow: 0 2px 6px 2px rgba(0,0,0,.15), 0 1px 2px rgba(0,0,0,.3); transform: scaleY(.5) scaleX(.9); transition: opacity .15s, transform .22s var(--ease); }
+  .ctx.android .ctx-i { min-height: 48px; padding: 0 12px; gap: 12px; font-family: Roboto, system-ui, sans-serif; font-size: 14px; line-height: 20px; letter-spacing: .1px; }
+  .ctx.android .ctx-i:active { background: rgba(43,45,52,.1); }
+  html.theme-dark .ctx.ios { background: rgba(37,37,40,.82); box-shadow: 0 12px 40px rgba(0,0,0,.5), 0 0 0 .5px rgba(255,255,255,.08); }
+  html.theme-dark .ctx.ios .ctx-i + .ctx-i::before { background: rgba(84,84,88,.6); }
+  html.theme-dark .ctx.android { background: #404248; }
+  /* Accounts hidden from home stay in «Усі рахунки», dimmed, with a label */
+  .aa-w.is-hidden .aa-acc .tx, .aa-w.is-hidden .aa-card { opacity: .5; }
+  .aa-hid-tag { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 12px; line-height: 16px; color: var(--tint-secondary); }
+  .aa-hid-tag svg { width: 14px; height: 14px; }
+
   /* ===== Dark theme (?theme=dark) — UDS RB Theme 3.8.0, mode Dark ===== */
   html.theme-dark .phone {
     --surface-background: #2B2D34; --surface-baseline: #35373C; --surface-inverted: #EAEAEB;
@@ -979,7 +1006,7 @@
     <div class="nav-detail">
       <button class="glass icon-btn" id="collapse" aria-label="Закрити деталі картки"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2B2D34" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <span class="nav-title" id="title"></span>
-      <button class="glass icon-btn" aria-label="Більше дій"><svg width="22" height="22" viewBox="0 0 24 24" fill="#2B2D34" aria-hidden="true"><circle cx="6" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18" cy="12" r="1.8"/></svg></button>
+      <button class="glass icon-btn" id="detailMore" aria-label="Більше дій"><svg width="22" height="22" viewBox="0 0 24 24" fill="#2B2D34" aria-hidden="true"><circle cx="6" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18" cy="12" r="1.8"/></svg></button>
     </div>
   </div>
 
@@ -1158,6 +1185,7 @@
     </div>
   </section>
 
+  <div class="ctx-layer" id="ctx"><div class="ctx" role="menu" id="ctxMenu"></div></div>
   <div class="aa-dim" id="aaDim" aria-hidden="true"></div>
   <section class="aa" id="aa" role="dialog" aria-label="Усі рахунки" aria-hidden="true">
     <div class="aa-scroll" id="aaScroll">
@@ -2218,19 +2246,28 @@
     document.getElementById('aaHidden').textContent = n ? 'Приховано: ' + n + ' ' + plural(n) : '';
   }
   function renderAll() {
-    const items = list().map((acc, i) => ({ acc, i })).concat((AA_EXTRA[state.profile] || []).map((acc, j) => ({ acc, x: j })));
+    const items = list().map((acc, i) => ({ acc, i })).concat((HIDDEN[state.profile] || []).map((o, h) => ({ acc: o.acc, h })))
+      .concat((AA_EXTRA[state.profile] || []).map((acc, j) => ({ acc, x: j })));
     const html = AA_CUR.map((c) => {
       const inCur = items.filter(({ acc }) => (acc.cur || '₴') === c.k);
       if (!inCur.length) return '';
       const closed = aaClosed.has(c.g);
       return '<button class="aa-sec' + (closed ? ' closed' : '') + '" data-g="' + c.g + '"><span class="fl"><img src="assets/' + c.fl + '" width="20" height="15" alt=""></span><b>' + c.t + '</b><img class="chev" src="assets/aa-hide.svg" alt=""></button>' +
-        '<div class="aa-group' + (closed ? ' closed' : '') + '" data-g="' + c.g + '"><div>' + inCur.map(({ acc, i, x }) => x !== undefined
+        '<div class="aa-group' + (closed ? ' closed' : '') + '" data-g="' + c.g + '"><div>' + inCur.map(({ acc, i, x, h }) => h !== undefined ? hiddenHTML(acc, h) : x !== undefined
           ? '<div class="aa-w"><div class="wr" data-x="' + x + '"><div class="aa-acc"><div class="tx">' + money(acc.value, acc.cur) + '<div class="cap">' + acc.name + ' • ' + maskIban(acc.title) + '</div></div>' +
             '<button class="more" aria-label="Дії з рахунком"><img src="assets/aa-more.svg" width="20" height="20" alt=""></button></div></div></div>'
           : accHTML(acc, i)).join('') + '</div></div>';
     }).join('') + '<div class="aa-hidden" id="aaHidden"></div>';
     document.getElementById('aaList').innerHTML = html;
     aaHiddenText();
+  }
+  // Account hidden from home: same block, dimmed, not draggable, ⋯ offers «Показати на головній»
+  function hiddenHTML(acc, h) {
+    const cap = (acc.accName || acc.name) + ' • ' + maskIban(acc.title);
+    const rows = acc.kind === 'account' ? '' : '<div class="aa-card"><img class="mini" src="' + miniOf(acc) + '" alt=""><span class="tx"><b>' + acc.name + (acc.curTag ? ' ' + acc.curTag : '') + '</b><span>•••• ' + acc.pan[3] + '</span></span></div>';
+    return '<div class="aa-w is-hidden"><div class="wr" data-h="' + h + '"><div class="aa-acc"><div class="tx">' + money(acc.value, acc.cur) + '<div class="cap">' + cap + '</div>' +
+      '<div class="aa-hid-tag">' + ICO.eyeOff + 'Приховано на головній</div></div>' +
+      '<button class="more" aria-label="Дії з рахунком"><img src="assets/aa-more.svg" width="20" height="20" alt=""></button></div>' + rows + '</div></div>';
   }
   function accHTML(acc, i) {
     return [acc].map((acc) => {
@@ -2284,7 +2321,13 @@
       if (closed) aaClosed.add(g); else aaClosed.delete(g);
       aaHiddenText(); setTimeout(aaFootState, 380); return;
     }
-    if (e.target.closest('.more')) { toast('Дії з рахунком — наступний крок'); return; }
+    const more = e.target.closest('.more');
+    if (more) {
+      const iEl = more.closest('[data-i]'), xEl = more.closest('[data-x]'), hEl = more.closest('[data-h]');
+      openCtx(more, iEl ? { i: +iEl.dataset.i } : hEl ? { h: +hEl.dataset.h } : { x: +xEl.dataset.x });
+      return;
+    }
+    if (e.target.closest('[data-h]')) { toast('Рахунок приховано на головній — поверніть через ⋯'); return; }
     if (e.target.closest('[data-x]')) { toast('Рахунок без картки — наступний крок'); return; }
     if (e.target.closest('.aa-add')) { toast('Нова картка до рахунку — наступний крок'); return; }
     if (e.target.closest('[data-ghost]')) { showAll(false); setTimeout(() => go(list().findIndex((x) => x.ghost)), 300); return; }
@@ -2292,6 +2335,74 @@
     if (row) { const i = +row.dataset.i; showAll(false); setTimeout(() => go(i), 300); }
   });
   aa.querySelector('.btn-acc').addEventListener('click', () => toast('Відкриття нового рахунку — наступний крок'));
+
+  // ===== Context menu for accounts (⋯ in «Усі рахунки» and in card details) =====
+  const HIDDEN = { personal: [], business: [] };          // accounts hidden from home: { acc, at }
+  const ICO = {
+    copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="8.5" y="8.5" width="11.5" height="11.5" rx="2"/><path d="M15.5 8.5V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7.5a2 2 0 0 0 2 2h2.5"/></svg>',
+    share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3.5M7.5 8 12 3.5 16.5 8"/><path d="M5 11.5V19a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7.5"/></svg>',
+    docs: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="3" width="13" height="16" rx="2"/><path d="M10.5 8h6M10.5 11.5h6M10.5 15h3.5"/><path d="M4 7v12a2 2 0 0 0 2 2h9"/></svg>',
+    eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>',
+    eyeOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/><path d="M4 4l16 16"/></svg>'
+  };
+  const ctxLayer = document.getElementById('ctx'), ctxMenu = document.getElementById('ctxMenu');
+  let ctxTarget = null, ctxScroll0 = 0;
+  function ctxAcc(t) { return t.i !== undefined ? list()[t.i] : t.h !== undefined ? HIDDEN[state.profile][t.h].acc : AA_EXTRA[state.profile][t.x]; }
+  function openCtx(anchor, target) {
+    ctxTarget = target; ctxScroll0 = aaScroll.scrollTop;
+    const android = document.documentElement.classList.contains('android');
+    const items = [['copy', 'Копіювати IBAN', 'copy'], ['share', 'Реквізити рахунку', 'share'], ['docs', 'Виписка за рахунком', 'docs']];
+    if (target.h !== undefined) items.push(['show', 'Показати на головній', 'eye']);
+    else if (target.i !== undefined) items.push(['hide', 'Приховати на головній', 'eyeOff']);
+    ctxMenu.className = 'ctx ' + (android ? 'android' : 'ios');
+    ctxMenu.innerHTML = items.map(([a, t, ic]) => '<button class="ctx-i" role="menuitem" data-a="' + a + '">' + (android ? ICO[ic] + '<span>' + t + '</span>' : '<span>' + t + '</span>' + ICO[ic]) + '</button>').join('');
+    ctxLayer.classList.add('show');
+    const ph = phone.getBoundingClientRect(), a = anchor.getBoundingClientRect(), h = ctxMenu.offsetHeight, w = ctxMenu.offsetWidth;
+    const right = Math.min(ph.right - 8, a.right + (android ? 0 : 4)) - ph.left;
+    let top = android ? a.top - ph.top : a.bottom - ph.top + 6;
+    let up = false;
+    if (top + h > ph.height - 24) { top = (android ? a.bottom - ph.top : a.top - ph.top - 6) - h; up = true; }
+    ctxMenu.style.left = Math.max(8, right - w) + 'px'; ctxMenu.style.top = Math.max(8, top) + 'px';
+    ctxMenu.style.transformOrigin = (up ? 'bottom' : 'top') + ' right';
+    requestAnimationFrame(() => ctxMenu.classList.add('in'));
+    if (navigator.vibrate) navigator.vibrate(8);
+  }
+  function closeCtx() { ctxMenu.classList.remove('in'); setTimeout(() => ctxLayer.classList.remove('show'), 180); }
+  ctxLayer.addEventListener('click', (e) => {
+    const it = e.target.closest('.ctx-i'); if (!it) { closeCtx(); return; }
+    const t = ctxTarget, acc = ctxAcc(t), name = acc.accName || acc.name; closeCtx();
+    const act = it.dataset.a;
+    if (act === 'copy') { const iban = acc.iban || acc.title; try { navigator.clipboard && navigator.clipboard.writeText(iban); } catch (err) {} toast('IBAN скопійовано'); }
+    else if (act === 'share') toast('Реквізити рахунку «' + name + '» — наступний крок');
+    else if (act === 'docs') toast('Виписка за рахунком «' + name + '» — наступний крок');
+    else if (act === 'hide') setTimeout(() => hideHome(t.i), 120);
+    else if (act === 'show') setTimeout(() => showHome(t.h), 120);
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && ctxLayer.classList.contains('show')) { e.stopImmediatePropagation(); closeCtx(); } }, true);
+  aaScroll.addEventListener('scroll', () => { if (ctxLayer.classList.contains('show') && Math.abs(aaScroll.scrollTop - ctxScroll0) > 12) closeCtx(); }, { passive: true });
+  function refreshAfterHomeChange(L, keep) {
+    build(); state.idx = Math.max(0, Math.min(L.length - 1, keep)); state.sub = 0; state.flipped = false; render();
+    if (aa.classList.contains('show')) { const y = aaScroll.scrollTop; renderAll(); aaScroll.scrollTop = y; }
+  }
+  function hideHome(i) {
+    const L = list();
+    if (L.filter((a) => !a.ghost).length <= 1) { toast('На головній має лишитися хоча б один рахунок'); return; }
+    const doHide = () => {
+      const acc = L[i], curAcc = L[state.idx];
+      L.splice(i, 1); HIDDEN[state.profile].push({ acc, at: i });
+      refreshAfterHomeChange(L, acc === curAcc ? Math.min(i, L.length - 1) : L.indexOf(curAcc));
+      toast('«' + (acc.accName || acc.name) + '» приховано на головній');
+    };
+    if (state.open) { setOpen(false); setTimeout(doHide, 420); } else doHide();
+  }
+  function showHome(h) {
+    const L = list(), { acc, at } = HIDDEN[state.profile].splice(h, 1)[0], curAcc = L[state.idx];
+    const ghostAt = L.findIndex((a) => a.ghost);
+    L.splice(Math.min(at, ghostAt >= 0 ? ghostAt : L.length), 0, acc);
+    refreshAfterHomeChange(L, L.indexOf(curAcc));
+    toast('«' + (acc.accName || acc.name) + '» знову на головній');
+  }
+  document.getElementById('detailMore').addEventListener('click', (e) => { e.stopPropagation(); if (!cur().ghost) openCtx(e.currentTarget, { i: state.idx }); });
 
   // ===== Drag & drop: long press an account, move it within its currency group → new order on home =====
   const aaListEl = document.getElementById('aaList');

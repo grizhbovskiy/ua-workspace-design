@@ -422,3 +422,20 @@ Mobbin MCP підключений для референсів (може бути
 - **Scope:** reordering works within a currency group. Only accounts that have a card on home can be moved; the ghost offer and card-less accounts stay where they are.
 - **Effect on home:** the new order is applied to the home carousel right away. The currently open card stays selected, and a toast confirms the change.
 - **Gesture conflicts:** moving more than 8 px before the hold completes is treated as a scroll. A short tap still opens the account, and ★ / ⋯ / «Нова картка» keep working.
+
+## 14. Account context menu (⋯) and «Приховати на головній»
+
+- **Where:** ⋯ on every account in «Усі рахунки» and ⋯ in the card-details navbar open a native-style menu:
+  - Копіювати IBAN: copies the full IBAN and shows a toast.
+  - Реквізити рахунку: toast stub for now.
+  - Виписка за рахунком: toast stub for now.
+  - Приховати на головній / Показати на головній.
+- **iOS menu:** pull-down menu on a translucent material, 22 px radius, 52 px rows with 17 px text and the icon on the right, hairline separators. It opens below the button (above it near the bottom) with a spring scale.
+- **Android menu:** Material 3 menu on a solid surface, 4 px radius, elevation shadow, 48 px rows with a leading icon and 14 px text, no separators. It opens over the anchor.
+- **Dark theme:** the iOS material turns dark; the Android menu uses Surface / Modal `#404248`.
+- **Приховати на головній:** removes the account from the home carousel.
+  - Not allowed for the last remaining account.
+  - From card details, the details close first.
+  - In «Усі рахунки» the account stays in its currency group: dimmed, labelled «👁̸ Приховано на головній», not draggable.
+  - Its ⋯ menu then shows **Показати на головній** with the open-eye icon. This puts the account back on home at its previous position, before the ghost offer.
+- **Closing the menu:** tap outside, Esc, or scrolling the list.
