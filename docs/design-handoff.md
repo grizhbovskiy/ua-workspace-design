@@ -411,7 +411,21 @@ Mobbin MCP підключений для референсів (може бути
   - **Other sets in the panel:** Мавпочки, Секрет, Звірята, Настрій, Природа.
 - **Dark theme, home sheet:** the sheet takes the widget colour, Surface / Baseline `#35373C`. Widgets on it step up to Surface / Foreground `#404248`.
 - **Control panel:** scrolls when it is taller than the window.
-- **Dark theme, operation icon** (e.g. «Переказ на рахунок»): uses DS Avatar · Default · Subtle. The circle is Surface / Elevation (Light `#9C967F` @ 10% → Dark `#AAABAE` @ 20%) and the glyph is Tint / Primary. Merchant brand logos keep their own colours.
+- **Dark theme, category icons** (operation icons such as «Переказ на рахунок» and «Кафе та ресторани», plus the beige and blue squircles in card details and limits): these are DS Squircle · Infographic · Subtle swatches, and each has its own dark-mode value. Merchant brand logos keep their own colours.
+
+  | Infographic swatch | Light | Dark |
+  |---|---|---|
+  | 01 | `#FEF384` | `#EECF4A` |
+  | 02 | `#D2F1E5` | `#94E5C8` |
+  | 03 | `#FFDBD2` | `#FFB69D` |
+  | 04 | `#E9E1FC` | `#CEBFEE` |
+  | 05 | `#FFE6A5` | `#FFC650` |
+  | 06 | `#CDEEFA` | `#88E1FC` |
+  | 07 | `#D9F5C8` | `#A6E985` |
+  | 08 | `#FDDCDC` | `#FFB3B3` |
+  | 09 | `#EEE8CD` | `#CECAB3` |
+  | 10 | `#F3B575` | `#FFD3B1` |
+- **Current accounts (Поточний рахунок):** no «Нова картка до рахунку» row in «Усі рахунки», because cards are not issued to current accounts.
 - **Dark theme, card-details nav tiles** («Надіслати реквізити», «Деталі рахунку», «Виписка»): the glyph is Tint / Primary `#F9F9F9` and the accent is Tint / Action `#FEE600` instead of blue (`dt-*-dk.svg`).
 
 ## 13. Усі рахунки: drag & drop to reorder

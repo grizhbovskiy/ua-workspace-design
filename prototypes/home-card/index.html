@@ -938,9 +938,10 @@
   html.theme-dark img[src$="dt-pdf.svg"] { content: url(assets/dt-pdf-dk.svg); }
   html.theme-dark img[src$="dt-case.svg"] { content: url(assets/dt-case-dk.svg); }
   html.theme-dark img[src$="dt-docs.svg"] { content: url(assets/dt-docs-dk.svg); }
-  /* Operation icon = DS Avatar · Default · Subtle: Surface / Elevation (Dark #AAABAE @ 20%), glyph Tint / Primary */
-  html.theme-dark .merchant.is-icon { background: rgba(170,171,174,.2) !important; }
-  html.theme-dark .merchant.is-icon img[src$="ic-bank.svg"] { filter: brightness(0) invert(.98); }
+  /* Category squircles = DS Squircle · Infographic · Subtle (dark-mode values) */
+  html.theme-dark img[src$="dt-sq.svg"] { content: url(assets/dt-sq-dk.svg); }
+  html.theme-dark img[src$="limits-squircle.svg"] { content: url(assets/limits-squircle-dk.svg); }
+  html.theme-dark img[src$="dt-sq-blue.svg"] { content: url(assets/dt-sq-blue-dk.svg); }
   /* Tint / On Accent stays dark on yellow surfaces */
   html.theme-dark .badge-biz, html.theme-dark .activate-pill, html.theme-dark .aa-foot .btn-acc, html.theme-dark .cta,
   html.theme-dark .rea-cta, html.theme-dark .rea-q, html.theme-dark .rea-send { color: #2B2D34; }
@@ -1565,8 +1566,11 @@
       if (c.tx.logo) logo.src = 'assets/' + c.tx.logo;
       else { logo.removeAttribute('src'); wrap.classList.add('no-logo'); }
       document.getElementById('txLogo').alt = c.tx.name;
-      document.getElementById('txLogoWrap').style.background = c.tx.bg;
-      document.getElementById('txLogoWrap').classList.toggle('is-icon', !!c.tx.logo);   // DS Avatar · Default · Subtle
+      // Category icons use the DS Infographic · Subtle palette; in dark mode each swatch has its own value
+      const INFO_DARK = { FEF384: '#EECF4A', D2F1E5: '#94E5C8', FFDBD2: '#FFB69D', E9E1FC: '#CEBFEE', FFE6A5: '#FFC650', CDEEFA: '#88E1FC', D9F5C8: '#A6E985', FDDCDC: '#FFB3B3', EEE8CD: '#CECAB3', F3B575: '#FFD3B1' };
+      const dk = document.documentElement.classList.contains('theme-dark');
+      document.getElementById('txLogoWrap').style.background = (c.tx.logo && dk && INFO_DARK[(c.tx.bg || '').slice(1).toUpperCase()]) || c.tx.bg;
+      document.getElementById('txLogoWrap').classList.toggle('is-icon', !!c.tx.logo);   // category icon (Squircle · Infographic · Subtle colours)
       document.getElementById('txName').textContent = c.tx.name;
       document.getElementById('txCat').textContent = c.tx.cat;
       document.getElementById('txAmount').textContent = c.tx.amount;
@@ -2288,7 +2292,7 @@
         '<div class="aa-acc" data-i="' + i + '"><div class="tx">' + money(acc.value, acc.cur) + '<div class="cap">' + cap + '</div></div>' +
         '<button class="more" aria-label="Дії з рахунком"><img src="assets/aa-more.svg" width="20" height="20" alt=""></button></div>' +
         rows +
-        '<button class="aa-add"><img src="assets/aa-add.svg" alt="">Нова картка до рахунку</button></div></div>';
+        (isAcct ? '' : '<button class="aa-add"><img src="assets/aa-add.svg" alt="">Нова картка до рахунку</button>') + '</div></div>';   // no cards are issued to current accounts
     }).join('');
   }
   // Make the extra card the main card of its account (swap card fields with the account's own card)
